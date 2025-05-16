@@ -23,7 +23,8 @@ export const ProjectWizard = () => {
     handleNext,
     handlePrevious,
     handleSubmit,
-    handleSaveDraft
+    handleSaveDraft,
+    validateTmkFormat
   } = useProjectWizard();
 
   return (
@@ -100,6 +101,7 @@ export const ProjectWizard = () => {
                 type="button" 
                 onClick={handleNext}
                 disabled={
+                  (currentStep === 0 && (!formData.name || !formData.tmk || !validateTmkFormat(formData.tmk))) ||
                   (currentStep === 1 && (!formData.district || !formData.lotArea))
                 }
               >

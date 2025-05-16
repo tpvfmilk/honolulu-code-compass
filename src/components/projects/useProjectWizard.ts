@@ -19,6 +19,12 @@ export const useProjectWizard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // TMK validation function
+  const validateTmkFormat = (tmk: string): boolean => {
+    const tmkPattern = /^\d-\d-\d{3}:\d{3}$/;
+    return tmkPattern.test(tmk);
+  };
+
   const updateFormData = (key: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
 
@@ -131,6 +137,28 @@ export const useProjectWizard = () => {
   };
 
   const handleNext = () => {
+    // For the Project Info step, validate TMK format before proceeding
+    if (currentStep === 0) {
+      if (!formData.name || !formData.tmk || !validateTmkFormat(formData.tmk)) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please ensure all required fields are filled correctly."
+        });
+        return;
+      }
+    }
+    
+    // For the Zoning Info step, validate district and lot area
+    if (currentStep === 1 && (!formData.district || !formData.lotArea)) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please select a zoning district and enter lot area."
+      });
+      return;
+    }
+    
     if (currentStep < wizardSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -174,6 +202,7 @@ export const useProjectWizard = () => {
     handleNext,
     handlePrevious,
     handleSubmit,
-    handleSaveDraft
+    handleSaveDraft,
+    validateTmkFormat
   };
 };

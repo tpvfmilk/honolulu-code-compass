@@ -1,3 +1,4 @@
+
 import { 
   Card,
   CardHeader,
@@ -98,7 +99,7 @@ export const BuildingSystemsSection = ({ formData, updateFormData }: BuildingSys
               } 
             />
             <Label htmlFor="highRise" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              High-Rise Building (>75 feet)
+              High-Rise Building (&gt;75 feet)
             </Label>
           </div>
           

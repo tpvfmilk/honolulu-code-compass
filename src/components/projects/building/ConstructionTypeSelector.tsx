@@ -10,7 +10,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { InfoCircle } from "lucide-react";
+import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { constructionTypes, ConstructionType } from "../types";
 
@@ -27,7 +27,7 @@ export const ConstructionTypeSelector = ({ value, onChange }: ConstructionTypeSe
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <InfoCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent className="max-w-80">
               <p>Determines fire resistance and allowable heights/areas (IBC Chapter 6)</p>

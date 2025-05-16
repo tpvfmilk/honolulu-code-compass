@@ -10,6 +10,10 @@ import Index from "./pages/Index";
 import ProjectCreate from "./pages/ProjectCreate";
 import ProjectView from "./pages/ProjectView";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import CodeSheetPreview from "./pages/CodeSheetPreview";
+import Profile from "./pages/Profile";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +35,10 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/projects/new" element={<ProjectCreate onLogout={handleLogout} />} />
               <Route path="/projects/:id" element={<ProjectView onLogout={handleLogout} />} />
+              <Route path="/admin" element={<AdminDashboard onLogout={handleLogout} />} />
+              <Route path="/projects/:id/preview" element={<CodeSheetPreview onLogout={handleLogout} />} />
+              <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
+              <Route path="/help" element={<Help onLogout={handleLogout} />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -57,9 +57,12 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
     isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
 
   return (
-    <Sidebar className={sidebar.collapsed ? "w-14" : "w-60"} collapsible>
-      <div className={`p-4 border-b flex ${sidebar.collapsed ? "justify-center" : "justify-between"} items-center`}>
-        {!sidebar.collapsed && (
+    <Sidebar 
+      className={sidebar.state === "collapsed" ? "w-14" : "w-60"} 
+      collapsible="icon"
+    >
+      <div className={`p-4 border-b flex ${sidebar.state === "collapsed" ? "justify-center" : "justify-between"} items-center`}>
+        {sidebar.state !== "collapsed" && (
           <div className="font-semibold text-primary">HI Code Compliance</div>
         )}
         <SidebarTrigger />
@@ -74,7 +77,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/" end className={getNavCls}>
                     <Home className="mr-2 h-4 w-4" />
-                    {!sidebar.collapsed && <span>Dashboard</span>}
+                    {sidebar.state !== "collapsed" && <span>Dashboard</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -82,7 +85,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/projects" className={getNavCls}>
                     <FileText className="mr-2 h-4 w-4" />
-                    {!sidebar.collapsed && <span>Projects</span>}
+                    {sidebar.state !== "collapsed" && <span>Projects</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,7 +101,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/settings" className={getNavCls}>
                     <Settings className="mr-2 h-4 w-4" />
-                    {!sidebar.collapsed && <span>Settings</span>}
+                    {sidebar.state !== "collapsed" && <span>Settings</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -106,7 +109,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/team" className={getNavCls}>
                     <Users className="mr-2 h-4 w-4" />
-                    {!sidebar.collapsed && <span>Team</span>}
+                    {sidebar.state !== "collapsed" && <span>Team</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -114,7 +117,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <Button variant="ghost" className="w-full justify-start" onClick={onLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    {!sidebar.collapsed && <span>Logout</span>}
+                    {sidebar.state !== "collapsed" && <span>Logout</span>}
                   </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>

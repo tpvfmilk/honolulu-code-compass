@@ -33,7 +33,7 @@ export const MixedOccupancyConfiguration = ({
   const addSecondaryOccupancy = () => {
     const newSecondaryOccupancies = [
       ...secondaryOccupancies,
-      { group: "", area: "", floorLevel: "1" }
+      { group: "" as OccupancyGroup | "", area: "", floorLevel: "1" }
     ];
     onSecondaryOccupanciesChange(newSecondaryOccupancies);
   };

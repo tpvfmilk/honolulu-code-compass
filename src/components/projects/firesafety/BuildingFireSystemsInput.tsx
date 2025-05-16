@@ -101,7 +101,7 @@ export const BuildingFireSystemsInput = ({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="max-w-80">
-                <p>Required by IBC 905 for buildings with floors >30' above lowest fire department access</p>
+                <p>Required by IBC 905 for buildings with floors greater than 30&apos; above lowest fire department access</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

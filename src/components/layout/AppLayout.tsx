@@ -1,5 +1,5 @@
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -48,7 +48,7 @@ export const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
 };
 
 const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
-  const { collapsed } = useSidebar();
+  const sidebar = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -57,16 +57,16 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
     isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible>
-      <div className={`p-4 border-b flex ${collapsed ? "justify-center" : "justify-between"} items-center`}>
-        {!collapsed && (
+    <Sidebar className={sidebar.collapsed ? "w-14" : "w-60"} collapsible>
+      <div className={`p-4 border-b flex ${sidebar.collapsed ? "justify-center" : "justify-between"} items-center`}>
+        {!sidebar.collapsed && (
           <div className="font-semibold text-primary">HI Code Compliance</div>
         )}
         <SidebarTrigger />
       </div>
 
       <SidebarContent>
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -74,7 +74,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/" end className={getNavCls}>
                     <Home className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Dashboard</span>}
+                    {!sidebar.collapsed && <span>Dashboard</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -82,7 +82,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/projects" className={getNavCls}>
                     <FileText className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Projects</span>}
+                    {!sidebar.collapsed && <span>Projects</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,7 +98,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/settings" className={getNavCls}>
                     <Settings className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Settings</span>}
+                    {!sidebar.collapsed && <span>Settings</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -106,7 +106,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/team" className={getNavCls}>
                     <Users className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Team</span>}
+                    {!sidebar.collapsed && <span>Team</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -114,7 +114,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <Button variant="ghost" className="w-full justify-start" onClick={onLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Logout</span>}
+                    {!sidebar.collapsed && <span>Logout</span>}
                   </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>

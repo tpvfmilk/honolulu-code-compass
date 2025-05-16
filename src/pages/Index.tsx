@@ -42,70 +42,20 @@ const MOCK_PROJECTS: Project[] = [
 ];
 
 const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Always authenticated for now
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    // Still have the function but we won't use it to actually log out for now
+    console.log("Logout functionality disabled");
+    // Not setting isAuthenticated to false for now
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <header className="border-b py-6 px-6">
-          <div className="max-w-5xl mx-auto">
-            <h1 className="text-2xl font-bold text-primary">Hawaii Building Code Compliance</h1>
-          </div>
-        </header>
-        
-        <div className="flex flex-1 flex-col md:flex-row py-8">
-          <div className="w-full md:w-1/2 px-6 py-8 flex items-center justify-center">
-            <div className="max-w-md">
-              <h1 className="text-3xl font-bold mb-6">Simplify Code Compliance for Hawaii Building Projects</h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Save time and reduce errors with our specialized platform for architects and engineers in Hawaii.
-              </p>
-              <div className="space-y-4">
-                <div className="flex gap-3 items-start">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm mt-0.5">✓</div>
-                  <div>
-                    <p className="font-medium">Generate code sheets in minutes, not hours</p>
-                    <p className="text-sm text-muted-foreground">Complete basic compliance sheets in 5-7 minutes</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 items-start">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm mt-0.5">✓</div>
-                  <div>
-                    <p className="font-medium">Real-time compliance checking</p>
-                    <p className="text-sm text-muted-foreground">Instant visual feedback on zoning requirements</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 items-start">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm mt-0.5">✓</div>
-                  <div>
-                    <p className="font-medium">Professional PDF generation</p>
-                    <p className="text-sm text-muted-foreground">Ready for permit submission with your firm's branding</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="w-full md:w-1/2 bg-card p-6 flex items-center justify-center">
-            <AuthForm onSuccess={handleLogin} />
-          </div>
-        </div>
-        
-        <footer className="border-t py-4 px-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Hawaii Building Code Compliance Platform
-        </footer>
-      </div>
-    );
-  }
-
+  // Login form is now bypassed
   return (
     <AppLayout onLogout={handleLogout}>
       <div className="space-y-6">

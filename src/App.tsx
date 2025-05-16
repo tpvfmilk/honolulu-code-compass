@@ -25,7 +25,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <SidebarProvider collapsedWidth={56}>
+        <SidebarProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

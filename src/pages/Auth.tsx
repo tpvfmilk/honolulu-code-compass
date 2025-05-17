@@ -18,8 +18,13 @@ const Auth = ({ onLogout }: AuthProps) => {
     navigate("/profile");
   };
 
+  // Create a wrapper function that calls onLogout without exposing its async nature
+  const wrappedLogout = () => {
+    onLogout();
+  };
+
   return (
-    <AppLayout onLogout={onLogout}>
+    <AppLayout onLogout={wrappedLogout}>
       <div className="max-w-md mx-auto mt-8">
         <h1 className="text-2xl font-bold mb-6">Sign In or Sign Up</h1>
         <AuthForm onSuccess={handleAuthSuccess} />

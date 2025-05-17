@@ -83,6 +83,14 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
+                  <NavLink to="/projects" className={getNavCls}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>My Projects</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
                   <NavLink to="/project/new" className={getNavCls}>
                     <FileText className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>New Project</span>}

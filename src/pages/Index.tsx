@@ -63,7 +63,7 @@ const Index: FC<IndexProps> = ({ onLogout }) => {
                   <Link to="/project/new">New Project</Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link to="/profile">View Projects</Link>
+                  <Link to="/projects">View Projects</Link>
                 </Button>
               </div>
             </CardContent>

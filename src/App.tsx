@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import ProjectCreate from "./pages/ProjectCreate";
 import ProjectView from "./pages/ProjectView";
+import ProjectsList from "./pages/ProjectsList";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -103,6 +104,10 @@ function AppRoutes() {
       <Route 
         path="/profile" 
         element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
+      />
+      <Route 
+        path="/projects" 
+        element={session ? <ProjectsList onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
       />
       <Route 
         path="/project/new" 

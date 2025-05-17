@@ -19,18 +19,19 @@ import { useToast } from "@/components/ui/use-toast";
 
 type AppLayoutProps = {
   children: ReactNode;
-  onLogout: () => void;
+  onLogout: (() => void) | (() => Promise<void>);
 };
 
 export const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
   const { toast } = useToast();
   
-  const handleLogout = () => {
+  const handleLogout = async () => {
     toast({
       title: "Logged out",
       description: "You have been logged out successfully",
     });
-    onLogout();
+    
+    await Promise.resolve(onLogout());
   };
 
   return (
@@ -47,7 +48,7 @@ export const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
   );
 };
 
-const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
+const AppSidebar = ({ onLogout }: { onLogout: (() => void) | (() => Promise<void>) }) => {
   const sidebar = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;

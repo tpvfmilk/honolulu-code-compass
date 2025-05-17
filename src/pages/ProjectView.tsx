@@ -13,11 +13,12 @@ interface Project {
   client_name: string;
   property_owner: string;
   status: string;
-  project_type: string;
+  project_type: string; // Add missing property
   created_at: string;
   updated_at: string;
   current_step: number;
   is_complete: boolean;
+  user_id?: string;
 }
 
 interface ProjectViewProps {
@@ -43,7 +44,14 @@ const ProjectView = ({ onLogout }: ProjectViewProps) => {
           throw error;
         }
         
-        setProject(data);
+        // Ensure all required fields are present
+        if (data) {
+          const projectData: Project = {
+            ...data,
+            project_type: data.project_type || 'Unknown' // Add default value
+          };
+          setProject(projectData);
+        }
       } catch (error: any) {
         setError(error.message);
       } finally {
@@ -69,7 +77,7 @@ const ProjectView = ({ onLogout }: ProjectViewProps) => {
             <p>{error}</p>
           </div>
         ) : project ? (
-          <ProjectDetail project={project} />
+          <ProjectDetail project={project as any} />
         ) : (
           <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200 text-yellow-700">
             <h2 className="text-xl font-medium mb-2">Project Not Found</h2>

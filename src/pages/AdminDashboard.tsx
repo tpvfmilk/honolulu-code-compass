@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { 
@@ -15,14 +15,43 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  
   const tables = [
     { name: "Fire Ratings", component: FireRatingsTable },
     { name: "Height & Area", component: HeightAreaTable },
     { name: "Zoning Districts", component: ZoningDistrictsTable },
     { name: "Load Factors", component: LoadFactorsTable },
-    { name: "Occupancy Categories", component: PlaceholderTable },
-    { name: "Plumbing Fixtures", component: PlaceholderTable },
-    { name: "Accessibility", component: PlaceholderTable }
+    { 
+      name: "Occupancy Categories", 
+      component: (props: any) => (
+        <PlaceholderTable 
+          {...props} 
+          title="Occupancy Categories" 
+          description="Classification of occupancy types and detailed requirements"
+        />
+      )
+    },
+    { 
+      name: "Plumbing Fixtures", 
+      component: (props: any) => (
+        <PlaceholderTable 
+          {...props} 
+          title="Plumbing Fixtures" 
+          description="Required plumbing fixtures by occupancy type and occupant load"
+        />
+      )
+    },
+    { 
+      name: "Accessibility", 
+      component: (props: any) => (
+        <PlaceholderTable 
+          {...props} 
+          title="Accessibility" 
+          description="ADA and accessibility compliance requirements"
+        />
+      )
+    }
   ];
   
   return (
@@ -33,6 +62,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         <SearchableTable 
           tables={tables}
           defaultTableIndex={0}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
         />
       </div>
     </AppLayout>

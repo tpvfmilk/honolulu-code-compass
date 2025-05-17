@@ -12,7 +12,7 @@ import {
 } from './calculations';
 
 // Re-export the TravelDistances type to fix the import error
-export { TravelDistances };
+export type { TravelDistances };
 
 // Re-export SpaceWithLoad interface
 export interface SpaceWithLoad {

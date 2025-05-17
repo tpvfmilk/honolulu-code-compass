@@ -1,7 +1,11 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
 
-const Help = ({ onLogout }: { onLogout: () => void }) => {
+interface HelpProps {
+  onLogout: () => void;
+}
+
+const Help = ({ onLogout }: HelpProps) => {
   return (
     <AppLayout onLogout={onLogout}>
       <div className="max-w-4xl mx-auto">

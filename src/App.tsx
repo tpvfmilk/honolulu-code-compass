@@ -1,6 +1,5 @@
 
 import {
-  createBrowserRouter,
   RouterProvider,
   useNavigate,
   Routes,
@@ -10,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { useSession, SessionProvider } from "./hooks/useSession";
 import { supabase } from "./integrations/supabase/client";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -69,7 +69,9 @@ function App() {
   return (
     <BrowserRouter>
       <SessionProvider>
-        <AppRoutes />
+        <SidebarProvider>
+          <AppRoutes />
+        </SidebarProvider>
       </SessionProvider>
     </BrowserRouter>
   );

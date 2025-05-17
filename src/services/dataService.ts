@@ -7,89 +7,7 @@ import {
 } from "@/components/admin/types";
 
 // Types
-export type ZoningDistrictData = {
-  id: string;
-  code: string;
-  name: string;
-  description: string | null;
-  min_lot_area: number;
-  max_building_height: number;
-  max_stories: number | null;
-  front_setback: number;
-  side_setback: number;
-  rear_setback: number;
-  max_lot_coverage: number;
-  max_far: number | null;
-};
-
-export type ConstructionTypeData = {
-  id: string;
-  code: string;
-  name: string;
-  description: string | null;
-};
-
-export type OccupancyGroupData = {
-  id: string;
-  code: string;
-  name: string;
-  description: string | null;
-};
-
-export type SpaceTypeData = {
-  id: string;
-  code: string;
-  name: string;
-  description: string | null;
-  occupancy_group_id: string;
-  occupant_load_factor: number;
-};
-
-export type HeightAreaLimitData = {
-  id: string;
-  construction_type_id: string;
-  occupancy_group_id: string;
-  max_height_ft: number;
-  max_stories: number;
-  base_allowable_area: number;
-  sprinkler_increase_allowed: boolean;
-};
-
-export type FireRatingData = {
-  id: string;
-  construction_type_id: string;
-  structural_frame: number;
-  bearing_walls_exterior: number;
-  bearing_walls_interior: number;
-  nonbearing_walls_exterior: number;
-  nonbearing_walls_interior: number;
-  floor_construction: number;
-  roof_construction: number;
-};
-
-export type LoadFactorData = {
-  id: string;
-  occupancy_group_id: string;
-  space_type: string;
-  load_factor: number;
-  description: string;
-};
-
-export type TravelDistanceData = {
-  id: string;
-  occupancy_group_id: string;
-  sprinklered: boolean;
-  max_travel_distance_ft: number;
-  max_common_path_ft: number;
-  max_dead_end_ft: number;
-};
-
-export type SeparationData = {
-  id: string;
-  from_occupancy_id: string;
-  to_occupancy_id: string;
-  required_rating_hours: number;
-};
+export type ZoningDistrictData = ZoningDistrict;
 
 // Project data type
 export type ProjectData = {
@@ -164,7 +82,7 @@ export const updateZoningDistrict = async (district: ZoningDistrict): Promise<Zo
       rear_setback: district.rear_setback,
       max_lot_coverage: district.max_lot_coverage,
       max_far: district.max_far || null,
-      updated_at: new Date()
+      updated_at: new Date().toISOString()
     })
     .eq('id', district.id)
     .select()

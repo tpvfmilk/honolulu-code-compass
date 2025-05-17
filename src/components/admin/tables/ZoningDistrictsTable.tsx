@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -35,20 +34,20 @@ interface ZoningDistrictsTableProps {
 const zoningDistrictSchema = z.object({
   code: z.string().min(1, "Code is required"),
   name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   min_lot_area: z.coerce.number().min(1, "Min lot area must be greater than 0"),
   max_building_height: z.coerce.number().min(1, "Max height must be greater than 0"),
-  max_stories: z.coerce.number().optional(),
+  max_stories: z.coerce.number().nullable(),
   front_setback: z.coerce.number().min(0, "Front setback must be 0 or greater"),
   side_setback: z.coerce.number().min(0, "Side setback must be 0 or greater"),
   rear_setback: z.coerce.number().min(0, "Rear setback must be 0 or greater"),
   max_lot_coverage: z.coerce.number().min(0, "Max lot coverage must be 0 or greater").max(100, "Max lot coverage cannot exceed 100%"),
-  max_far: z.coerce.number().optional(),
+  max_far: z.coerce.number().nullable(),
 });
 
 type ZoningDistrictFormValues = z.infer<typeof zoningDistrictSchema>;
 
-export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDistrictsTableProps) => {
+export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
   const [data, setData] = useState<ZoningDistrictData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<keyof ZoningDistrictData>("code");
@@ -153,25 +152,20 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
   const handleEdit = (id: string) => {
     const district = data.find(item => item.id === id);
     if (district) {
-      setCurrentDistrict({
-        ...district,
-        max_stories: district.max_stories || undefined,
-        max_far: district.max_far || undefined,
-        description: district.description || undefined
-      });
+      setCurrentDistrict(district);
       
       form.reset({
         code: district.code,
         name: district.name,
-        description: district.description || "",
+        description: district.description || null,
         min_lot_area: district.min_lot_area,
         max_building_height: district.max_building_height,
-        max_stories: district.max_stories || undefined,
+        max_stories: district.max_stories || null,
         front_setback: district.front_setback,
         side_setback: district.side_setback,
         rear_setback: district.rear_setback,
         max_lot_coverage: district.max_lot_coverage,
-        max_far: district.max_far || undefined,
+        max_far: district.max_far || null,
       });
       
       setIsFormOpen(true);
@@ -198,7 +192,7 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
       if (currentDistrict) {
         // Update existing record
         const updated = await updateZoningDistrict({
-          id: currentDistrict.id,
+          ...currentDistrict,
           ...values
         });
         
@@ -210,7 +204,7 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
         }
       } else {
         // Create new record
-        const created = await createZoningDistrict(values);
+        const created = await createZoningDistrict(values as Omit<ZoningDistrict, 'id' | 'created_at' | 'updated_at'>);
         
         if (created) {
           toast.success("Zoning district created successfully");

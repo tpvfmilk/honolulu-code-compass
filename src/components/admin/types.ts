@@ -5,15 +5,15 @@ export interface ZoningDistrict {
   id: string;
   code: string;
   name: string;
-  description?: string;
+  description: string | null;
   min_lot_area: number;
   max_building_height: number;
-  max_stories?: number;
+  max_stories: number | null;
   front_setback: number;
   side_setback: number;
   rear_setback: number;
   max_lot_coverage: number;
-  max_far?: number;
+  max_far: number | null;
   created_at?: string;
   updated_at?: string;
 }

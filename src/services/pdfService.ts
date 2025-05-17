@@ -1,5 +1,5 @@
 
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
 
@@ -24,7 +24,7 @@ export const generateProjectCodeSheet = (project: ProjectData): string => {
   doc.text(`Name: ${project.name}`, 20, 50);
   doc.text(`TMK: ${project.tmk}`, 20, 60);
   doc.text(`Address: ${project.address || "Not provided"}`, 20, 70);
-  doc.text(`District: ${project.district}`, 20, 80);
+  doc.text(`District: ${project.district || "Unknown"}`, 20, 80); // Added fallback for district
   doc.text(`Status: ${project.status}`, 20, 90);
   doc.text(`Last Updated: ${project.lastUpdated.toLocaleDateString()}`, 20, 100);
   

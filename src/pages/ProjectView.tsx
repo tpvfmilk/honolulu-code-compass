@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
@@ -17,7 +16,7 @@ export interface ProjectData {
   name: string;
   tmk: string;
   status: "draft" | "in-progress" | "completed" | "needs-revision";
-  district: string;
+  district?: string; // Made optional
   lastUpdated: Date;
   address?: string;
   client_name?: string;
@@ -57,7 +56,7 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
           name: projectData.name || "",
           tmk: projectData.tmk || "",
           status: (projectData.status as "draft" | "in-progress" | "completed" | "needs-revision") || "draft",
-          district: projectData.district || "Unknown", // This field might need to be fetched from project_data
+          district: projectData.district || undefined, // Make district optional
           lastUpdated: new Date(projectData.updated_at || Date.now()),
           address: projectData.address || "",
           client_name: projectData.client_name || "",

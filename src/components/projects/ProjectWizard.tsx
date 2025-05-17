@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +22,7 @@ export const ProjectWizard = () => {
   const [isLoadingProject, setIsLoadingProject] = useState(false);
   const [projectLoaded, setProjectLoaded] = useState(false);
 
+  // Make sure to destructure setFormData from useProjectWizard
   const {
     currentStep,
     formData,
@@ -36,7 +36,7 @@ export const ProjectWizard = () => {
     handleSaveDraft,
     validateTmkFormat,
     zoningDistricts,
-    setFormData
+    setFormData  // Ensure this is available from useProjectWizard
   } = useProjectWizard();
 
   // Load existing project data if in edit mode

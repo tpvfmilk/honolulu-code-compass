@@ -1,113 +1,90 @@
-// src/App.tsx
-import {
-  useNavigate,
-  Routes,
-  Route,
-  BrowserRouter,
-  Navigate,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useSession, SessionProvider } from "./hooks/useSession";
-import { supabase } from "./integrations/supabase/client";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Profile from "./pages/Profile";
-import ProjectCreate from "./pages/ProjectCreate";
-import ProjectView from "./pages/ProjectView";
-import Help from "./pages/Help";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
 
-function AppRoutes() {
-  const [loading, setLoading] = useState(true);
-  const { session, setSession } = useSession();
-  const navigate = useNavigate();
+import React, { FC } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+export interface IndexProps {
+  onLogout: () => Promise<void>;
+}
 
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [setSession]);
-
-  // Only navigate when not loading and only if we're on an unauthorized route
-  useEffect(() => {
-    if (!loading) {
-      const currentPath = window.location.pathname;
-      
-      // Public routes - always accessible
-      const publicRoutes = ['/', '/auth', '/help'];
-      const isPublicRoute = publicRoutes.includes(currentPath);
-      
-      // Protected routes - require authentication
-      const needsAuth = !isPublicRoute;
-      
-      if (!session && needsAuth) {
-        navigate("/auth");
-      } else if (session && currentPath === "/auth") {
-        navigate("/profile");
-      }
-    }
-  }, [session, loading, navigate]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+const Index: FC<IndexProps> = ({ onLogout }) => {
+  // Create a wrapper function that calls onLogout without exposing its async nature
+  const wrappedLogout = () => {
+    onLogout();
   };
 
-  // Define routes with authentication protection
   return (
-    <Routes>
-      {/* Use explicit typing with 'as' to ensure TypeScript recognizes the prop types */}
-      <Route path="/" element={<Index onLogout={handleLogout} />} />
-      <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
-      <Route path="/help" element={<Help onLogout={handleLogout} />} />
-      <Route 
-        path="/profile" 
-        element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" />} 
-      />
-      <Route 
-        path="/project/new" 
-        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" />} 
-      />
-      <Route 
-        path="/project/:id" 
-        element={session ? <ProjectView onLogout={handleLogout} /> : <Navigate to="/auth" />} 
-      />
-      <Route 
-        path="/admin" 
-        element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" />} 
-      />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
+    <AppLayout onLogout={wrappedLogout}>
+      <div className="space-y-8 max-w-5xl mx-auto">
+        <div>
+          <h1 className="text-4xl font-bold">Hawaii Building Code Compliance</h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome to the Hawaii Building Code Compliance platform
+          </p>
+        </div>
 
-function App() {
-  return (
-    <BrowserRouter>
-      <SessionProvider>
-        <SidebarProvider>
-          <AppRoutes />
-        </SidebarProvider>
-      </SessionProvider>
-    </BrowserRouter>
-  );
-}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Getting Started</CardTitle>
+              <CardDescription>
+                Everything you need to know about using this platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                This platform helps architects, developers, and builders ensure their
+                projects comply with Hawaii's building codes.
+              </p>
+              <div className="flex justify-start">
+                <Button asChild>
+                  <Link to="/help">Learn More</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-export default App;
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Projects</CardTitle>
+              <CardDescription>
+                Create and manage compliance documentation
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                Start a new project or continue working on existing ones.
+                Track compliance across multiple aspects of the building code.
+              </p>
+              <div className="flex justify-start space-x-4">
+                <Button asChild>
+                  <Link to="/project/new">New Project</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to="/profile">View Projects</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>About Hawaii Building Code Compliance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Our platform streamlines the process of ensuring your building designs meet
+              all required codes and regulations specific to Hawaii. We cover fire safety,
+              accessibility, structural requirements, and zoning regulations.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default Index;

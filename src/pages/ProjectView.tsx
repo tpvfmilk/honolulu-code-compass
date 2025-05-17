@@ -13,7 +13,7 @@ interface Project {
   client_name: string;
   property_owner: string;
   status: string;
-  project_type: string; // Add missing property
+  project_type: string;
   created_at: string;
   updated_at: string;
   current_step: number;
@@ -48,7 +48,7 @@ const ProjectView = ({ onLogout }: ProjectViewProps) => {
         if (data) {
           const projectData: Project = {
             ...data,
-            project_type: data.project_type || 'Unknown' // Add default value
+            project_type: data.project_type || 'Unknown'
           };
           setProject(projectData);
         }

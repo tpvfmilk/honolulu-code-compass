@@ -51,7 +51,7 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
       }
       
       if (data) {
-        // Ensure proper status values
+        // Ensure proper status values and project_type
         const formattedProjects = data.map(project => ({
           ...project,
           status: validateStatus(project.status),

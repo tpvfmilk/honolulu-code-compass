@@ -1,221 +1,196 @@
-import React, { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
-import { StatsCards } from '@/components/dashboard/StatsCards';
 
-// Define the interface for data coming from the database
-interface ProjectData {
+import React, { useState, useEffect } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { ProjectGrid } from "@/components/dashboard/ProjectGrid";
+import { StatsCards } from "@/components/dashboard/StatsCards";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Project {
   id: string;
   name: string;
   address: string;
   client_name: string;
   property_owner: string;
   tmk: string;
-  status: string;
-  is_complete: boolean;
-  current_step: number;
-  user_id: string;
   created_at: string;
   updated_at: string;
-}
-
-// Define the Project interface used by components
-export interface Project {
-  id: string;
-  name: string;
-  address: string;
+  current_step: number;
+  status: string;
+  is_complete: boolean;
+  user_id: string;
   project_type: string;
-  client_name: string;
-  property_owner: string;
-  tmk: string;
-  status: string;
-  is_complete: boolean;
-  current_step: number;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
+  // Map these to the expected format for ProjectCard
+  district?: string;
+  lastUpdated?: string;
 }
 
 interface ProjectsListProps {
   onLogout: () => Promise<void>;
 }
 
-const ProjectsList: React.FC<ProjectsListProps> = ({ onLogout }) => {
+const ProjectsList = ({ onLogout }: ProjectsListProps) => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
   const { toast } = useToast();
-
-  // Helper function to determine project type based on other properties
-  const determineProjectType = (project: ProjectData): string => {
-    // This is a placeholder logic - you would determine project type 
-    // based on actual data indicators from your database
-    if (project.name.toLowerCase().includes('residential')) {
-      return 'Residential';
-    } else if (project.name.toLowerCase().includes('commercial')) {
-      return 'Commercial';
-    } else if (project.name.toLowerCase().includes('industrial')) {
-      return 'Industrial';
-    } else {
-      return 'Other';
-    }
-  };
   
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (!user.user) {
-          toast({ 
-            title: "Authentication error", 
-            description: "You must be logged in to view projects", 
-            variant: "destructive" 
-          });
+        if (!session) {
+          navigate('/auth');
           return;
         }
-
+        
+        // Fetch projects for the authenticated user
         const { data, error } = await supabase
           .from('projects')
           .select('*')
-          .eq('user_id', user.user.id)
-          .order('updated_at', { ascending: false });
-
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false });
+          
         if (error) {
           throw error;
         }
-
-        if (data) {
-          // Transform the data to include project type
-          const transformedProjects = data.map((project: ProjectData) => ({
-            ...project,
-            project_type: determineProjectType(project)
-          }));
-
-          setProjects(transformedProjects);
-          setFilteredProjects(transformedProjects);
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
+        
+        // Process the data to match the Project interface
+        const processedData: Project[] = data.map((project: any) => ({
+          ...project,
+          district: project.district || "N/A", // Provide default value for district
+          lastUpdated: project.updated_at,     // Map updated_at to lastUpdated
+          project_type: project.project_type || "Unknown" // Default project_type if missing
+        }));
+        
+        setProjects(processedData);
+        setFilteredProjects(processedData);
+      } catch (error: any) {
+        console.error("Error fetching projects:", error.message);
         toast({
-          title: "Failed to fetch projects",
-          description: "There was an error loading your projects",
-          variant: "destructive"
+          title: "Error",
+          description: "Failed to load projects",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
       }
     };
-
+    
     fetchProjects();
-  }, [toast]);
-
+  }, [navigate, toast]);
+  
   useEffect(() => {
-    // Filter projects based on search term and status
-    let result = projects;
-    
-    if (searchTerm) {
-      result = result.filter(project => 
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.client_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    // Filter projects based on selected filter
+    if (filter === "all") {
+      setFilteredProjects(projects);
+    } else if (filter === "active") {
+      setFilteredProjects(projects.filter(project => 
+        project.status === "active" || project.status === "in-progress"
+      ));
+    } else if (filter === "completed") {
+      setFilteredProjects(projects.filter(project => 
+        project.status === "completed" || project.is_complete
+      ));
+    } else if (filter === "pending") {
+      setFilteredProjects(projects.filter(project => 
+        project.status === "pending" || (!project.is_complete && project.status !== "active")
+      ));
     }
-    
-    if (statusFilter !== 'all') {
-      result = result.filter(project => project.status === statusFilter);
-    }
-    
-    setFilteredProjects(result);
-  }, [searchTerm, statusFilter, projects]);
-
-  // Calculate stats
-  const completedProjects = projects.filter(p => p.is_complete).length;
-  const inProgressProjects = projects.filter(p => !p.is_complete).length;
-  const totalProjects = projects.length;
-
+  }, [filter, projects]);
+  
+  // Calculate statistics for the cards
+  const stats = {
+    total: projects.length,
+    active: projects.filter(p => p.status === "active" || p.status === "in-progress").length,
+    completed: projects.filter(p => p.status === "completed" || p.is_complete).length,
+    pending: projects.filter(p => p.status === "pending" || (!p.is_complete && p.status !== "active")).length
+  };
+  
   return (
     <AppLayout onLogout={onLogout}>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">My Projects</h1>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">My Projects</h1>
+            <p className="text-gray-500 mt-1">Manage and view all your building projects</p>
+          </div>
+          <div className="mt-4 md:mt-0">
+            <Button onClick={() => navigate("/project/create")}>
+              Create New Project
+            </Button>
+          </div>
         </div>
-
-        <StatsCards 
-          totalProjects={totalProjects} 
-          completedProjects={completedProjects} 
-          inProgressProjects={inProgressProjects} 
-        />
-
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search projects..."
-              className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 absolute left-3 top-2.5 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        
+        <StatsCards stats={stats} />
+        
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mt-8">
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Button 
+              variant={filter === "all" ? "default" : "outline"} 
+              onClick={() => setFilter("all")}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+              All Projects
+            </Button>
+            <Button 
+              variant={filter === "active" ? "default" : "outline"} 
+              onClick={() => setFilter("active")}
+            >
+              Active
+            </Button>
+            <Button 
+              variant={filter === "completed" ? "default" : "outline"} 
+              onClick={() => setFilter("completed")}
+            >
+              Completed
+            </Button>
+            <Button 
+              variant={filter === "pending" ? "default" : "outline"} 
+              onClick={() => setFilter("pending")}
+            >
+              Pending
+            </Button>
           </div>
-          <select
-            className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="in-progress">In Progress</option>
-            <option value="review">Review</option>
-            <option value="completed">Completed</option>
-          </select>
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : filteredProjects.length > 0 ? (
+            <ProjectGrid projects={filteredProjects} />
+          ) : (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900">No projects found</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                {filter !== "all" 
+                  ? `You don't have any ${filter} projects yet.` 
+                  : "You haven't created any projects yet."}
+              </p>
+              {filter !== "all" ? (
+                <Button 
+                  variant="link" 
+                  onClick={() => setFilter("all")}
+                  className="mt-4"
+                >
+                  View all projects
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => navigate("/project/create")}
+                  className="mt-4"
+                >
+                  Create your first project
+                </Button>
+              )}
+            </div>
+          )}
         </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <>
-            {filteredProjects.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
-                <h3 className="text-lg font-medium mb-2">No projects found</h3>
-                <p className="text-gray-500 mb-4">
-                  {projects.length === 0 
-                    ? "You haven't created any projects yet." 
-                    : "No projects match your search criteria."}
-                </p>
-                {projects.length === 0 && (
-                  <a 
-                    href="/project/create" 
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
-                  >
-                    Create your first project
-                  </a>
-                )}
-              </div>
-            ) : (
-              <ProjectGrid projects={filteredProjects} />
-            )}
-          </>
-        )}
       </div>
     </AppLayout>
   );

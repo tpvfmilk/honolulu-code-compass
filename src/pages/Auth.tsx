@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import AuthForm from "../components/auth/AuthForm";
+import { AuthForm } from "../components/auth/AuthForm";
 import { supabase } from "../integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";

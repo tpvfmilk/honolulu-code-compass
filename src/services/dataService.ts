@@ -21,12 +21,44 @@ export type ProjectData = {
   name: string;
   tmk: string | null;
   address: string | null;
+  district?: string;
   client_name?: string | null;
   property_owner?: string | null;
   status?: string;
   current_step?: number;
   is_complete?: boolean;
   updated_at?: string;  // Make this field optional but available
+  // Building details
+  project_type?: string;
+  stories?: number;
+  building_height?: number;
+  total_building_area?: number;
+  lot_area_sqft?: number;
+  existing_use?: string;
+  proposed_use?: string;
+  construction_type?: string;
+  is_fully_sprinklered?: boolean;
+  // Environmental designations
+  lava_zone?: string;
+  seismic_zone?: string;
+  flood_zone?: string;
+  // County and historic information
+  county?: "Honolulu" | "Hawaii" | "Maui" | "Kauai";
+  historic_status?: boolean;
+  historic_review_type?: string;
+  // For renovation projects
+  year_of_construction?: number;
+  original_building_code?: string;
+  alteration_level?: string;
+  work_area_percentage?: number;
+  compliance_method?: string;
+  // Parking information
+  standard_stalls_required?: number;
+  standard_stalls_provided?: number;
+  ada_stalls_required?: number;
+  ada_stalls_provided?: number;
+  loading_spaces_required?: number;
+  loading_spaces_provided?: number;
 };
 
 // Fetch zoning districts

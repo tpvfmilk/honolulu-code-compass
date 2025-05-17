@@ -118,6 +118,10 @@ function AppRoutes() {
         element={session ? <ProjectView onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
       />
       <Route 
+        path="/project/edit/:id" 
+        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
+      />
+      <Route 
         path="/admin" 
         element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
       />

@@ -1,4 +1,3 @@
-
 // src/pages/ProjectsList.tsx
 import { FC, useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -172,6 +171,11 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
   // Handle project creation
   const handleCreateProject = () => {
     navigate("/project/new");
+  };
+
+  // Handle project viewing
+  const handleViewProject = (projectId: string) => {
+    navigate(`/project/${projectId}`);
   };
 
   // Handle project selection (for batch operations)
@@ -418,7 +422,11 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
           // Grid view
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProjects.map((project) => (
-              <Card key={project.id} className="overflow-hidden">
+              <Card 
+                key={project.id} 
+                className="overflow-hidden cursor-pointer hover:shadow-md transition-all"
+                onClick={() => handleViewProject(project.id)}
+              >
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div className="flex-1 overflow-hidden">
@@ -430,21 +438,22 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
                       checked={selectedProjects.includes(project.id)}
                       onCheckedChange={() => handleSelectProject(project.id)}
                       className="mr-2 mt-1"
+                      onClick={(e) => e.stopPropagation()} // Prevent card click when clicking checkbox
                     />
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem onClick={() => navigate(`/project/${project.id}`)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/project/edit/${project.id}`)}>
                           <FileText className="mr-2 h-4 w-4" />
-                          Generate Report
+                          Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Copy className="mr-2 h-4 w-4" />
@@ -518,11 +527,12 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
                       <Checkbox
                         checked={selectedProjects.includes(project.id)}
                         onCheckedChange={() => handleSelectProject(project.id)}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </TableCell>
                     <TableCell
                       className="font-medium"
-                      onClick={() => navigate(`/project/${project.id}`)}
+                      onClick={() => handleViewProject(project.id)}
                     >
                       {project.name}
                     </TableCell>
@@ -544,20 +554,23 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => navigate(`/project/${project.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewProject(project.id);
+                          }}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                             <Button variant="ghost" size="icon">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuItem onClick={() => navigate(`/project/edit/${project.id}`)}>
                               <FileText className="mr-2 h-4 w-4" />
-                              Generate Report
+                              Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Copy className="mr-2 h-4 w-4" />

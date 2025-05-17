@@ -1,3 +1,5 @@
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
@@ -11,8 +13,16 @@ import { ReviewStep } from "./steps/ReviewStep";
 import { useProjectWizard } from "./useProjectWizard";
 import { wizardSteps } from "./types/projectTypes";
 import { buildingTypes } from "./types/zoning/zoningTypes";
+import { useParams } from "react-router-dom";
+import { getProjectById, getProjectData } from "../../services/dataService";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ProjectWizard = () => {
+  const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
+  const [isLoadingProject, setIsLoadingProject] = useState(false);
+  const [projectLoaded, setProjectLoaded] = useState(false);
+
   const {
     currentStep,
     formData,
@@ -25,16 +35,102 @@ export const ProjectWizard = () => {
     handleSubmit,
     handleSaveDraft,
     validateTmkFormat,
-    zoningDistricts
+    zoningDistricts,
+    setFormData
   } = useProjectWizard();
+
+  // Load existing project data if in edit mode
+  useEffect(() => {
+    const loadProjectData = async () => {
+      if (id && !projectLoaded) {
+        setIsLoadingProject(true);
+        try {
+          // Fetch project basic info
+          const projectDetails = await getProjectById(id);
+          
+          if (!projectDetails) {
+            toast({
+              title: "Error",
+              description: "Project not found",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Initialize with basic project info
+          let projectFormData = {
+            ...formData,
+            id: projectDetails.id,
+            name: projectDetails.name,
+            tmk: projectDetails.tmk || "",
+            address: projectDetails.address || "",
+            client_name: projectDetails.client_name || "",
+            property_owner: projectDetails.property_owner || "",
+          };
+
+          // Fetch saved form data for each step
+          const promises = [];
+          for (let step = 0; step < wizardSteps.length; step++) {
+            promises.push(getProjectData(id, step));
+          }
+
+          const stepResults = await Promise.all(promises);
+          
+          // Merge all step data into projectFormData
+          stepResults.forEach((stepData, index) => {
+            if (stepData) {
+              projectFormData = { ...projectFormData, ...stepData };
+            }
+          });
+
+          // Update form data with all loaded project data
+          setFormData(projectFormData);
+          setProjectLoaded(true);
+          
+          toast({
+            title: "Project Loaded",
+            description: "Project data has been loaded successfully",
+          });
+        } catch (error) {
+          console.error("Error loading project data:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load project data",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoadingProject(false);
+        }
+      }
+    };
+
+    loadProjectData();
+  }, [id, projectLoaded, formData, setFormData, toast]);
+
+  if (isLoadingProject) {
+    return (
+      <div className="max-w-6xl mx-auto py-6">
+        <Card>
+          <CardContent className="pt-6 flex justify-center items-center min-h-[300px]">
+            <div className="animate-pulse text-lg">Loading project data...</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Create New Project</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            {id ? "Edit Project" : "Create New Project"}
+          </CardTitle>
           <CardDescription>
-            Fill out the project information to generate a building code compliance sheet
+            {id 
+              ? "Edit your project information to update building code compliance"
+              : "Fill out the project information to generate a building code compliance sheet"
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -122,7 +218,7 @@ export const ProjectWizard = () => {
                 disabled={isSubmitting}
                 className="hawaii-gradient"
               >
-                {isSubmitting ? "Creating..." : "Create Project"}
+                {isSubmitting ? "Saving..." : (id ? "Update Project" : "Create Project")}
               </Button>
             )}
           </div>

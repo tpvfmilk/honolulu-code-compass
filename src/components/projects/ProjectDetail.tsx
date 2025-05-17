@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Project } from "../dashboard/ProjectCard";
 import { Download, FileText, History, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type ProjectDetailProps = {
   project: Project;
@@ -13,6 +14,7 @@ type ProjectDetailProps = {
 
 export const ProjectDetail = ({ project }: ProjectDetailProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("summary");
 
   const handleGeneratePDF = () => {
@@ -20,6 +22,10 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
       title: "PDF Generated",
       description: "Your code information sheet has been generated",
     });
+  };
+
+  const handleEditProject = () => {
+    navigate(`/project/edit/${project.id}`);
   };
 
   // Calculated properties based on project data
@@ -55,7 +61,11 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
           <p className="text-muted-foreground">TMK: {project.tmk}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleEditProject}
+          >
             <Pencil className="h-4 w-4" />
             <span>Edit</span>
           </Button>

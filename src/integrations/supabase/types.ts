@@ -250,6 +250,50 @@ export type Database = {
         }
         Relationships: []
       }
+      parking_requirements: {
+        Row: {
+          code_reference: string | null
+          created_at: string | null
+          id: string
+          loading_ratio: string | null
+          notes: string | null
+          parking_ratio: string
+          updated_at: string | null
+          use_type: string
+          zoning_district_id: string | null
+        }
+        Insert: {
+          code_reference?: string | null
+          created_at?: string | null
+          id?: string
+          loading_ratio?: string | null
+          notes?: string | null
+          parking_ratio: string
+          updated_at?: string | null
+          use_type: string
+          zoning_district_id?: string | null
+        }
+        Update: {
+          code_reference?: string | null
+          created_at?: string | null
+          id?: string
+          loading_ratio?: string | null
+          notes?: string | null
+          parking_ratio?: string
+          updated_at?: string | null
+          use_type?: string
+          zoning_district_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parking_requirements_zoning_district_id_fkey"
+            columns: ["zoning_district_id"]
+            isOneToOne: false
+            referencedRelation: "zoning_districts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -308,13 +352,18 @@ export type Database = {
       }
       projects: {
         Row: {
+          actual_ada_stalls: number | null
+          actual_loading_spaces: number | null
+          actual_standard_stalls: number | null
           address: string | null
+          building_area_for_parking: number | null
           client_name: string | null
           created_at: string | null
           current_step: number | null
           id: string
           is_complete: boolean | null
           name: string
+          parking_notes: string | null
           project_type: string | null
           property_owner: string | null
           status: string | null
@@ -323,13 +372,18 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          actual_ada_stalls?: number | null
+          actual_loading_spaces?: number | null
+          actual_standard_stalls?: number | null
           address?: string | null
+          building_area_for_parking?: number | null
           client_name?: string | null
           created_at?: string | null
           current_step?: number | null
           id?: string
           is_complete?: boolean | null
           name: string
+          parking_notes?: string | null
           project_type?: string | null
           property_owner?: string | null
           status?: string | null
@@ -338,13 +392,18 @@ export type Database = {
           user_id: string
         }
         Update: {
+          actual_ada_stalls?: number | null
+          actual_loading_spaces?: number | null
+          actual_standard_stalls?: number | null
           address?: string | null
+          building_area_for_parking?: number | null
           client_name?: string | null
           created_at?: string | null
           current_step?: number | null
           id?: string
           is_complete?: boolean | null
           name?: string
+          parking_notes?: string | null
           project_type?: string | null
           property_owner?: string | null
           status?: string | null

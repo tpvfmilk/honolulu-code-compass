@@ -36,11 +36,12 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
   };
 
   const handleClick = () => {
-    navigate(`/projects/${project.id}`);
+    // Fix: Update the URL path to match the route in App.tsx
+    navigate(`/project/${project.id}`);
   };
 
   return (
-    <Card className="overflow-hidden transition-all hover:hawaii-card-shadow">
+    <Card className="overflow-hidden transition-all hover:hawaii-card-shadow cursor-pointer" onClick={handleClick}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-medium">{project.name}</CardTitle>
@@ -65,7 +66,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
         </div>
       </CardContent>
       <CardFooter className="pt-2">
-        <Button variant="ghost" className="w-full" onClick={handleClick}>
+        <Button variant="ghost" className="w-full">
           <span>View Details</span>
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>

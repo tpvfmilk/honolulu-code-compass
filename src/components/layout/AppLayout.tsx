@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Home, FileText, User, HelpCircle, LogOut } from "lucide-react";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 type AppLayoutProps = {
@@ -102,6 +102,14 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                   <NavLink to="/help" className={getNavCls}>
                     <HelpCircle className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>Help</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/admin" className={getNavCls}>
+                    <Database className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Admin Dashboard</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

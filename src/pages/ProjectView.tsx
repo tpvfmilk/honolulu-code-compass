@@ -39,7 +39,7 @@ export interface ProjectData {
   // For renovation projects
   year_of_construction?: number;
   original_building_code?: string;
-  alteration_level?: "1" | "2" | "3";
+  alteration_level?: string;
   work_area_percentage?: number;
   compliance_method?: string;
   // Parking information

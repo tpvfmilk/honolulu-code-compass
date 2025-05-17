@@ -89,6 +89,277 @@ export const fetchOccupancyGroups = async (): Promise<OccupancyGroupData[]> => {
   return data || [];
 };
 
+// Code Section types
+export type CodeSectionData = {
+  id: string;
+  code_type: string;
+  jurisdiction: string;
+  year: string;
+  section_number: string;
+  section_title: string;
+  section_text: string;
+  plain_language_explanation: string | null;
+  parent_section_id: string | null;
+  has_children: boolean;
+  is_calculation_required: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type BookmarkedCodeData = {
+  id: string;
+  user_id: string;
+  code_section_id: string;
+  created_at?: string;
+};
+
+export type FrequentlyReferencedCodeData = {
+  id: string;
+  code_section_id: string;
+  reference_count: number;
+  updated_at?: string;
+};
+
+// Fetch code sections
+export const fetchCodeSections = async (
+  codeType?: string,
+  jurisdiction?: string,
+  year?: string
+): Promise<CodeSectionData[]> => {
+  let query = supabase.from('code_sections').select('*');
+  
+  if (codeType) {
+    query = query.eq('code_type', codeType);
+  }
+  
+  if (jurisdiction) {
+    query = query.eq('jurisdiction', jurisdiction);
+  }
+  
+  if (year) {
+    query = query.eq('year', year);
+  }
+  
+  const { data, error } = await query.order('section_number');
+  
+  if (error) {
+    console.error('Error fetching code sections:', error);
+    return [];
+  }
+  
+  return data || [];
+};
+
+// Fetch a single code section by ID
+export const getCodeSectionById = async (id: string): Promise<CodeSectionData | null> => {
+  const { data, error } = await supabase
+    .from('code_sections')
+    .select('*')
+    .eq('id', id)
+    .single();
+    
+  if (error) {
+    console.error('Error fetching code section:', error);
+    return null;
+  }
+    
+  return data;
+};
+
+// Search code sections
+export const searchCodeSections = async (
+  searchQuery: string,
+  codeType?: string,
+  jurisdiction?: string,
+  year?: string
+): Promise<CodeSectionData[]> => {
+  let query = supabase
+    .from('code_sections')
+    .select('*')
+    .or(`section_title.ilike.%${searchQuery}%,section_number.ilike.%${searchQuery}%,section_text.ilike.%${searchQuery}%`);
+  
+  if (codeType) {
+    query = query.eq('code_type', codeType);
+  }
+  
+  if (jurisdiction) {
+    query = query.eq('jurisdiction', jurisdiction);
+  }
+  
+  if (year) {
+    query = query.eq('year', year);
+  }
+  
+  const { data, error } = await query.order('section_number');
+  
+  if (error) {
+    console.error('Error searching code sections:', error);
+    return [];
+  }
+  
+  return data || [];
+};
+
+// Get user bookmarked codes
+export const getUserBookmarkedCodes = async (): Promise<CodeSectionData[]> => {
+  const { data: bookmarks, error: bookmarksError } = await supabase
+    .from('user_bookmarked_codes')
+    .select('code_section_id')
+    
+  if (bookmarksError) {
+    console.error('Error fetching user bookmarks:', bookmarksError);
+    return [];
+  }
+  
+  if (!bookmarks || bookmarks.length === 0) {
+    return [];
+  }
+  
+  const codeSectionIds = bookmarks.map(bookmark => bookmark.code_section_id);
+  
+  const { data, error } = await supabase
+    .from('code_sections')
+    .select('*')
+    .in('id', codeSectionIds);
+  
+  if (error) {
+    console.error('Error fetching bookmarked code sections:', error);
+    return [];
+  }
+  
+  return data || [];
+};
+
+// Toggle bookmark for a code section
+export const toggleBookmark = async (codeSectionId: string): Promise<boolean> => {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    console.error('User not authenticated');
+    return false;
+  }
+  
+  // Check if bookmark exists
+  const { data: existingBookmark, error: checkError } = await supabase
+    .from('user_bookmarked_codes')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('code_section_id', codeSectionId)
+    .single();
+  
+  if (checkError && checkError.code !== 'PGRST116') {
+    console.error('Error checking bookmark:', checkError);
+    return false;
+  }
+  
+  if (existingBookmark) {
+    // Remove bookmark
+    const { error: deleteError } = await supabase
+      .from('user_bookmarked_codes')
+      .delete()
+      .eq('id', existingBookmark.id);
+      
+    if (deleteError) {
+      console.error('Error removing bookmark:', deleteError);
+      return false;
+    }
+    
+    return true;
+  } else {
+    // Add bookmark
+    const { error: insertError } = await supabase
+      .from('user_bookmarked_codes')
+      .insert({
+        user_id: user.id,
+        code_section_id: codeSectionId
+      });
+      
+    if (insertError) {
+      console.error('Error adding bookmark:', insertError);
+      return false;
+    }
+    
+    return true;
+  }
+};
+
+// Get frequently referenced codes
+export const getFrequentlyReferencedCodes = async (): Promise<CodeSectionData[]> => {
+  const { data: frequentRefs, error: freqError } = await supabase
+    .from('frequently_referenced_codes')
+    .select('code_section_id')
+    .order('reference_count', { ascending: false })
+    .limit(10);
+    
+  if (freqError) {
+    console.error('Error fetching frequently referenced codes:', freqError);
+    return [];
+  }
+  
+  if (!frequentRefs || frequentRefs.length === 0) {
+    return [];
+  }
+  
+  const codeSectionIds = frequentRefs.map(ref => ref.code_section_id);
+  
+  const { data, error } = await supabase
+    .from('code_sections')
+    .select('*')
+    .in('id', codeSectionIds);
+  
+  if (error) {
+    console.error('Error fetching frequently referenced code sections:', error);
+    return [];
+  }
+  
+  return data || [];
+};
+
+// Record a reference to a code section (increment the reference count)
+export const recordCodeReference = async (codeSectionId: string): Promise<boolean> => {
+  // First check if the code section exists in the frequently referenced table
+  const { data: existingRef, error: checkError } = await supabase
+    .from('frequently_referenced_codes')
+    .select('id, reference_count')
+    .eq('code_section_id', codeSectionId)
+    .single();
+  
+  if (checkError && checkError.code !== 'PGRST116') {
+    console.error('Error checking reference:', checkError);
+    return false;
+  }
+  
+  if (existingRef) {
+    // Update reference count
+    const { error: updateError } = await supabase
+      .from('frequently_referenced_codes')
+      .update({
+        reference_count: (existingRef.reference_count || 0) + 1,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', existingRef.id);
+      
+    if (updateError) {
+      console.error('Error updating reference count:', updateError);
+      return false;
+    }
+  } else {
+    // Create new reference
+    const { error: insertError } = await supabase
+      .from('frequently_referenced_codes')
+      .insert({
+        code_section_id: codeSectionId,
+        reference_count: 1
+      });
+      
+    if (insertError) {
+      console.error('Error creating reference:', insertError);
+      return false;
+    }
+  }
+  
+  return true;
+};
+
 // Project operations
 
 // Save project (creates new or updates existing)

@@ -1,141 +1,60 @@
-
-import {
-  RouterProvider,
-  useNavigate,
-  Routes,
-  Route,
-  BrowserRouter,
-  Navigate,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useSession, SessionProvider } from "./hooks/useSession";
-import { supabase } from "./integrations/supabase/client";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/toaster";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Profile from "./pages/Profile";
-import ProjectCreate from "./pages/ProjectCreate";
-import ProjectView from "./pages/ProjectView";
-import ProjectsList from "./pages/ProjectsList";
-import Help from "./pages/Help";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
-
-function AppRoutes() {
-  const [loading, setLoading] = useState(true);
-  const { session, setSession } = useSession();
-  const navigate = useNavigate();
-  
-  // Prevent multiple redirects
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session ? "Logged in" : "No session");
-      setSession(session);
-      setLoading(false);
-      setSessionChecked(true);
-    });
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state change:", _event, session ? "Session exists" : "No session");
-      setSession(session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [setSession]);
-
-  // Handle navigation separately from auth state changes
-  useEffect(() => {
-    if (!loading && sessionChecked && !isRedirecting) {
-      const currentPath = window.location.pathname;
-      
-      // Public routes - always accessible
-      const publicRoutes = ['/', '/auth', '/help'];
-      const isPublicRoute = publicRoutes.includes(currentPath);
-      
-      // Protected routes - require authentication
-      const needsAuth = !isPublicRoute;
-      
-      if (!session && needsAuth) {
-        console.log(`Redirecting to /auth from ${currentPath} - no session and requires auth`);
-        setIsRedirecting(true);
-        navigate("/auth");
-      } else if (session && currentPath === "/auth") {
-        console.log("Redirecting to /profile - user is authenticated on /auth page");
-        setIsRedirecting(true);
-        navigate("/profile");
-      }
-      
-      // Reset redirecting flag after navigation
-      setTimeout(() => {
-        setIsRedirecting(false);
-      }, 100);
-    }
-  }, [session, loading, navigate, sessionChecked, isRedirecting]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
-  const handleLogout = async () => {
-    try {
-      console.log("Logging out...");
-      await supabase.auth.signOut();
-      console.log("Logout successful, navigating to home");
-      navigate('/');
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
-  // Define routes with authentication protection
-  return (
-    <Routes>
-      <Route path="/" element={<Index onLogout={handleLogout} />} />
-      <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
-      <Route path="/help" element={<Help onLogout={handleLogout} />} />
-      <Route 
-        path="/profile" 
-        element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/projects" 
-        element={session ? <ProjectsList onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/project/new" 
-        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/project/:id" 
-        element={session ? <ProjectView onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/admin" 
-        element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
+import React, { useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { supabase } from './integrations/supabase/client';
+import './App.css';
+import Auth from './pages/Auth';
+import Profile from './pages/Profile';
+import Index from './pages/Index';
+import ProjectsList from './pages/ProjectsList';
+import ProjectView from './pages/ProjectView';
+import ProjectCreate from './pages/ProjectCreate';
+import AdminDashboard from './pages/AdminDashboard';
+import Help from './pages/Help';
+import CodeSheetPreview from './pages/CodeSheetPreview';
+import NotFound from './pages/NotFound';
+import CodeReferenceLibrary from './pages/CodeReferenceLibrary';
 
 function App() {
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+  }, [])
+
+  const handleLogin = () => {
+    // This function might not be needed, as the state changes automatically
+    // with supabase.auth.onAuthStateChange.
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
+
   return (
-    <BrowserRouter>
-      <SessionProvider>
-        <SidebarProvider>
-          <AppRoutes />
-          <Toaster />
-        </SidebarProvider>
-      </SessionProvider>
-    </BrowserRouter>
+    <div className="App">
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth onLogin={handleLogin} />} />
+          <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
+          <Route path="/projects" element={<ProjectsList />} />
+          <Route path="/code-library" element={<CodeReferenceLibrary onLogout={handleLogout} />} />
+          <Route path="/project/:id" element={<ProjectView />} />
+          <Route path="/project/create" element={<ProjectCreate />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/code-sheet-preview" element={<CodeSheetPreview />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </HashRouter>
+    </div>
   );
 }
 

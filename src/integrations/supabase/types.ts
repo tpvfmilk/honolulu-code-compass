@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      code_sections: {
+        Row: {
+          code_type: string
+          created_at: string | null
+          has_children: boolean | null
+          id: string
+          is_calculation_required: boolean | null
+          jurisdiction: string
+          parent_section_id: string | null
+          plain_language_explanation: string | null
+          section_number: string
+          section_text: string
+          section_title: string
+          updated_at: string | null
+          year: string
+        }
+        Insert: {
+          code_type: string
+          created_at?: string | null
+          has_children?: boolean | null
+          id?: string
+          is_calculation_required?: boolean | null
+          jurisdiction: string
+          parent_section_id?: string | null
+          plain_language_explanation?: string | null
+          section_number: string
+          section_text: string
+          section_title: string
+          updated_at?: string | null
+          year: string
+        }
+        Update: {
+          code_type?: string
+          created_at?: string | null
+          has_children?: boolean | null
+          id?: string
+          is_calculation_required?: boolean | null
+          jurisdiction?: string
+          parent_section_id?: string | null
+          plain_language_explanation?: string | null
+          section_number?: string
+          section_text?: string
+          section_title?: string
+          updated_at?: string | null
+          year?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_sections_parent_section_id_fkey"
+            columns: ["parent_section_id"]
+            isOneToOne: false
+            referencedRelation: "code_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       construction_types: {
         Row: {
           code: string
@@ -74,6 +130,35 @@ export type Database = {
             columns: ["to_occupancy_id"]
             isOneToOne: false
             referencedRelation: "occupancy_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      frequently_referenced_codes: {
+        Row: {
+          code_section_id: string
+          id: string
+          reference_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          code_section_id: string
+          id?: string
+          reference_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          code_section_id?: string
+          id?: string
+          reference_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frequently_referenced_codes_code_section_id_fkey"
+            columns: ["code_section_id"]
+            isOneToOne: false
+            referencedRelation: "code_sections"
             referencedColumns: ["id"]
           },
         ]
@@ -335,6 +420,35 @@ export type Database = {
             columns: ["occupancy_group_id"]
             isOneToOne: false
             referencedRelation: "occupancy_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_bookmarked_codes: {
+        Row: {
+          code_section_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code_section_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code_section_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bookmarked_codes_code_section_id_fkey"
+            columns: ["code_section_id"]
+            isOneToOne: false
+            referencedRelation: "code_sections"
             referencedColumns: ["id"]
           },
         ]

@@ -1,13 +1,14 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash } from 'lucide-react';
-import { Space, spaceTypesByOccupancy } from '../types';
+import { Space } from '../types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getOccupancyGroupIdByCode, fetchSpaceTypesByOccupancy, SpaceTypeInfo } from '@/services/dataService';
 
 interface SpaceEntryCardProps {
   space: Space;
@@ -24,10 +25,33 @@ export const SpaceEntryCard = ({
   onUpdate, 
   onRemove 
 }: SpaceEntryCardProps) => {
-  // Get space types based on occupancy
-  const baseOccupancy = primaryOccupancy?.split('-')[0] || 'B';
-  const spaceTypes = spaceTypesByOccupancy[baseOccupancy] || 
-                  spaceTypesByOccupancy[Object.keys(spaceTypesByOccupancy)[0]];
+  const [spaceTypes, setSpaceTypes] = useState<SpaceTypeInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Fetch space types from the database
+  useEffect(() => {
+    const fetchSpaceTypesData = async () => {
+      if (!primaryOccupancy) return;
+      
+      setLoading(true);
+      try {
+        // Get occupancy group ID from code
+        const occupancyGroupId = await getOccupancyGroupIdByCode(primaryOccupancy);
+        
+        if (occupancyGroupId) {
+          // Fetch space types for this occupancy group
+          const spaceTypesData = await fetchSpaceTypesByOccupancy(occupancyGroupId);
+          setSpaceTypes(spaceTypesData);
+        }
+      } catch (error) {
+        console.error('Error fetching space types:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSpaceTypesData();
+  }, [primaryOccupancy]);
   
   // Format area with commas
   const formatArea = (area: string) => {
@@ -38,8 +62,8 @@ export const SpaceEntryCard = ({
   
   // Get occupant load factor for a space type
   const getFactorForType = (type: string) => {
-    const spaceType = spaceTypes.find(st => st.value === type);
-    return spaceType ? spaceType.factor : 100;
+    const spaceType = spaceTypes.find(st => st.code === type);
+    return spaceType ? spaceType.occupant_load_factor : 100;
   };
   
   // Check for unusually high or low factors
@@ -51,6 +75,12 @@ export const SpaceEntryCard = ({
   };
 
   const densityCheck = space.type ? checkDensityWarning(space.type) : { warning: false };
+
+  // Calculate occupant load using Math.floor instead of Math.ceil
+  const calculateOccupantLoad = (area: string, factor: number) => {
+    const numArea = parseFloat(area) || 0;
+    return Math.floor(numArea / factor);
+  };
 
   return (
     <Card className="relative">
@@ -87,12 +117,19 @@ export const SpaceEntryCard = ({
                 id={`space-type-${space.id}`}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={space.type}
-                onChange={(e) => onUpdate(space.id, 'type', e.target.value)}
+                onChange={(e) => {
+                  onUpdate(space.id, 'type', e.target.value);
+                  
+                  // Update load factor when type changes
+                  const loadFactor = getFactorForType(e.target.value).toString();
+                  onUpdate(space.id, 'loadFactor', loadFactor);
+                }}
+                disabled={loading}
               >
                 <option value="">Select type...</option>
                 {spaceTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label} ({type.factor} sf/person)
+                  <option key={type.id} value={type.code}>
+                    {type.name} ({type.occupant_load_factor} sf/person)
                   </option>
                 ))}
               </select>
@@ -153,7 +190,7 @@ export const SpaceEntryCard = ({
           {space.type && space.area && (
             <div className="col-span-2 text-sm text-muted-foreground">
               <span className="font-medium">Estimated Occupant Load: </span>
-              {Math.ceil(parseFloat(space.area) / getFactorForType(space.type))} people
+              {calculateOccupantLoad(space.area, getFactorForType(space.type))} people
               <span className="ml-2 text-xs">
                 ({space.area} sf ÷ {getFactorForType(space.type)} sf/person)
               </span>

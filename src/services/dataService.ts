@@ -61,6 +61,55 @@ export type ProjectData = {
   loading_spaces_provided?: number;
 };
 
+// Space types with load factors
+export interface SpaceTypeInfo {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  occupancy_group_id: string;
+  occupant_load_factor: number;
+}
+
+// Fetch space types by occupancy group
+export const fetchSpaceTypesByOccupancy = async (occupancyGroupId: string): Promise<SpaceTypeInfo[]> => {
+  if (!occupancyGroupId) {
+    console.error('No occupancy group ID provided');
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('space_types')
+    .select('*')
+    .eq('occupancy_group_id', occupancyGroupId);
+    
+  if (error) {
+    console.error('Error fetching space types:', error);
+    return [];
+  }
+    
+  return data || [];
+};
+
+// Get occupancy group ID by code
+export const getOccupancyGroupIdByCode = async (code: string): Promise<string | null> => {
+  // Extract base occupancy code (e.g., 'B' from 'B-1')
+  const baseCode = code.split('-')[0];
+  
+  const { data, error } = await supabase
+    .from('occupancy_groups')
+    .select('id')
+    .eq('code', baseCode)
+    .single();
+    
+  if (error) {
+    console.error('Error fetching occupancy group ID:', error);
+    return null;
+  }
+    
+  return data?.id || null;
+};
+
 // Fetch zoning districts
 export const fetchZoningDistricts = async (): Promise<ZoningDistrictData[]> => {
   const { data, error } = await supabase

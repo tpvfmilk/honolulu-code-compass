@@ -1,4 +1,3 @@
-
 // Common types for occupancy calculations and forms
 
 // Space and occupancy-related interfaces
@@ -9,6 +8,7 @@ export interface Space {
   area: string;
   floorLevel: string;
   notes?: string;
+  loadFactor?: string; // Added to store load factor from database
 }
 
 export interface TravelDistances {

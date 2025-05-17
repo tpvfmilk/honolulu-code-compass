@@ -16,6 +16,11 @@ interface OccupantLoadCardProps {
 export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCardProps) => {
   if (!occupantLoad && !isCalculating) return null;
   
+  // Calculate load using Math.floor (we're showing the actual calculated results here)
+  const calculateLoad = (area: string, factor: number) => {
+    return Math.floor(parseFloat(area) / factor);
+  };
+  
   return (
     <Card>
       <CardHeader className="pb-2">

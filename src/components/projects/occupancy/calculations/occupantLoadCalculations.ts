@@ -1,7 +1,7 @@
 
 import type { Space } from '../types/occupancyDefinitions';
-import { spaceTypesByOccupancy } from '../types/occupancyDefinitions';
 import { SpaceWithLoad } from '../types/occupancyTypes';
+import { fetchSpaceTypesByOccupancy } from '@/services/dataService';
 
 // Calculate occupant loads for all spaces
 export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string): {
@@ -15,18 +15,13 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
   let hasHighDensitySpace = false;
   
   const spaceDetails = spaces.map(space => {
-    // Find space type info
-    const occupancyKey = Object.keys(spaceTypesByOccupancy).find(key => 
-      key === primaryOccupancy || key.startsWith(primaryOccupancy)
-    ) || 'B';
-    
-    const spaceTypeInfo = spaceTypesByOccupancy[occupancyKey]?.find(
-      st => st.value === space.type
-    ) || { factor: 100, label: 'Unknown' };
-    
-    const factor = spaceTypeInfo.factor;
+    // Get the space type info from the occupancy group database
+    // Note: In the actual implementation, we'd fetch this from the database
+    const factor = parseInt(space.loadFactor as string) || 100; // Default to 100 if not specified
     const area = parseFloat(space.area) || 0;
-    const spaceLoad = Math.ceil(area / factor);
+    
+    // Use Math.floor instead of Math.ceil to round down to the lowest whole number
+    const spaceLoad = Math.floor(area / factor);
     
     totalLoad += spaceLoad;
     worstCaseLoad = Math.max(worstCaseLoad, spaceLoad);

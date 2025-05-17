@@ -4,30 +4,70 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { AuthFormProps } from "./AuthFormTypes";
+import { supabase } from "@/integrations/supabase/client";
 
-export const AuthForm = ({ handleLogin, handleSignup, loading }: AuthFormProps) => {
+type AuthFormProps = {
+  onSuccess: () => void;
+};
+
+export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setErrorMessage("");
 
     try {
       if (isLogin) {
         // Handle login
-        await handleLogin(email, password);
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome back!",
+        });
+        onSuccess();
       } else {
         // Handle signup
-        await handleSignup(email, password, name);
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: name,
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to Hawaii Building Code Compliance Platform",
+        });
+        onSuccess();
       }
     } catch (error: any) {
       setErrorMessage(error.message || "An error occurred during authentication");
+      toast({
+        title: "Authentication error",
+        description: error.message || "An error occurred during authentication",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,8 +127,8 @@ export const AuthForm = ({ handleLogin, handleSignup, loading }: AuthFormProps) 
           {errorMessage && (
             <div className="text-destructive text-sm mt-2">{errorMessage}</div>
           )}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading
               ? "Processing..."
               : isLogin
               ? "Login"

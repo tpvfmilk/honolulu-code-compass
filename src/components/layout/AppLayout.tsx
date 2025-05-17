@@ -1,218 +1,162 @@
 
-import { FC, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { useMobile } from "@/hooks/useMobile";
+import { ReactNode } from "react";
 import {
-  Menu,
-  X,
-  User,
-  LayoutGrid,
-  BookOpen,
-  LogOut,
-  ChevronRight
-} from 'lucide-react';
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar
+} from "@/components/ui/sidebar";
+import { NavLink, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
-interface AppLayoutProps {
-  children: React.ReactNode;
-  onLogout: () => Promise<void>;
-}
+type AppLayoutProps = {
+  children: ReactNode;
+  onLogout: () => void;
+};
 
-export const AppLayout: FC<AppLayoutProps> = ({ 
-  children,
-  onLogout
-}) => {
-  const isMobile = useMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
-  const location = useLocation();
-
-  // Auto-close sidebar on mobile when navigating
-  useEffect(() => {
-    if (isMobile) {
-      setIsOpen(false);
-    }
-  }, [location.pathname, isMobile]);
-
-  // Get current path for active link highlighting
-  const isActivePath = (path: string) => location.pathname === path;
+export const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
+  const { toast } = useToast();
+  
+  const handleLogout = () => {
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+    onLogout();
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-30">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {isMobile && (
-              <button 
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-1.5 rounded-md hover:bg-gray-100"
-              >
-                {isOpen ? <X className="h-5 w-5 text-gray-700" /> : <Menu className="h-5 w-5 text-gray-700" />}
-              </button>
-            )}
-            <Link to="/" className="font-bold text-lg">
-              Hawaii Code Pro
-            </Link>
-          </div>
-          
-          {isMobile ? (
-            <div className="flex items-center gap-3">
-              <Link to="/projects" className="p-1.5 rounded-md hover:bg-gray-100">
-                <LayoutGrid className="h-5 w-5 text-gray-700" />
-              </Link>
-              <Link to="/profile" className="p-1.5 rounded-md hover:bg-gray-100">
-                <User className="h-5 w-5 text-gray-700" />
-              </Link>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <Link 
-                to="/profile" 
-                className={cn(
-                  "px-3 py-2 rounded-md text-sm transition-colors",
-                  isActivePath('/profile') 
-                    ? "bg-ocean-50 text-ocean-700" 
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
-              >
-                Profile
-              </Link>
-              <button
-                onClick={onLogout}
-                className="bg-red-50 text-red-700 hover:bg-red-100 transition-colors text-sm font-medium px-3 py-2 rounded-md"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <div className="flex flex-1 relative">
-        {/* Overlay for mobile */}
-        {isMobile && isOpen && (
-          <div 
-            className="fixed inset-0 bg-black/30 z-40 transition-opacity"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-        
-        {/* Sidebar */}
-        <aside 
-          className={cn(
-            "bg-white border-r border-gray-100 z-50 transition-all duration-300 ease-in-out",
-            isMobile 
-              ? "fixed inset-y-0 left-0 w-64" 
-              : "sticky top-16 self-start h-[calc(100vh-4rem)] w-64",
-            isOpen ? "translate-x-0" : isMobile ? "-translate-x-full" : "w-0 opacity-0"
-          )}
-        >
-          <div className="h-full flex flex-col">
-            {/* Sidebar Header */}
-            <div className="p-5 border-b border-gray-100">
-              <h2 className="text-lg font-medium text-gray-900">Hawaii Code Pro</h2>
-              <p className="text-sm text-gray-500 mt-1">Building Code Compliance</p>
-            </div>
-            
-            {/* Sidebar Navigation */}
-            <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-              <Link
-                to="/profile"
-                onClick={() => isMobile && setIsOpen(false)}
-                className={cn(
-                  "flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors",
-                  isActivePath('/profile')
-                    ? "bg-ocean-50 text-ocean-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
-                )}
-              >
-                <User className={cn(
-                  "h-5 w-5 mr-3", 
-                  isActivePath('/profile') ? "text-ocean-700" : "text-gray-500"
-                )} />
-                <span>Profile</span>
-              </Link>
-              
-              <Link
-                to="/projects"
-                onClick={() => isMobile && setIsOpen(false)}
-                className={cn(
-                  "flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors",
-                  isActivePath('/projects')
-                    ? "bg-ocean-50 text-ocean-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
-                )}
-              >
-                <LayoutGrid className={cn(
-                  "h-5 w-5 mr-3", 
-                  isActivePath('/projects') ? "text-ocean-700" : "text-gray-500"
-                )} />
-                <span>My Projects</span>
-                {isActivePath('/projects') && (
-                  <ChevronRight className="h-4 w-4 ml-auto text-ocean-700" />
-                )}
-              </Link>
-              
-              <Link
-                to="/code-library"
-                onClick={() => isMobile && setIsOpen(false)}
-                className={cn(
-                  "flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors",
-                  isActivePath('/code-library')
-                    ? "bg-ocean-50 text-ocean-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
-                )}
-              >
-                <BookOpen className={cn(
-                  "h-5 w-5 mr-3", 
-                  isActivePath('/code-library') ? "text-ocean-700" : "text-gray-500"
-                )} />
-                <span>Code Reference Library</span>
-                {isActivePath('/code-library') && (
-                  <ChevronRight className="h-4 w-4 ml-auto text-ocean-700" />
-                )}
-              </Link>
-            </nav>
-            
-            {/* Sidebar Footer */}
-            <div className="p-3 border-t border-gray-100">
-              <button
-                onClick={async () => {
-                  setIsOpen(false);
-                  await onLogout();
-                }}
-                className="flex items-center w-full px-3 py-2.5 text-sm rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <LogOut className="h-5 w-5 mr-3 text-red-500" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </aside>
-        
-        {/* Toggle sidebar button for desktop */}
-        {!isMobile && (
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className={cn(
-              "sticky top-20 h-8 w-8 flex items-center justify-center rounded-full bg-white shadow-md z-10 transition-all",
-              isOpen ? "-ml-4" : "ml-0"
-            )}
-          >
-            <ChevronRight className={cn(
-              "h-4 w-4 text-gray-500 transition-transform",
-              isOpen ? "rotate-180" : ""
-            )} />
-          </button>
-        )}
-        
-        {/* Main Content */}
-        <main className={cn(
-          "flex-1 py-6 px-4 sm:px-6 transition-all",
-          isMobile ? "" : (isOpen ? "ml-0" : "ml-0")
-        )}>
+    <div className="min-h-screen flex w-full">
+      <AppSidebar onLogout={handleLogout} />
+      <div className="flex-1 flex flex-col">
+        <AppHeader />
+        <main className="flex-1 p-6 overflow-auto">
           {children}
         </main>
+        <AppFooter />
       </div>
     </div>
+  );
+};
+
+const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
+  const sidebar = useSidebar();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (path: string) => currentPath === path;
+  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
+
+  return (
+    <Sidebar 
+      className={sidebar.state === "collapsed" ? "w-14" : "w-60"} 
+      collapsible="icon"
+    >
+      <div className={`p-4 border-b flex ${sidebar.state === "collapsed" ? "justify-center" : "justify-between"} items-center`}>
+        {sidebar.state !== "collapsed" && (
+          <div className="font-semibold text-primary">HI Code Compliance</div>
+        )}
+        <SidebarTrigger />
+      </div>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/" end className={getNavCls}>
+                    <Home className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Home</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/projects" className={getNavCls}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>My Projects</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/project/new" className={getNavCls}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>New Project</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/help" className={getNavCls}>
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Help</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/profile" className={getNavCls}>
+                    <User className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Profile</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Button variant="ghost" className="w-full justify-start" onClick={onLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Logout</span>}
+                  </Button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+};
+
+const AppHeader = () => {
+  return (
+    <header className="border-b py-3 px-6 bg-card">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-semibold text-primary">Hawaii Building Code Compliance</h1>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">John Architect</span>
+          <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
+            JA
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+const AppFooter = () => {
+  return (
+    <footer className="border-t py-3 px-6 text-center text-sm text-muted-foreground">
+      © {new Date().getFullYear()} Hawaii Building Code Compliance Platform
+    </footer>
   );
 };

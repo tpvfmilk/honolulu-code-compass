@@ -1,201 +1,583 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
-import { StatsCards } from '@/components/dashboard/StatsCards';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { toast } from 'sonner';
-import { Plus, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+
+// src/pages/ProjectsList.tsx
+import { FC, useState, useEffect } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { PlusCircle, Filter, Search, Grid, List, MoreVertical, FileText, Copy, Trash, Eye } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+
+// Define the project type
+interface Project {
+  id: string;
+  name: string;
+  tmk: string;
+  status: "draft" | "in_progress" | "submitted" | "approved" | "rejected";
+  project_type: string;
+  address: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Define the database type that matches Supabase schema
+interface ProjectData {
+  id: string;
+  name: string;
+  tmk: string | null;
+  status: string | null;
+  address: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  current_step: number | null;
+  is_complete: boolean | null;
+  property_owner: string | null;
+  client_name: string | null;
+  user_id: string;
+}
 
 interface ProjectsListProps {
   onLogout: () => Promise<void>;
 }
 
-// Extend Project type to ensure compatibility
-interface Project {
-  id: string;
-  name: string;
-  address: string;
-  tmk: string;
-  client_name: string;
-  property_owner: string;
-  status: "draft" | "in-progress" | "completed" | "needs-revision";  // Use literal types
-  project_type: string;
-  created_at: string;
-  updated_at: string;
-  current_step: number;
-  is_complete: boolean;
-  user_id?: string;
-}
-
-const ProjectsList = ({ onLogout }: ProjectsListProps) => {
+const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('updated_at', { ascending: false });
-        
-      if (error) {
-        throw error;
-      }
-      
-      if (data) {
-        // Ensure proper status values and project_type
-        const formattedProjects = data.map(project => ({
-          ...project,
-          status: validateStatus(project.status),
-          project_type: project.project_type || "Unknown"
-        })) as Project[];
-        
-        setProjects(formattedProjects);
-      }
-    } catch (error: any) {
-      toast.error(`Error loading projects: ${error.message}`);
-      console.error('Error fetching projects:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Helper to validate status values
-  const validateStatus = (status: string): "draft" | "in-progress" | "completed" | "needs-revision" => {
-    const validStatuses = ["draft", "in-progress", "completed", "needs-revision"];
-    return validStatuses.includes(status) ? status as any : "draft";
-  };
-  
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-  
-  // Filter projects based on active tab and search term
-  const filteredProjects = projects.filter(project => {
-    // Filter by tab
-    if (activeFilter !== "all" && project.status !== activeFilter) {
-      return false;
-    }
-    
-    // Filter by search term
-    if (searchTerm && !project.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !project.tmk.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  // Calculate statistics
-  const stats = {
-    total: projects.length,
-    active: projects.filter(p => p.status === "in-progress").length,
-    completed: projects.filter(p => p.status === "completed").length,
-    pending: projects.filter(p => ["draft", "needs-revision"].includes(p.status)).length
-  };
-  
-  return (
-    <AppLayout onLogout={async () => await onLogout()}>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Projects</h1>
-              <p className="text-gray-500 mt-1">Manage and track your building code compliance projects</p>
-            </div>
-            
-            <Button 
-              onClick={() => navigate('/project/create')}
-              className="bg-ocean-600 hover:bg-ocean-700 text-white shadow-sm transition-all flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New Project</span>
-            </Button>
-          </div>
-        </div>
-        
-        {/* Stats Cards */}
-        <StatsCards 
-          totalProjects={stats.total}
-          completedProjects={stats.completed}
-          inProgressProjects={stats.active}
-        />
-        
-        {/* Projects Section */}
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex flex-col sm:flex-row justify-between gap-4">
-              {/* Search */}
-              <div className="relative w-full sm:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 bg-gray-50 border-gray-200"
-                />
-              </div>
-              
-              {/* Filter Tabs */}
-              <Tabs defaultValue={activeFilter} onValueChange={setActiveFilter} className="w-full sm:w-auto">
-                <TabsList className="bg-gray-100 p-1 h-auto">
-                  <TabsTrigger value="all" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
-                    All Projects
-                  </TabsTrigger>
-                  <TabsTrigger value="in-progress" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
-                    Active
-                  </TabsTrigger>
-                  <TabsTrigger value="completed" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
-                    Completed
-                  </TabsTrigger>
-                  <TabsTrigger value="draft" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
-                    Drafts
-                  </TabsTrigger>
-                </TabsList>
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
 
-                {/* This TabsContent must be within the Tabs component */}
-                <TabsContent value={activeFilter} className="mt-0 p-6">
-                  {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ocean-600"></div>
-                    </div>
-                  ) : filteredProjects.length > 0 ? (
-                    <ProjectGrid projects={filteredProjects as any} />
-                  ) : (
-                    <div className="bg-gray-50 rounded-lg p-10 text-center">
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-                      <p className="text-gray-500 mb-6">
-                        {searchTerm 
-                          ? "Try adjusting your search term or filter selection" 
-                          : (activeFilter === "all" 
-                            ? "You don't have any projects yet. Create your first project to get started." 
-                            : `You don't have any ${activeFilter} projects.`
-                          )
-                        }
-                      </p>
-                      <Button 
-                        onClick={() => navigate('/project/create')}
-                        className="bg-ocean-600 hover:bg-ocean-700 text-white"
-                      >
-                        Create New Project
-                      </Button>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
+  // Fetch projects on component mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("projects")
+          .select("*")
+          .order("updated_at", { ascending: false });
+
+        if (error) throw error;
+
+        // Map database results to the Project type
+        const mappedProjects: Project[] = (data || []).map((item: ProjectData) => ({
+          id: item.id,
+          name: item.name,
+          tmk: item.tmk || '',
+          status: (item.status as "draft" | "in_progress" | "submitted" | "approved" | "rejected") || 'draft',
+          project_type: determineProjectType(item),  // Helper function to determine project type
+          address: item.address || '',
+          created_at: item.created_at || '',
+          updated_at: item.updated_at || ''
+        }));
+
+        setProjects(mappedProjects);
+        setFilteredProjects(mappedProjects);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load projects. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [toast]);
+
+  // Helper function to determine project type from other fields
+  const determineProjectType = (project: ProjectData): string => {
+    // This is a placeholder logic - you may want to replace with actual logic
+    // based on your application's requirements or store project_type in the database
+    if (project.client_name?.toLowerCase().includes('commercial')) {
+      return 'commercial';
+    } else if (project.address?.toLowerCase().includes('apartment') || 
+              project.address?.toLowerCase().includes('condo')) {
+      return 'mixed';
+    } else {
+      return 'residential'; // Default type
+    }
+  };
+
+  // Apply filters whenever filter states change
+  useEffect(() => {
+    let result = [...projects];
+
+    // Apply search query filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (project) =>
+          project.name.toLowerCase().includes(query) ||
+          project.tmk.toLowerCase().includes(query) ||
+          project.address.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      result = result.filter((project) => project.status === statusFilter);
+    }
+
+    // Apply type filter
+    if (typeFilter !== "all") {
+      result = result.filter((project) => project.project_type === typeFilter);
+    }
+
+    setFilteredProjects(result);
+  }, [searchQuery, statusFilter, typeFilter, projects]);
+
+  // Handle project creation
+  const handleCreateProject = () => {
+    navigate("/project/new");
+  };
+
+  // Handle project selection (for batch operations)
+  const handleSelectProject = (projectId: string) => {
+    setSelectedProjects((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  // Handle batch deletion
+  const handleBatchDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedProjects.length} projects?`)) {
+      try {
+        const { error } = await supabase
+          .from("projects")
+          .delete()
+          .in("id", selectedProjects);
+
+        if (error) throw error;
+
+        setProjects((prev) => prev.filter((project) => !selectedProjects.includes(project.id)));
+        setSelectedProjects([]);
+
+        toast({
+          title: "Success",
+          description: `${selectedProjects.length} projects deleted successfully.`,
+        });
+      } catch (error) {
+        console.error("Error deleting projects:", error);
+        toast({
+          title: "Error",
+          description: "Failed to delete projects. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // Get status badge color based on status
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "draft":
+        return "bg-gray-200 text-gray-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "submitted":
+        return "bg-amber-100 text-amber-800";
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Generate project statistics
+  const getProjectStats = () => {
+    const total = projects.length;
+    const inProgress = projects.filter((p) => p.status === "in_progress").length;
+    const submitted = projects.filter((p) => p.status === "submitted").length;
+    const approved = projects.filter((p) => p.status === "approved").length;
+
+    return { total, inProgress, submitted, approved };
+  };
+
+  const stats = getProjectStats();
+
+  return (
+    <AppLayout onLogout={onLogout}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">My Projects</h1>
+            <p className="text-muted-foreground">
+              Manage and track all your building code compliance projects
+            </p>
+          </div>
+          <Button onClick={handleCreateProject} className="flex items-center gap-2">
+            <PlusCircle className="h-4 w-4" />
+            New Project
+          </Button>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-sm text-muted-foreground">Total Projects</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-2xl font-bold">{stats.inProgress}</div>
+              <div className="text-sm text-muted-foreground">In Progress</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-2xl font-bold">{stats.submitted}</div>
+              <div className="text-sm text-muted-foreground">Pending Review</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-2xl font-bold">{stats.approved}</div>
+              <div className="text-sm text-muted-foreground">Approved</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search projects by name, TMK, or address..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Project Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="residential">Residential</SelectItem>
+                <SelectItem value="commercial">Commercial</SelectItem>
+                <SelectItem value="mixed">Mixed-Use</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="border rounded-md p-2 flex gap-1">
+              <Button
+                variant={viewMode === "grid" ? "secondary" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+                className="h-8 w-8"
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "secondary" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("list")}
+                className="h-8 w-8"
+              >
+                <List className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
+
+        {/* Selected Projects Actions */}
+        {selectedProjects.length > 0 && (
+          <div className="bg-muted p-2 rounded-md flex items-center justify-between">
+            <span className="text-sm font-medium">
+              {selectedProjects.length} projects selected
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setSelectedProjects([])}>
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Generate reports for selected projects
+                  toast({
+                    title: "Generating Reports",
+                    description: `Preparing reports for ${selectedProjects.length} projects.`,
+                  });
+                }}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Reports
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleBatchDelete}>
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Projects Display */}
+        {isLoading ? (
+          // Skeleton loader for projects
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-gray-100 animate-pulse rounded-lg h-[200px]"
+              ></div>
+            ))}
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          // Empty state
+          <div className="text-center py-12 border rounded-lg bg-gray-50">
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <FileText className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-medium">No projects found</h3>
+            <p className="text-muted-foreground mb-4">
+              {projects.length === 0
+                ? "You haven't created any projects yet"
+                : "No projects match your current filters"}
+            </p>
+            {projects.length === 0 ? (
+              <Button onClick={handleCreateProject}>Create Your First Project</Button>
+            ) : (
+              <Button variant="outline" onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+                setTypeFilter("all");
+              }}>
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        ) : viewMode === "grid" ? (
+          // Grid view
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProjects.map((project) => (
+              <Card key={project.id} className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 overflow-hidden">
+                      <CardTitle className="text-lg truncate" title={project.name}>
+                        {project.name}
+                      </CardTitle>
+                    </div>
+                    <Checkbox
+                      checked={selectedProjects.includes(project.id)}
+                      onCheckedChange={() => handleSelectProject(project.id)}
+                      className="mr-2 mt-1"
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => navigate(`/project/${project.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Generate Report
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Copy className="mr-2 h-4 w-4" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600">
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    TMK: {project.tmk}
+                  </div>
+                  <div className="text-sm text-muted-foreground mb-3 truncate" title={project.address}>
+                    {project.address}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className={getStatusBadgeColor(project.status)}
+                      variant="secondary"
+                    >
+                      {project.status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </Badge>
+                    <Badge variant="outline">{project.project_type}</Badge>
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-2 text-xs text-muted-foreground">
+                  Last updated: {new Date(project.updated_at).toLocaleDateString()}
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          // List view
+          <div className="border rounded-md overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[30px]">
+                    <Checkbox
+                      checked={
+                        selectedProjects.length === filteredProjects.length &&
+                        filteredProjects.length > 0
+                      }
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedProjects(filteredProjects.map((p) => p.id));
+                        } else {
+                          setSelectedProjects([]);
+                        }
+                      }}
+                    />
+                  </TableHead>
+                  <TableHead>Project Name</TableHead>
+                  <TableHead>TMK</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProjects.map((project) => (
+                  <TableRow key={project.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedProjects.includes(project.id)}
+                        onCheckedChange={() => handleSelectProject(project.id)}
+                      />
+                    </TableCell>
+                    <TableCell
+                      className="font-medium"
+                      onClick={() => navigate(`/project/${project.id}`)}
+                    >
+                      {project.name}
+                    </TableCell>
+                    <TableCell>{project.tmk}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={getStatusBadgeColor(project.status)}
+                        variant="secondary"
+                      >
+                        {project.status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{project.project_type}</TableCell>
+                    <TableCell>
+                      {new Date(project.updated_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => navigate(`/project/${project.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <FileText className="mr-2 h-4 w-4" />
+                              Generate Report
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Copy className="mr-2 h-4 w-4" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

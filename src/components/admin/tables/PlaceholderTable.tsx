@@ -7,18 +7,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface PlaceholderTableProps {
-  title?: string;
-  description?: string;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  title: string;
+  description: string;
 }
 
-export const PlaceholderTable = ({ 
-  title = "Coming Soon", 
-  description = "This table will be available in a future update",
-  searchQuery,
-  setSearchQuery
-}: PlaceholderTableProps) => {
+export const PlaceholderTable = ({ title, description }: PlaceholderTableProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  
   const handleAction = (action: string) => {
     toast.info(`${action} functionality will be implemented soon.`);
   };

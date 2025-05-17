@@ -33,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 201 100% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -95,27 +95,10 @@
   }
 }
 
-/* Clean card shadows */
-.hawaii-card-shadow {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-/* Ocean gradient */
 .hawaii-gradient {
-  background: linear-gradient(135deg, #0ea5e9, #0c4a6e);
+  background: linear-gradient(135deg, #0ea5e9, #4caf50);
 }
 
-/* Custom transitions */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
-
-.hover-scale {
-  @apply transition-transform duration-300;
-}
-
-.hover-scale:hover {
-  transform: scale(1.02);
+.hawaii-card-shadow {
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.15);
 }

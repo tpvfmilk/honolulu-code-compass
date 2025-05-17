@@ -1,87 +1,59 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthForm } from '@/components/auth/AuthForm';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+// src/pages/Auth.tsx
+import { FC, useState, useEffect } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthForm } from "@/components/auth/AuthForm";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "@/hooks/useSession";
 
-const Auth = () => {
+// Define the props interface for the Auth page
+export interface AuthProps {
+  onLogout: () => Promise<void>;
+}
+
+const Auth: FC<AuthProps> = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast.success('Logged in successfully');
-      navigate('/profile');
-    } catch (error: any) {
-      toast.error(`Login failed: ${error.message}`);
-      console.error('Login error:', error);
-    } finally {
-      setLoading(false);
+  const { toast } = useToast();
+  const { session } = useSession();
+  const [redirecting, setRedirecting] = useState(false);
+
+  // Redirect if already logged in - with safeguard against loops
+  useEffect(() => {
+    if (session && !redirecting) {
+      console.log("Auth page: User is already logged in, redirecting to profile");
+      setRedirecting(true);
+      navigate("/profile");
     }
+  }, [session, navigate, redirecting]);
+
+  const handleAuthSuccess = () => {
+    toast({
+      title: "Authentication successful",
+      description: "You have been logged in successfully",
+    });
+    // Let the App.tsx handle the redirection based on session state
   };
-  
-  const handleSignup = async (email: string, password: string, username: string) => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-        },
+
+  // Create a wrapper function that calls onLogout without exposing its async nature
+  const wrappedLogout = () => {
+    onLogout().catch(error => {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout error",
+        description: "There was a problem logging out",
+        variant: "destructive",
       });
-      
-      if (error) {
-        throw error;
-      }
-      
-      if (data?.user) {
-        toast.success('Account created! Check your email for confirmation.');
-      }
-    } catch (error: any) {
-      toast.error(`Signup failed: ${error.message}`);
-      console.error('Signup error:', error);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-          Hawaii Code Pro
-        </h1>
-        <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-gray-900">
-          Sign in to your account
-        </h2>
+    <AppLayout onLogout={wrappedLogout}>
+      <div className="max-w-md mx-auto mt-8">
+        <h1 className="text-2xl font-bold mb-6">Sign In or Sign Up</h1>
+        <AuthForm onSuccess={handleAuthSuccess} />
       </div>
-      
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
-          <AuthForm 
-            handleLogin={handleLogin}
-            handleSignup={handleSignup}
-            loading={loading}
-          />
-        </div>
-      </div>
-    </div>
+    </AppLayout>
   );
 };
 

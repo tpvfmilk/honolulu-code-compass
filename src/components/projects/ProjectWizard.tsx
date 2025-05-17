@@ -74,7 +74,10 @@ export const ProjectWizard = () => {
               />
             )}
 
-            {currentStep === 4 && <OccupancyDetailsStep />}
+            {currentStep === 4 && <OccupancyDetailsStep 
+              formData={formData}
+              updateFormData={updateFormData}
+            />}
 
             {currentStep === 5 && <ReviewStep formData={formData} />}
           </form>

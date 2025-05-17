@@ -1,12 +1,18 @@
-
 import { useState, useEffect } from 'react';
-import { FormData, Space, TravelDistances, spaceTypesByOccupancy, travelDistanceLimits } from '../types';
+import { FormData, Space, travelDistanceLimits } from '../types';
 
 export interface SpaceWithLoad extends Space {
   loadFactor: number;
   occupantLoad: number;
   calculation: string;
   highDensity?: boolean;
+}
+
+export interface TravelDistances {
+  maxExitAccess: string;
+  commonPath: string;
+  deadEnd: string;
+  roomTravel?: string;
 }
 
 export interface TravelLimits {

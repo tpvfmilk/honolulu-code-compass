@@ -173,6 +173,75 @@ export const fetchHeightAreaLimits = async (): Promise<HeightAreaLimitData[]> =>
   return data || [];
 };
 
+// Create a new height and area limit record
+export const createHeightAreaLimit = async (record: Omit<HeightAreaLimitData, 'id' | 'created_at' | 'updated_at'>): Promise<HeightAreaLimitData | null> => {
+  const { data, error } = await supabase
+    .from('height_area_limits')
+    .insert({
+      construction_type_id: record.construction_type_id,
+      occupancy_group_id: record.occupancy_group_id,
+      base_height_ft: record.base_height_ft,
+      base_stories: record.base_stories,
+      base_allowable_area: record.base_allowable_area,
+      sprinklered_height_ft: record.sprinklered_height_ft,
+      sprinklered_stories: record.sprinklered_stories,
+      sprinklered_area: record.sprinklered_area,
+      sprinkler_increase_allowed: record.sprinkler_increase_allowed,
+    })
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error creating height and area limit record:', error);
+    return null;
+  }
+    
+  return data;
+};
+
+// Update an existing height and area limit record
+export const updateHeightAreaLimit = async (record: HeightAreaLimitData): Promise<HeightAreaLimitData | null> => {
+  const { data, error } = await supabase
+    .from('height_area_limits')
+    .update({
+      construction_type_id: record.construction_type_id,
+      occupancy_group_id: record.occupancy_group_id,
+      base_height_ft: record.base_height_ft,
+      base_stories: record.base_stories,
+      base_allowable_area: record.base_allowable_area,
+      sprinklered_height_ft: record.sprinklered_height_ft,
+      sprinklered_stories: record.sprinklered_stories,
+      sprinklered_area: record.sprinklered_area,
+      sprinkler_increase_allowed: record.sprinkler_increase_allowed,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', record.id)
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error updating height and area limit record:', error);
+    return null;
+  }
+    
+  return data;
+};
+
+// Delete a height and area limit record
+export const deleteHeightAreaLimit = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('height_area_limits')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error deleting height and area limit record:', error);
+    return false;
+  }
+    
+  return true;
+};
+
 // Fetch fire ratings
 export const fetchFireRatings = async (): Promise<FireRatingRecord[]> => {
   const { data, error } = await supabase

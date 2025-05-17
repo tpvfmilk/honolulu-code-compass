@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { fetchLoadFactors, fetchOccupancyGroups } from "@/services/dataService";
+import { LoadFactorsForm } from "../forms/LoadFactorsForm";
 
 interface LoadFactorsTableProps {
   searchQuery: string;
@@ -31,6 +31,9 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<LoadFactorRecord | null>(null);
   
   useEffect(() => {
     const loadData = async () => {
@@ -116,7 +119,13 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
   };
   
   const handleEdit = (id: string) => {
-    toast.info(`Editing record ID: ${id}`);
+    const recordToEdit = data.find(item => item.id === id);
+    if (recordToEdit) {
+      setEditingRecord(recordToEdit);
+      setIsEditDialogOpen(true);
+    } else {
+      toast.info(`Editing record ID: ${id}`);
+    }
   };
   
   const handleDelete = (id: string) => {
@@ -148,8 +157,17 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
     return `${value} sq ft per person`;
   };
   
-  const handleAddRecord = () => {
-    toast.info("Add new record functionality will be implemented soon.");
+  const handleAddRecord = (newRecord: LoadFactorRecord) => {
+    setData(prevData => [...prevData, newRecord]);
+    setIsAddDialogOpen(false);
+  };
+  
+  const handleEditSave = (updatedRecord: LoadFactorRecord) => {
+    setData(prevData => 
+      prevData.map(item => item.id === updatedRecord.id ? updatedRecord : item)
+    );
+    setIsEditDialogOpen(false);
+    setEditingRecord(null);
   };
   
   const handleDownloadTemplate = () => {
@@ -198,14 +216,23 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
                 />
               </DialogContent>
             </Dialog>
-            <Button 
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={handleAddRecord}
-            >
-              <Plus className="h-4 w-4" />
-              <span>Add Record</span>
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Record</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl">
+                <LoadFactorsForm
+                  onClose={() => setIsAddDialogOpen(false)}
+                  onSave={handleAddRecord}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </CardHeader>

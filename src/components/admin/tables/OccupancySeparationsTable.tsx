@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -17,6 +16,7 @@ import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { fetchOccupancyGroups, fetchOccupancySeparations } from "@/services/dataService";
+import { OccupancySeparationsForm } from "../forms/OccupancySeparationsForm";
 
 interface OccupancySeparation {
   id: string;
@@ -37,6 +37,9 @@ export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: Occup
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<OccupancySeparation | null>(null);
   
   useEffect(() => {
     const loadData = async () => {
@@ -129,7 +132,13 @@ export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: Occup
   };
   
   const handleEdit = (id: string) => {
-    toast.info(`Editing record ID: ${id}`);
+    const recordToEdit = data.find(item => item.id === id);
+    if (recordToEdit) {
+      setEditingRecord(recordToEdit);
+      setIsEditDialogOpen(true);
+    } else {
+      toast.info(`Editing record ID: ${id}`);
+    }
   };
   
   const handleDelete = (id: string) => {
@@ -157,8 +166,17 @@ export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: Occup
     return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
   };
   
-  const handleAddRecord = () => {
-    toast.info("Add new record functionality will be implemented soon.");
+  const handleAddRecord = (newRecord: OccupancySeparation) => {
+    setData(prevData => [...prevData, newRecord]);
+    setIsAddDialogOpen(false);
+  };
+  
+  const handleEditSave = (updatedRecord: OccupancySeparation) => {
+    setData(prevData => 
+      prevData.map(item => item.id === updatedRecord.id ? updatedRecord : item)
+    );
+    setIsEditDialogOpen(false);
+    setEditingRecord(null);
   };
   
   const handleDownloadTemplate = () => {
@@ -207,14 +225,23 @@ export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: Occup
                 />
               </DialogContent>
             </Dialog>
-            <Button 
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={handleAddRecord}
-            >
-              <Plus className="h-4 w-4" />
-              <span>Add Record</span>
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Record</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl">
+                <OccupancySeparationsForm
+                  onClose={() => setIsAddDialogOpen(false)}
+                  onSave={handleAddRecord}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </CardHeader>
@@ -305,6 +332,22 @@ export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: Occup
             onPageChange={setCurrentPage}
           />
         )}
+        
+        {/* Dialog for editing records */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-3xl">
+            {editingRecord && (
+              <OccupancySeparationsForm
+                initialData={editingRecord}
+                onClose={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingRecord(null);
+                }}
+                onSave={handleEditSave}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

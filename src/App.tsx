@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   BrowserRouter,
+  Navigate,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSession, SessionProvider } from "./hooks/useSession";
@@ -25,18 +26,24 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [setSession]);
 
   useEffect(() => {
-    if (!session && !loading && window.location.pathname !== "/") {
+    if (!session && !loading && window.location.pathname !== "/" && window.location.pathname !== "/auth") {
       navigate("/auth");
     } else if (session && !loading && window.location.pathname === "/auth") {
       navigate("/profile");
@@ -44,22 +51,36 @@ function AppRoutes() {
   }, [session, loading, navigate]);
 
   if (loading) {
-    return <></>;
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/');
   };
 
+  // Define routes with authentication protection
   return (
     <Routes>
       <Route path="/" element={<Index onLogout={handleLogout} />} />
-      <Route path="/help" element={<Help onLogout={handleLogout} />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
-      <Route path="/project/new" element={<ProjectCreate onLogout={handleLogout} />} />
-      <Route path="/project/:id" element={<ProjectView onLogout={handleLogout} />} />
-      <Route path="/admin" element={<AdminDashboard onLogout={handleLogout} />} />
+      <Route path="/help" element={<Help onLogout={handleLogout} />} />
+      <Route 
+        path="/profile" 
+        element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" />} 
+      />
+      <Route 
+        path="/project/new" 
+        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" />} 
+      />
+      <Route 
+        path="/project/:id" 
+        element={session ? <ProjectView onLogout={handleLogout} /> : <Navigate to="/auth" />} 
+      />
+      <Route 
+        path="/admin" 
+        element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" />} 
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

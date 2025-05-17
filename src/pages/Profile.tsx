@@ -1,4 +1,3 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
+import { useToast } from "@/components/ui/use-toast";
 
 const Profile = ({ onLogout }: { onLogout: () => void }) => {
   const [notifications, setNotifications] = useState({
@@ -15,6 +17,70 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
     updates: false,
     marketing: false,
   });
+  const { session } = useSession();
+  const { toast } = useToast();
+  const [username, setUsername] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      setUserEmail(session.user.email || "");
+      
+      // Fetch profile data from Supabase
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+          
+          if (data) {
+            setUsername(data.username || "");
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+      };
+      
+      fetchProfile();
+    }
+  }, [session]);
+
+  const updateProfile = async () => {
+    if (!session?.user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          username: username 
+        })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating profile",
+        description: error.message || "An error occurred while updating your profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AppLayout onLogout={onLogout}>
@@ -41,30 +107,52 @@ const Profile = ({ onLogout }: { onLogout: () => void }) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); updateProfile(); }}>
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" defaultValue="John" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Architect" defaultValue="Architect" />
+                      <Label htmlFor="username">Username</Label>
+                      <Input 
+                        id="username" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Your username" 
+                      />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" defaultValue="john@architectfirm.com" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" placeholder="(808) 555-1234" defaultValue="(808) 555-1234" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={userEmail} 
+                      disabled={true} 
+                      placeholder="Your email"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                   </div>
 
-                  <Button type="submit">Update Profile</Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Updating..." : "Update Profile"}
+                  </Button>
                 </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Authentication</CardTitle>
+                <CardDescription>
+                  Manage your account security
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button 
+                  variant="destructive" 
+                  onClick={onLogout}
+                >
+                  Sign Out
+                </Button>
               </CardContent>
             </Card>
 

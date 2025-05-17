@@ -3,9 +3,12 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleAuthSuccess = () => {
     navigate("/profile");

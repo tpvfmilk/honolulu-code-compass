@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthFormProps = {
   onSuccess: () => void;
@@ -15,21 +16,59 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage("");
 
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      if (isLogin) {
+        // Handle login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome back!",
+        });
+        onSuccess();
+      } else {
+        // Handle signup
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: name,
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to Hawaii Building Code Compliance Platform",
+        });
+        onSuccess();
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || "An error occurred during authentication");
       toast({
-        title: isLogin ? "Logged in successfully" : "Account created successfully",
-        description: "Welcome to Hawaii Building Code Compliance Platform",
+        title: "Authentication error",
+        description: error.message || "An error occurred during authentication",
+        variant: "destructive",
       });
-      onSuccess();
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -85,6 +124,9 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               required
             />
           </div>
+          {errorMessage && (
+            <div className="text-destructive text-sm mt-2">{errorMessage}</div>
+          )}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading
               ? "Processing..."

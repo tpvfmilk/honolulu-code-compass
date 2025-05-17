@@ -49,6 +49,7 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Project header section */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">{project.name}</h1>
@@ -69,6 +70,7 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
         </div>
       </div>
 
+      {/* Tabs section - making sure TabsContent is inside Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>

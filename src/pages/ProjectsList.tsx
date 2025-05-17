@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -163,38 +162,39 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
                     Drafts
                   </TabsTrigger>
                 </TabsList>
+
+                {/* This TabsContent must be within the Tabs component */}
+                <TabsContent value={activeFilter} className="mt-0 p-6">
+                  {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ocean-600"></div>
+                    </div>
+                  ) : filteredProjects.length > 0 ? (
+                    <ProjectGrid projects={filteredProjects as any} />
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-10 text-center">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
+                      <p className="text-gray-500 mb-6">
+                        {searchTerm 
+                          ? "Try adjusting your search term or filter selection" 
+                          : (activeFilter === "all" 
+                            ? "You don't have any projects yet. Create your first project to get started." 
+                            : `You don't have any ${activeFilter} projects.`
+                          )
+                        }
+                      </p>
+                      <Button 
+                        onClick={() => navigate('/project/create')}
+                        className="bg-ocean-600 hover:bg-ocean-700 text-white"
+                      >
+                        Create New Project
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
               </Tabs>
             </div>
           </div>
-          
-          <TabsContent value={activeFilter} className="mt-0 p-6">
-            {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ocean-600"></div>
-              </div>
-            ) : filteredProjects.length > 0 ? (
-              <ProjectGrid projects={filteredProjects as any} />
-            ) : (
-              <div className="bg-gray-50 rounded-lg p-10 text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-                <p className="text-gray-500 mb-6">
-                  {searchTerm 
-                    ? "Try adjusting your search term or filter selection" 
-                    : (activeFilter === "all" 
-                      ? "You don't have any projects yet. Create your first project to get started." 
-                      : `You don't have any ${activeFilter} projects.`
-                    )
-                  }
-                </p>
-                <Button 
-                  onClick={() => navigate('/project/create')}
-                  className="bg-ocean-600 hover:bg-ocean-700 text-white"
-                >
-                  Create New Project
-                </Button>
-              </div>
-            )}
-          </TabsContent>
         </div>
       </div>
     </AppLayout>

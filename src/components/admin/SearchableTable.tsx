@@ -83,6 +83,7 @@ export const SearchableTable = ({
           ))}
         </TabsList>
         
+        {/* Make sure TabsContent components are inside Tabs component */}
         {tables.map((table, index) => {
           const TableComp = table.component;
           return (

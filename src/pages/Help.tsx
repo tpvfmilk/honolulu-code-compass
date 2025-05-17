@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 type HelpProps = {
-  onLogout: () => void;
+  onLogout: (() => void) | (() => Promise<void>);
 };
 
 const Help = ({ onLogout }: HelpProps) => {

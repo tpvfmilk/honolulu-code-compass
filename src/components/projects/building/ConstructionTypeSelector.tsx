@@ -28,14 +28,25 @@ export const ConstructionTypeSelector = ({ value, onChange }: ConstructionTypeSe
       setIsLoading(true);
       try {
         const types = await fetchConstructionTypes();
+        console.log('Fetched construction types:', types);
+        
         // Sort construction types by their roman numeral order (I, II, III, IV, V)
         const sortedTypes = [...types].sort((a, b) => {
           // Extract the roman numeral part (I, II, III, IV, V)
-          const getRomanNumeral = (code: string) => code.split('-')[0];
+          // For database format (IA, IB) we just need to extract the roman numerals
+          const getRomanNumeral = (code: string) => {
+            // Match I, II, III, IV, or V regardless of what follows
+            const match = code.match(/^(I{1,3}|IV|V)/);
+            return match ? match[0] : '';
+          };
+          
           const romanOrder: Record<string, number> = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5 };
           
-          const aOrder = romanOrder[getRomanNumeral(a.code)] || 99;
-          const bOrder = romanOrder[getRomanNumeral(b.code)] || 99;
+          const aRoman = getRomanNumeral(a.code);
+          const bRoman = getRomanNumeral(b.code);
+          
+          const aOrder = romanOrder[aRoman] || 99;
+          const bOrder = romanOrder[bRoman] || 99;
           
           // First sort by roman numeral
           if (aOrder !== bOrder) return aOrder - bOrder;
@@ -58,8 +69,8 @@ export const ConstructionTypeSelector = ({ value, onChange }: ConstructionTypeSe
   // Group construction types by their type (I, II, III, etc.)
   const groupedConstructionTypes = constructionTypes.reduce<Record<string, ConstructionTypeData[]>>(
     (groups, type) => {
-      // Extract the type (I, II, III, etc)
-      const typePrefix = type.code.split('-')[0];
+      // Extract the type (I, II, III, etc) - for database format
+      const typePrefix = type.code.match(/^(I{1,3}|IV|V)/)?.[0] || 'Other';
       const groupName = getConstructionTypeGroupName(typePrefix);
       
       if (!groups[groupName]) {

@@ -1,5 +1,6 @@
 
 import { FormData, ConstructionType, OccupancyGroup } from "../types";
+import { dbToCodeFormat } from "@/utils/constructionTypeUtils";
 
 // Helper function to parse numeric values safely
 const parseNumeric = (value: string): number => {
@@ -238,11 +239,26 @@ export function calculateAllowableHeight(formData: FormData): number {
     return 0;
   }
   
-  // Cast to proper types
-  const constructionType = formData.constructionType as ConstructionType;
-  const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
-  
   try {
+    // Convert database format to code format for lookup
+    const constructionTypeFormatted = dbToCodeFormat(formData.constructionType);
+    console.log('DB Construction Type:', formData.constructionType);
+    console.log('Converted Construction Type:', constructionTypeFormatted);
+    
+    // Cast to proper types
+    const constructionType = constructionTypeFormatted as ConstructionType;
+    const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
+    
+    if (!baseHeightLimits[constructionType]) {
+      console.error('Construction type not found in height limits:', constructionType);
+      return 0;
+    }
+    
+    if (!baseHeightLimits[constructionType][occupancyGroup]) {
+      console.error('Occupancy group not found for this construction type:', occupancyGroup);
+      return 0;
+    }
+    
     let allowableHeight = baseHeightLimits[constructionType][occupancyGroup];
     
     // Apply sprinkler increase if applicable (IBC 504.2)
@@ -264,11 +280,24 @@ export function calculateAllowableStories(formData: FormData): number {
     return 0;
   }
   
-  // Cast to proper types
-  const constructionType = formData.constructionType as ConstructionType;
-  const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
-  
   try {
+    // Convert database format to code format for lookup
+    const constructionTypeFormatted = dbToCodeFormat(formData.constructionType);
+    
+    // Cast to proper types
+    const constructionType = constructionTypeFormatted as ConstructionType;
+    const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
+    
+    if (!baseStoryLimits[constructionType]) {
+      console.error('Construction type not found in story limits:', constructionType);
+      return 0;
+    }
+    
+    if (!baseStoryLimits[constructionType][occupancyGroup]) {
+      console.error('Occupancy group not found for this construction type:', occupancyGroup);
+      return 0;
+    }
+    
     let allowableStories = baseStoryLimits[constructionType][occupancyGroup];
     
     // Apply sprinkler increase if applicable (IBC 504.2)
@@ -290,11 +319,24 @@ export function calculateAllowableArea(formData: FormData): number {
     return 0;
   }
   
-  // Cast to proper types  
-  const constructionType = formData.constructionType as ConstructionType;
-  const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
-  
   try {
+    // Convert database format to code format for lookup
+    const constructionTypeFormatted = dbToCodeFormat(formData.constructionType);
+    
+    // Cast to proper types  
+    const constructionType = constructionTypeFormatted as ConstructionType;
+    const occupancyGroup = formData.occupancyGroup as OccupancyGroup;
+    
+    if (!baseAreaLimits[constructionType]) {
+      console.error('Construction type not found in area limits:', constructionType);
+      return 0;
+    }
+    
+    if (!baseAreaLimits[constructionType][occupancyGroup]) {
+      console.error('Occupancy group not found for this construction type:', occupancyGroup);
+      return 0;
+    }
+    
     let baseArea = baseAreaLimits[constructionType][occupancyGroup];
     
     // Apply sprinkler increase if applicable (IBC 506.3)

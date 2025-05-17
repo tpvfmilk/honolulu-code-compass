@@ -1,4 +1,3 @@
-
 import {
   RouterProvider,
   useNavigate,
@@ -75,7 +74,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Index onLogout={handleLogout} />} />
-      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
       <Route path="/help" element={<Help onLogout={handleLogout} />} />
       <Route 
         path="/profile" 

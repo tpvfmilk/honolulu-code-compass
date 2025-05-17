@@ -47,15 +47,19 @@ function AppRoutes() {
     return <></>;
   }
 
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   return (
     <Routes>
-      <Route path="/" element={<Index onLogout={() => navigate('/')} />} />
-      <Route path="/help" element={<Help />} />
+      <Route path="/" element={<Index onLogout={handleLogout} />} />
+      <Route path="/help" element={<Help onLogout={handleLogout} />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/project/new" element={<ProjectCreate />} />
-      <Route path="/project/:id" element={<ProjectView />} />
-      <Route path="/admin" element={<AdminDashboard onLogout={() => navigate('/')} />} />
+      <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
+      <Route path="/project/new" element={<ProjectCreate onLogout={handleLogout} />} />
+      <Route path="/project/:id" element={<ProjectView onLogout={handleLogout} />} />
+      <Route path="/admin" element={<AdminDashboard onLogout={handleLogout} />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

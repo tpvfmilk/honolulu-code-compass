@@ -1,24 +1,28 @@
+
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
+
+// Create a comprehensive interface for the internal property
+interface PdfDocumentInternal {
+  pageSize: {
+    width: number;
+    height: number;
+    getWidth: () => number;
+    getHeight: () => number;
+  };
+  pages: number[];
+  getNumberOfPages: () => number;
+  events: any;
+  scaleFactor: number;
+  getEncryptor: (objectId: number) => (data: string) => string;
+}
 
 // Define a more accurate type for jsPDF with autoTable
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
-    internal: {
-      pageSize: {
-        width: number;
-        height: number;
-        getWidth: () => number;
-        getHeight: () => number;
-      };
-      pages: number[];
-      getNumberOfPages: () => number;
-      events?: any;
-      scaleFactor?: number;
-      getEncryptor?: (objectId: number) => (data: string) => string;
-    };
+    internal: PdfDocumentInternal;
   }
 }
 
@@ -57,7 +61,7 @@ export const generateProjectCodeSheet = (project: ProjectData): string => {
     doc.text(`Project Type: ${project.project_type}`, 20, nextY);
     nextY += 10;
   }
-  doc.text(`Last Updated: ${project.lastUpdated.toLocaleDateString()}`, 20, nextY);
+  doc.text(`Last Updated: ${new Date().toLocaleDateString()}`, 20, nextY);
   nextY += 20;
   
   // Add building specifications section if we have any of this data

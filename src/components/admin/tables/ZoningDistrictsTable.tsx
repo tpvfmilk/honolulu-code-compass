@@ -12,17 +12,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { TablePagination } from "@/components/admin/TablePagination";
-import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash, Info } from "lucide-react";
+import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ZoningDistrictData, fetchZoningDistricts } from "@/services/dataService";
-import { zoningDistricts } from "@/components/projects/types/zoning/zoningTypes";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { ZoningDistrictData, fetchZoningDistricts, createZoningDistrict, updateZoningDistrict, deleteZoningDistrict } from "@/services/dataService";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { ZoningDistrict } from "@/components/admin/types";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface ZoningDistrictsTableProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
+
+// Form schema for validation
+const zoningDistrictSchema = z.object({
+  code: z.string().min(1, "Code is required"),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  min_lot_area: z.coerce.number().min(1, "Min lot area must be greater than 0"),
+  max_building_height: z.coerce.number().min(1, "Max height must be greater than 0"),
+  max_stories: z.coerce.number().optional(),
+  front_setback: z.coerce.number().min(0, "Front setback must be 0 or greater"),
+  side_setback: z.coerce.number().min(0, "Side setback must be 0 or greater"),
+  rear_setback: z.coerce.number().min(0, "Rear setback must be 0 or greater"),
+  max_lot_coverage: z.coerce.number().min(0, "Max lot coverage must be 0 or greater").max(100, "Max lot coverage cannot exceed 100%"),
+  max_far: z.coerce.number().optional(),
+});
+
+type ZoningDistrictFormValues = z.infer<typeof zoningDistrictSchema>;
 
 export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDistrictsTableProps) => {
   const [data, setData] = useState<ZoningDistrictData[]>([]);
@@ -30,46 +54,44 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
   const [sortField, setSortField] = useState<keyof ZoningDistrictData>("code");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentDistrict, setCurrentDistrict] = useState<ZoningDistrict | null>(null);
+  
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<ZoningDistrictFormValues>({
+    resolver: zodResolver(zoningDistrictSchema),
+    defaultValues: {
+      code: "",
+      name: "",
+      description: "",
+      min_lot_area: 5000,
+      max_building_height: 30,
+      max_stories: 2,
+      front_setback: 15,
+      side_setback: 5,
+      rear_setback: 10,
+      max_lot_coverage: 50,
+      max_far: 0.5,
+    }
+  });
+  
+  // Load data from API
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const zoningData = await fetchZoningDistricts();
+      setData(zoningData);
+    } catch (error) {
+      console.error("Error loading zoning districts:", error);
+      toast.error("Failed to load zoning districts data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Attempt to load from Supabase
-        const zoningData = await fetchZoningDistricts();
-        
-        if (zoningData && zoningData.length > 0) {
-          setData(zoningData);
-        } else {
-          // Fallback to static data if no data in database
-          toast.info("Using demonstration zoning data. Connect to database for production use.");
-          
-          // Create default data from static values
-          const defaultData = zoningDistricts.map((district, index) => ({
-            id: index.toString(),
-            code: district.value,
-            name: district.label,
-            description: `${district.group}: ${district.label}`,
-            min_lot_area: 5000,
-            max_building_height: 35,
-            max_stories: 2,
-            front_setback: 15,
-            side_setback: 5,
-            rear_setback: 10,
-            max_lot_coverage: 50,
-            max_far: 0.5
-          }));
-          
-          setData(defaultData);
-        }
-      } catch (error) {
-        console.error("Error loading zoning districts:", error);
-        toast.error("Failed to load zoning districts data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     loadData();
   }, []);
   
@@ -127,35 +149,172 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
       <ArrowDown className="inline h-3 w-3 ml-1" />;
   };
   
+  // Edit a record - open form with current values
   const handleEdit = (id: string) => {
-    toast.info(`Editing zoning district ID: ${id}`);
+    const district = data.find(item => item.id === id);
+    if (district) {
+      setCurrentDistrict({
+        ...district,
+        max_stories: district.max_stories || undefined,
+        max_far: district.max_far || undefined,
+        description: district.description || undefined
+      });
+      
+      form.reset({
+        code: district.code,
+        name: district.name,
+        description: district.description || "",
+        min_lot_area: district.min_lot_area,
+        max_building_height: district.max_building_height,
+        max_stories: district.max_stories || undefined,
+        front_setback: district.front_setback,
+        side_setback: district.side_setback,
+        rear_setback: district.rear_setback,
+        max_lot_coverage: district.max_lot_coverage,
+        max_far: district.max_far || undefined,
+      });
+      
+      setIsFormOpen(true);
+    }
   };
   
-  const handleDelete = (id: string) => {
-    toast.success(`Zoning district ID: ${id} deleted`);
-    setData(data.filter(item => item.id !== id));
+  // Delete a record from database
+  const handleDelete = async (id: string) => {
+    const success = await deleteZoningDistrict(id);
+    
+    if (success) {
+      toast.success("Zoning district deleted successfully");
+      setData(data.filter(item => item.id !== id));
+    } else {
+      toast.error("Failed to delete zoning district");
+    }
   };
   
-  const handleCsvUpload = async (csvData: any[]) => {
+  // Handle form submission - create or update record
+  const onSubmit = async (values: ZoningDistrictFormValues) => {
     try {
-      console.log("CSV data to process:", csvData);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success(`Successfully processed ${csvData.length} zoning districts`);
-      setIsUploadOpen(false);
-      return true;
+      setIsSubmitting(true);
+      
+      if (currentDistrict) {
+        // Update existing record
+        const updated = await updateZoningDistrict({
+          id: currentDistrict.id,
+          ...values
+        });
+        
+        if (updated) {
+          toast.success("Zoning district updated successfully");
+          setData(prev => prev.map(item => item.id === updated.id ? updated : item));
+        } else {
+          toast.error("Failed to update zoning district");
+        }
+      } else {
+        // Create new record
+        const created = await createZoningDistrict(values);
+        
+        if (created) {
+          toast.success("Zoning district created successfully");
+          setData(prev => [...prev, created]);
+        } else {
+          toast.error("Failed to create zoning district");
+        }
+      }
+      
+      setIsFormOpen(false);
+      setCurrentDistrict(null);
     } catch (error) {
-      console.error("Error processing CSV:", error);
-      toast.error("Failed to process CSV data");
-      return false;
+      console.error("Error saving zoning district:", error);
+      toast.error("An error occurred while saving zoning district");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
   const handleAddRecord = () => {
-    toast.info("Add new zoning district functionality will be implemented soon.");
+    setCurrentDistrict(null);
+    form.reset({
+      code: "",
+      name: "",
+      description: "",
+      min_lot_area: 5000,
+      max_building_height: 30,
+      max_stories: 2,
+      front_setback: 15,
+      side_setback: 5,
+      rear_setback: 10,
+      max_lot_coverage: 50,
+      max_far: 0.5,
+    });
+    setIsFormOpen(true);
   };
   
   const handleDownloadTemplate = () => {
-    toast.info("Zoning district template download functionality will be implemented soon.");
+    const headers = "code,name,description,min_lot_area,max_building_height,max_stories,front_setback,side_setback,rear_setback,max_lot_coverage,max_far";
+    const example = "R-1,Residential Single Family,Low density residential zone,5000,30,2,15,5,10,50,0.5";
+    
+    const csvContent = `${headers}\n${example}`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'zoning_districts_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.info("Template downloaded successfully");
+  };
+  
+  const handleCsvUpload = async (csvData: any[]) => {
+    try {
+      setIsLoading(true);
+      
+      // Process CSV data and create records
+      let createdCount = 0;
+      let failedCount = 0;
+      
+      for (const row of csvData) {
+        const district = {
+          code: row.code,
+          name: row.name,
+          description: row.description || undefined,
+          min_lot_area: Number(row.min_lot_area),
+          max_building_height: Number(row.max_building_height),
+          max_stories: row.max_stories ? Number(row.max_stories) : undefined,
+          front_setback: Number(row.front_setback),
+          side_setback: Number(row.side_setback),
+          rear_setback: Number(row.rear_setback),
+          max_lot_coverage: Number(row.max_lot_coverage),
+          max_far: row.max_far ? Number(row.max_far) : undefined
+        };
+        
+        const created = await createZoningDistrict(district);
+        if (created) {
+          createdCount++;
+        } else {
+          failedCount++;
+        }
+      }
+      
+      if (createdCount > 0) {
+        toast.success(`Successfully created ${createdCount} zoning districts`);
+        await loadData(); // Reload data after updates
+      }
+      
+      if (failedCount > 0) {
+        toast.error(`Failed to create ${failedCount} zoning districts`);
+      }
+      
+      setIsUploadOpen(false);
+      return createdCount > 0;
+    } catch (error) {
+      console.error("Error processing CSV:", error);
+      toast.error("Failed to process CSV data");
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
@@ -286,13 +445,33 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleDelete(row.id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete the zoning district "{row.code}" and cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDelete(row.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -300,7 +479,7 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="h-24 text-center">
-                    No zoning districts found.
+                    {searchQuery ? "No matching records found." : "No zoning districts found."}
                   </TableCell>
                 </TableRow>
               )}
@@ -315,6 +494,192 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: ZoningDist
             onPageChange={setCurrentPage}
           />
         )}
+        
+        {/* Dialog for adding/editing zoning districts */}
+        <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
+          if (!isOpen && !isSubmitting) setIsFormOpen(false);
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{currentDistrict ? "Edit Zoning District" : "Add Zoning District"}</DialogTitle>
+              <DialogDescription>
+                {currentDistrict 
+                  ? "Update the zoning district information below." 
+                  : "Fill in the details to create a new zoning district."}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>District Code</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="R-1" maxLength={10} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>District Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Residential Single Family" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Low density residential zone" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="min_lot_area"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Min Lot Area (sq ft)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="max_lot_coverage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Lot Coverage (%)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} max={100} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="max_building_height"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Building Height (ft)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="max_stories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Stories</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="front_setback"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Front Setback (ft)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="side_setback"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Side Setback (ft)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="rear_setback"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rear Setback (ft)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="max_far"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max FAR (Floor Area Ratio)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} step={0.1} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} disabled={isSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="ml-2">
+                    {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    {currentDistrict ? "Update" : "Create"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

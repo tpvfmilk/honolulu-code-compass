@@ -5,13 +5,17 @@ export interface ZoningDistrict {
   id: string;
   code: string;
   name: string;
-  maxHeight: number;
-  maxStories: number;
-  setbacks: {
-    front: number;
-    side: number;
-    rear: number;
-  };
+  description?: string;
+  min_lot_area: number;
+  max_building_height: number;
+  max_stories?: number;
+  front_setback: number;
+  side_setback: number;
+  rear_setback: number;
+  max_lot_coverage: number;
+  max_far?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface HeightAreaLimitRecord {

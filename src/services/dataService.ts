@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   HeightAreaLimitRecord, 
@@ -119,6 +118,79 @@ export const fetchZoningDistricts = async (): Promise<ZoningDistrictData[]> => {
   }
 
   return data || [];
+};
+
+// Create zoning district
+export const createZoningDistrict = async (district: Omit<ZoningDistrict, 'id' | 'created_at' | 'updated_at'>): Promise<ZoningDistrict | null> => {
+  const { data, error } = await supabase
+    .from('zoning_districts')
+    .insert({
+      code: district.code,
+      name: district.name,
+      description: district.description || null,
+      min_lot_area: district.min_lot_area,
+      max_building_height: district.max_building_height,
+      max_stories: district.max_stories || null,
+      front_setback: district.front_setback,
+      side_setback: district.side_setback,
+      rear_setback: district.rear_setback,
+      max_lot_coverage: district.max_lot_coverage,
+      max_far: district.max_far || null
+    })
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error creating zoning district:', error);
+    return null;
+  }
+    
+  return data;
+};
+
+// Update zoning district
+export const updateZoningDistrict = async (district: ZoningDistrict): Promise<ZoningDistrict | null> => {
+  const { data, error } = await supabase
+    .from('zoning_districts')
+    .update({
+      code: district.code,
+      name: district.name,
+      description: district.description || null,
+      min_lot_area: district.min_lot_area,
+      max_building_height: district.max_building_height,
+      max_stories: district.max_stories || null,
+      front_setback: district.front_setback,
+      side_setback: district.side_setback,
+      rear_setback: district.rear_setback,
+      max_lot_coverage: district.max_lot_coverage,
+      max_far: district.max_far || null,
+      updated_at: new Date()
+    })
+    .eq('id', district.id)
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error updating zoning district:', error);
+    return null;
+  }
+    
+  return data;
+};
+
+// Delete zoning district
+export const deleteZoningDistrict = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('zoning_districts')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error deleting zoning district:', error);
+    return false;
+  }
+    
+  return true;
 };
 
 // Fetch construction types

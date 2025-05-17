@@ -14,12 +14,12 @@ export interface ProjectData {
   name: string;
   tmk: string;
   status: "draft" | "in-progress" | "completed" | "needs-revision";
-  district: string;  // Changed from optional to required
+  district: string;  // Required with fallback
   lastUpdated: Date;
   address?: string;
   client_name?: string;
   property_owner?: string;
-  // Add new fields from our database
+  // Building details
   project_type?: string;
   stories?: number;
   building_height?: number;
@@ -29,6 +29,27 @@ export interface ProjectData {
   proposed_use?: string;
   construction_type?: string;
   is_fully_sprinklered?: boolean;
+  // Environmental designations
+  lava_zone?: string;
+  seismic_zone?: string;
+  flood_zone?: string;
+  // County and historic information
+  county?: "Honolulu" | "Hawaii" | "Maui" | "Kauai";
+  historic_status?: boolean;
+  historic_review_type?: string;
+  // For renovation projects
+  year_of_construction?: number;
+  original_building_code?: string;
+  alteration_level?: "1" | "2" | "3";
+  work_area_percentage?: number;
+  compliance_method?: string;
+  // Parking information
+  standard_stalls_required?: number;
+  standard_stalls_provided?: number;
+  ada_stalls_required?: number;
+  ada_stalls_provided?: number;
+  loading_spaces_required?: number;
+  loading_spaces_provided?: number;
 }
 
 // Interface used by ProjectDetail component
@@ -81,7 +102,28 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
           existing_use: projectData.existing_use,
           proposed_use: projectData.proposed_use,
           construction_type: projectData.construction_type,
-          is_fully_sprinklered: projectData.is_fully_sprinklered
+          is_fully_sprinklered: projectData.is_fully_sprinklered,
+          // Map environmental designations
+          lava_zone: projectData.lava_zone,
+          seismic_zone: projectData.seismic_zone,
+          flood_zone: projectData.flood_zone,
+          // Map county and historic information
+          county: projectData.county,
+          historic_status: projectData.historic_status,
+          historic_review_type: projectData.historic_review_type,
+          // Map renovation project fields
+          year_of_construction: projectData.year_of_construction,
+          original_building_code: projectData.original_building_code,
+          alteration_level: projectData.alteration_level,
+          work_area_percentage: projectData.work_area_percentage,
+          compliance_method: projectData.compliance_method,
+          // Map parking information
+          standard_stalls_required: projectData.standard_stalls_required,
+          standard_stalls_provided: projectData.standard_stalls_provided,
+          ada_stalls_required: projectData.ada_stalls_required,
+          ada_stalls_provided: projectData.ada_stalls_provided,
+          loading_spaces_required: projectData.loading_spaces_required,
+          loading_spaces_provided: projectData.loading_spaces_provided
         };
 
         setProject(formattedProject);

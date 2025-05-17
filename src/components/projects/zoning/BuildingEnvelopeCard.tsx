@@ -1,164 +1,132 @@
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Info } from "lucide-react";
-import { 
-  Collapsible, 
-  CollapsibleContent, 
-  CollapsibleTrigger 
-} from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ZoningCalculationsState } from "./types/zoningTypes";
+import { useState, useEffect } from "react";
 
-type BuildingEnvelopeProps = {
-  heightLimits: {
-    maxHeight: number;
-    maxStories: number;
-  } | null;
-  coverage: {
-    maxCoveragePercent: number;
-    maxCoverage: number;
-    farBase: number;
-    farConditional?: number;
-    maxFloorArea: number;
-    maxConditionalFloorArea?: number;
-  } | null;
+type BuildingEnvelopeCardProps = {
+  heightLimits: ZoningCalculationsState['heightLimits'];
+  coverage: ZoningCalculationsState['coverage'];
   lotArea: number;
+  actualHeight?: number;
+  actualStories?: number;
+  actualBuildingArea?: number;
 };
 
-export const BuildingEnvelopeCard = ({ heightLimits, coverage, lotArea }: BuildingEnvelopeProps) => {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+export const BuildingEnvelopeCard = ({ 
+  heightLimits, 
+  coverage, 
+  lotArea,
+  actualHeight,
+  actualStories,
+  actualBuildingArea 
+}: BuildingEnvelopeCardProps) => {
+  const [coverageProgress, setCoverageProgress] = useState(0);
+  const [farProgress, setFarProgress] = useState(0);
+  const [heightProgress, setHeightProgress] = useState(0);
+  const [storiesProgress, setStoriesProgress] = useState(0);
+
+  useEffect(() => {
+    // Calculate the actual coverage percentage if we have actualBuildingArea
+    if (coverage && actualBuildingArea) {
+      const actualCoveragePercent = Math.min(100, (actualBuildingArea / lotArea) * 100);
+      setCoverageProgress(Math.round((actualCoveragePercent / coverage.maxCoveragePercent) * 100));
+    } else if (coverage) {
+      // Default animation showing 75% of max
+      setTimeout(() => setCoverageProgress(75), 300);
+    }
+    
+    // Calculate the actual FAR progress if we have actualBuildingArea
+    if (coverage && actualBuildingArea) {
+      const actualFAR = actualBuildingArea / lotArea;
+      setFarProgress(Math.round((actualFAR / coverage.farBase) * 100));
+    } else if (coverage) {
+      // Default animation showing 85% of max
+      setTimeout(() => setFarProgress(85), 500);
+    }
+    
+    // Calculate height progress if we have actualHeight
+    if (heightLimits && actualHeight) {
+      setHeightProgress(Math.round((actualHeight / heightLimits.maxHeight) * 100));
+    } else if (heightLimits) {
+      // Default animation showing 80% of max
+      setTimeout(() => setHeightProgress(80), 700);
+    }
+    
+    // Calculate stories progress if we have actualStories
+    if (heightLimits && actualStories) {
+      setStoriesProgress(Math.round((actualStories / heightLimits.maxStories) * 100));
+    } else if (heightLimits) {
+      // Default animation showing 70% of max
+      setTimeout(() => setStoriesProgress(70), 900);
+    }
+  }, [heightLimits, coverage, lotArea, actualHeight, actualStories, actualBuildingArea]);
   
   if (!heightLimits || !coverage) return null;
   
-  // Format numbers with commas
-  const formatNumber = (num: number): string => {
-    return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  };
-
   return (
-    <Card className="animate-fade-in">
+    <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Building Height & Coverage Limits</CardTitle>
+        <CardTitle className="text-lg font-semibold">Building Envelope</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 space-y-6">
-        {/* Height Limits Section */}
+      <CardContent className="space-y-4">
         <div className="space-y-2">
-          <h3 className="text-sm font-medium">Maximum Height:</h3>
-          <div className="flex justify-between items-center bg-muted/30 p-3 rounded-md">
-            <div>
-              <span className="text-2xl font-bold">{heightLimits.maxHeight}</span>
-              <span className="text-sm ml-1">feet</span>
-            </div>
-            <div className="text-right">
-              <span className="text-sm text-muted-foreground">Maximum</span>
-              <div className="text-sm font-medium">{heightLimits.maxStories} stories</div>
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm">Building Height</p>
+            <p className="text-sm font-medium">
+              {actualHeight ? `${actualHeight}' / ` : ""}
+              {heightLimits.maxHeight}' max
+            </p>
           </div>
+          <Progress value={heightProgress} className="h-2" />
         </div>
         
-        {/* Lot Coverage Section */}
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium">Lot Coverage:</h3>
-            <span className="text-sm font-bold">{coverage.maxCoveragePercent}% maximum</span>
+          <div className="flex items-center justify-between">
+            <p className="text-sm">Number of Stories</p>
+            <p className="text-sm font-medium">
+              {actualStories ? `${actualStories} / ` : ""}
+              {heightLimits.maxStories} max
+            </p>
           </div>
-          
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">
-              <span className="font-medium text-primary">{formatNumber(coverage.maxCoverage)} sf</span> of {formatNumber(lotArea)} sf lot
-            </div>
-            <Progress value={50} className="h-2" />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0 sf</span>
-              <span>{formatNumber(coverage.maxCoverage)} sf maximum</span>
-            </div>
-          </div>
+          <Progress value={storiesProgress} className="h-2" />
         </div>
         
-        {/* Floor Area Ratio (FAR) Section */}
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium flex items-center">
-              Floor Area Ratio (FAR)
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      type="button"
-                      onClick={(e) => e.preventDefault()}
-                      className="ml-1 text-muted-foreground hover:text-foreground"
-                    >
-                      <Info className="h-4 w-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p>Floor Area Ratio (FAR) is the ratio of a building's total floor area to the size of the lot. For example, a FAR of 0.5 means you can build floor area up to half the lot size.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </h3>
+          <div className="flex items-center justify-between">
+            <p className="text-sm">Lot Coverage</p>
+            <p className="text-sm font-medium">
+              {actualBuildingArea 
+                ? `${((actualBuildingArea / lotArea) * 100).toFixed(1)}% / ` 
+                : ""}
+              {coverage.maxCoveragePercent.toFixed(1)}% max
+            </p>
           </div>
-          
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Base FAR:</span>
-                <span className="font-medium">{coverage.farBase} ({formatNumber(coverage.maxFloorArea)} sf total)</span>
-              </div>
-              <Progress value={60} className="h-2 mt-1" />
-            </div>
-            
-            {coverage.farConditional && coverage.maxConditionalFloorArea && (
-              <div className="pt-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm flex items-center">
-                    Conditional FAR:
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            type="button"
-                            onClick={(e) => e.preventDefault()}
-                            className="ml-1 text-muted-foreground hover:text-foreground"
-                          >
-                            <Info className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p>With 8' side yards, you qualify for increased FAR of {coverage.farConditional}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </span>
-                  <span className="font-medium">{coverage.farConditional} ({formatNumber(coverage.maxConditionalFloorArea)} sf total)</span>
-                </div>
-                <Progress value={40} className="h-2 mt-1" />
-              </div>
-            )}
-          </div>
+          <Progress value={coverageProgress} className="h-2" />
+          {actualBuildingArea && (
+            <p className="text-xs text-muted-foreground">
+              {actualBuildingArea.toLocaleString()} / {coverage.maxCoverage.toLocaleString()} sq ft
+            </p>
+          )}
         </div>
         
-        {/* Expandable Details Section */}
-        <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen} className="pt-2">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full justify-start text-sm gap-2 text-muted-foreground">
-              <ChevronDown className={`h-4 w-4 transition-transform ${isDetailsOpen ? 'rotate-180' : ''}`} />
-              Show Calculation Details
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2">
-            <div className="rounded-md bg-muted p-3 text-xs space-y-2">
-              <p><strong>Coverage Calculation:</strong> Lot Area × Max Coverage % = {formatNumber(lotArea)} × {coverage.maxCoveragePercent}% = {formatNumber(coverage.maxCoverage)} sf</p>
-              <p><strong>Base FAR Calculation:</strong> Lot Area × FAR = {formatNumber(lotArea)} × {coverage.farBase} = {formatNumber(coverage.maxFloorArea)} sf</p>
-              {coverage.farConditional && coverage.maxConditionalFloorArea && (
-                <p><strong>Conditional FAR Calculation:</strong> Lot Area × FAR = {formatNumber(lotArea)} × {coverage.farConditional} = {formatNumber(coverage.maxConditionalFloorArea)} sf (with 8' side yards)</p>
-              )}
-              <p><strong>Code Reference:</strong> Honolulu LUO Chapter 21-3.70 (development standards)</p>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm">Floor Area Ratio (FAR)</p>
+            <p className="text-sm font-medium">
+              {actualBuildingArea 
+                ? `${(actualBuildingArea / lotArea).toFixed(2)} / ` 
+                : ""}
+              {coverage.farBase.toFixed(2)} max
+            </p>
+          </div>
+          <Progress value={farProgress} className="h-2" />
+          {actualBuildingArea && (
+            <p className="text-xs text-muted-foreground">
+              {actualBuildingArea.toLocaleString()} / {coverage.maxFloorArea.toLocaleString()} sq ft
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -6,8 +6,18 @@ import { ProjectData } from "../pages/ProjectView";
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
+    internal: {
+      pageSize: {
+        width: number;
+        height: number;
+      };
+      getNumberOfPages: () => number;
+    };
   }
 }
+
+// Store the last Y position after creating a table
+let lastTableY = 0;
 
 export const generateProjectCodeSheet = (project: ProjectData): string => {
   const doc = new jsPDF();
@@ -44,16 +54,20 @@ export const generateProjectCodeSheet = (project: ProjectData): string => {
       ["Lot Coverage", "50% (Max)", "42%", "Yes"],
       ["Floor Area Ratio", "0.7 (Max)", "0.6", "Yes"],
     ],
+    didDrawPage: function(data: any) {
+      // Save the last Y position after the table is drawn
+      lastTableY = data.cursor.y;
+    }
   });
   
   // Add building info
   doc.setFontSize(14);
-  doc.text("Building Information:", 14, doc.autoTable.previous.finalY + 20);
+  doc.text("Building Information:", 14, lastTableY + 20);
   
   doc.setFontSize(12);
-  doc.text("Type of Construction: Type V-B", 20, doc.autoTable.previous.finalY + 30);
-  doc.text("Occupancy Group: R-3 Residential", 20, doc.autoTable.previous.finalY + 40);
-  doc.text("Fire Sprinklers: Not Required", 20, doc.autoTable.previous.finalY + 50);
+  doc.text("Type of Construction: Type V-B", 20, lastTableY + 30);
+  doc.text("Occupancy Group: R-3 Residential", 20, lastTableY + 40);
+  doc.text("Fire Sprinklers: Not Required", 20, lastTableY + 50);
   
   // Add footer
   const pageCount = doc.internal.getNumberOfPages();

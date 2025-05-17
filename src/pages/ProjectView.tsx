@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
@@ -21,6 +22,11 @@ export interface ProjectData {
   address?: string;
   client_name?: string;
   property_owner?: string;
+}
+
+// Interface used by ProjectDetail component
+export interface Project extends Omit<ProjectData, 'district'> {
+  district: string; // Make it required here
 }
 
 const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
@@ -145,6 +151,12 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
     return <NotFound />;
   }
 
+  // Create a Project object with a fallback for district
+  const projectWithDistrict: Project = {
+    ...project,
+    district: project.district || "Unknown"
+  };
+
   return (
     <AppLayout onLogout={onLogout}>
       <div className="mb-6 flex justify-between items-center">
@@ -207,7 +219,7 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
           </Sheet>
         </div>
       </div>
-      <ProjectDetail project={project} />
+      <ProjectDetail project={projectWithDistrict} />
     </AppLayout>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -243,6 +242,7 @@ export const useProjectWizard = () => {
     handleSubmit,
     handleSaveDraft,
     validateTmkFormat,
-    zoningDistricts: adaptedZoningDistricts // Return the adapted zoning districts
+    zoningDistricts: adaptedZoningDistricts, // Return the adapted zoning districts
+    setFormData // Export setFormData to allow setting the entire form data object
   };
 };

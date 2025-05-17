@@ -1,5 +1,6 @@
 
-import { Space, TravelDistances as FormTravelDistances } from '../../types';
+// Import from the new location
+import type { Space, TravelDistances as FormTravelDistances } from '../types/occupancyDefinitions';
 
 // Re-export TravelDistances to fix the import error
 export interface TravelDistances extends FormTravelDistances {}

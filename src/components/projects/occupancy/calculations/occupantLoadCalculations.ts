@@ -1,5 +1,6 @@
 
-import { Space, spaceTypesByOccupancy } from '../../types';
+import type { Space } from '../types/occupancyDefinitions';
+import { spaceTypesByOccupancy } from '../types/occupancyDefinitions';
 import { SpaceWithLoad } from '../types/occupancyTypes';
 
 // Calculate occupant loads for all spaces

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { FormData, Space } from '../types';
-import { OccupancyCalculationResults, TravelDistances } from './types/occupancyTypes';
+import { FormData } from '../types';
+import { OccupancyCalculationResults } from './types/occupancyTypes';
 import {
   calculateOccupantLoad,
   calculateExitRequirements,
@@ -10,6 +10,9 @@ import {
   calculateAccessibilityRequirements,
   calculateOverallCompliance
 } from './calculations';
+
+// Import Space from the new location
+import type { Space, TravelDistances } from './types/occupancyDefinitions';
 
 // Re-export the TravelDistances type to fix the import error
 export type { TravelDistances };

@@ -9,9 +9,10 @@ import { ExitRequirementsCard } from "../occupancy/ExitRequirementsCard";
 import { EgressComplianceCard } from "../occupancy/EgressComplianceCard";
 import { CorridorRequirementsCard } from "../occupancy/CorridorRequirementsCard";
 import { AccessibilityComplianceCard } from "../occupancy/AccessibilityComplianceCard";
-import { FormData, Space } from "../types";
+import { FormData } from "../types";
 import { useOccupancyCalculations } from "../occupancy/useOccupancyCalculations";
-import { TravelDistances } from "../occupancy/types/occupancyTypes";
+import type { TravelDistances } from "../occupancy/types/occupancyDefinitions";
+import type { Space } from "../occupancy/types/occupancyDefinitions";
 
 export interface OccupancyDetailsStepProps {
   formData: FormData;

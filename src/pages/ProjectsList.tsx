@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectGrid } from '@/components/dashboard/ProjectGrid';
 import { StatsCards } from '@/components/dashboard/StatsCards';
@@ -8,7 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface ProjectsListProps {
   onLogout: () => Promise<void>;
@@ -36,6 +37,7 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   
   const fetchProjects = async () => {
     try {
@@ -78,11 +80,19 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
     fetchProjects();
   }, []);
   
+  // Filter projects based on active tab and search term
   const filteredProjects = projects.filter(project => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "active") return project.status === "in-progress";
-    if (activeFilter === "completed") return project.status === "completed";
-    if (activeFilter === "draft") return project.status === "draft";
+    // Filter by tab
+    if (activeFilter !== "all" && project.status !== activeFilter) {
+      return false;
+    }
+    
+    // Filter by search term
+    if (searchTerm && !project.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !project.tmk.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
     return true;
   });
   
@@ -96,55 +106,96 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
   
   return (
     <AppLayout onLogout={async () => await onLogout()}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h1 className="text-2xl font-bold mb-4 sm:mb-0">My Projects</h1>
-          <Button 
-            onClick={() => navigate('/project/create')}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Project</span>
-          </Button>
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Welcome Section */}
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">My Projects</h1>
+              <p className="text-gray-500 mt-1">Manage and track your building code compliance projects</p>
+            </div>
+            
+            <Button 
+              onClick={() => navigate('/project/create')}
+              className="bg-ocean-600 hover:bg-ocean-700 text-white shadow-sm transition-all flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Project</span>
+            </Button>
+          </div>
         </div>
         
+        {/* Stats Cards */}
         <StatsCards 
           totalProjects={stats.total}
           completedProjects={stats.completed}
           inProgressProjects={stats.active}
         />
         
-        <Tabs defaultValue="all" className="mt-8" onValueChange={setActiveFilter}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All Projects</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-            <TabsTrigger value="draft">Drafts</TabsTrigger>
-          </TabsList>
+        {/* Projects Section */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              {/* Search */}
+              <div className="relative w-full sm:w-80">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 bg-gray-50 border-gray-200"
+                />
+              </div>
+              
+              {/* Filter Tabs */}
+              <Tabs defaultValue={activeFilter} onValueChange={setActiveFilter} className="w-full sm:w-auto">
+                <TabsList className="bg-gray-100 p-1 h-auto">
+                  <TabsTrigger value="all" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
+                    All Projects
+                  </TabsTrigger>
+                  <TabsTrigger value="in-progress" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
+                    Active
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
+                    Completed
+                  </TabsTrigger>
+                  <TabsTrigger value="draft" className="text-xs px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:text-ocean-700 data-[state=active]:shadow-sm">
+                    Drafts
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
           
-          <TabsContent value={activeFilter} className="mt-0">
+          <TabsContent value={activeFilter} className="mt-0 p-6">
             {loading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ocean-600"></div>
               </div>
             ) : filteredProjects.length > 0 ? (
               <ProjectGrid projects={filteredProjects as any} />
             ) : (
-              <div className="bg-muted/40 rounded-lg p-10 text-center">
-                <h3 className="text-lg font-medium mb-2">No projects found</h3>
-                <p className="text-muted-foreground mb-6">
-                  {activeFilter === "all" 
-                    ? "You don't have any projects yet. Create your first project to get started." 
-                    : `You don't have any ${activeFilter} projects.`
+              <div className="bg-gray-50 rounded-lg p-10 text-center">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
+                <p className="text-gray-500 mb-6">
+                  {searchTerm 
+                    ? "Try adjusting your search term or filter selection" 
+                    : (activeFilter === "all" 
+                      ? "You don't have any projects yet. Create your first project to get started." 
+                      : `You don't have any ${activeFilter} projects.`
+                    )
                   }
                 </p>
-                <Button onClick={() => navigate('/project/create')}>
+                <Button 
+                  onClick={() => navigate('/project/create')}
+                  className="bg-ocean-600 hover:bg-ocean-700 text-white"
+                >
                   Create New Project
                 </Button>
               </div>
             )}
           </TabsContent>
-        </Tabs>
+        </div>
       </div>
     </AppLayout>
   );

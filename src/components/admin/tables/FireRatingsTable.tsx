@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { FireRatingRecord } from "@/components/admin/types";
 import { TablePagination } from "@/components/admin/TablePagination";

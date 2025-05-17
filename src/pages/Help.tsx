@@ -1,7 +1,7 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
 
-interface HelpProps {
+export interface HelpProps {
   onLogout: () => void;
 }
 

@@ -30,6 +30,20 @@ export type OccupancyGroupData = {
   description: string | null;
 };
 
+// Project data type
+export type ProjectData = {
+  id?: string;
+  name: string;
+  tmk: string | null;
+  address: string | null;
+  client_name?: string | null;
+  property_owner?: string | null;
+  status?: string;
+  current_step?: number;
+  is_complete?: boolean;
+  updated_at?: string;  // Make this field optional but available
+};
+
 // Fetch zoning districts
 export const fetchZoningDistricts = async (): Promise<ZoningDistrictData[]> => {
   const { data, error } = await supabase
@@ -76,18 +90,6 @@ export const fetchOccupancyGroups = async (): Promise<OccupancyGroupData[]> => {
 };
 
 // Project operations
-
-export type ProjectData = {
-  id?: string;
-  name: string;
-  tmk: string;
-  address: string | null;
-  client_name?: string | null;
-  property_owner?: string | null;
-  status?: string;
-  current_step?: number;
-  is_complete?: boolean;
-};
 
 // Save project (creates new or updates existing)
 export const saveProject = async (projectData: ProjectData): Promise<string | null> => {

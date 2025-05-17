@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AuthForm } from "../components/auth/AuthForm";
 import { AppLayout } from "../components/layout/AppLayout";
@@ -8,7 +7,8 @@ import { Project } from "../components/dashboard/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, ShieldCheck, FileText, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUserProjects, ProjectData } from "@/services/dataService";
+import { getUserProjects } from "@/services/dataService";
+import { ExtendedProjectData } from "@/adapters/dataAdapters";
 
 const ACTIVITIES = [
   { id: 1, project: "Kailua Beach House", action: "Code sheet exported", time: "2 hours ago" },
@@ -47,10 +47,10 @@ const Index = () => {
         const formattedProjects = projectsData.map((project) => ({
           id: project.id!,
           name: project.name,
-          tmk: project.tmk,
+          tmk: project.tmk || '',
           status: project.status as "draft" | "in-progress" | "completed" | "needs-revision",
           district: "Unknown", // We would need to fetch this from project_data
-          lastUpdated: new Date(project.updated_at || Date.now())
+          lastUpdated: new Date((project as ExtendedProjectData).updated_at || Date.now())
         }));
         
         setProjects(formattedProjects);

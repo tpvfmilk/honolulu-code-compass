@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +9,7 @@ import {
   saveProjectData,
   ZoningDistrictData
 } from "@/services/dataService";
+import { adaptZoningDistrictsForSelector } from "@/adapters/dataAdapters";
 
 export const useProjectWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -17,6 +17,7 @@ export const useProjectWizard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
   const [zoningDistricts, setZoningDistricts] = useState<ZoningDistrictData[]>([]);
+  const [adaptedZoningDistricts, setAdaptedZoningDistricts] = useState<{value: string; label: string; group: string}[]>([]);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [calculations, setCalculations] = useState<ZoningCalculationsState>({
     setbacks: null,
@@ -33,6 +34,7 @@ export const useProjectWizard = () => {
     const loadZoningDistricts = async () => {
       const districts = await fetchZoningDistricts();
       setZoningDistricts(districts);
+      setAdaptedZoningDistricts(adaptZoningDistrictsForSelector(districts));
     };
     
     loadZoningDistricts();
@@ -240,6 +242,6 @@ export const useProjectWizard = () => {
     handleSubmit,
     handleSaveDraft,
     validateTmkFormat,
-    zoningDistricts
+    zoningDistricts: adaptedZoningDistricts // Return the adapted zoning districts
   };
 };

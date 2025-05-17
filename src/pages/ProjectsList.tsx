@@ -1,3 +1,4 @@
+
 // src/pages/ProjectsList.tsx
 import { FC, useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -53,6 +54,22 @@ interface Project {
   updated_at: string;
 }
 
+// Define the database type that matches Supabase schema
+interface ProjectData {
+  id: string;
+  name: string;
+  tmk: string | null;
+  status: string | null;
+  address: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  current_step: number | null;
+  is_complete: boolean | null;
+  property_owner: string | null;
+  client_name: string | null;
+  user_id: string;
+}
+
 interface ProjectsListProps {
   onLogout: () => Promise<void>;
 }
@@ -80,8 +97,21 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
           .order("updated_at", { ascending: false });
 
         if (error) throw error;
-        setProjects(data || []);
-        setFilteredProjects(data || []);
+
+        // Map database results to the Project type
+        const mappedProjects: Project[] = (data || []).map((item: ProjectData) => ({
+          id: item.id,
+          name: item.name,
+          tmk: item.tmk || '',
+          status: (item.status as "draft" | "in_progress" | "submitted" | "approved" | "rejected") || 'draft',
+          project_type: determineProjectType(item),  // Helper function to determine project type
+          address: item.address || '',
+          created_at: item.created_at || '',
+          updated_at: item.updated_at || ''
+        }));
+
+        setProjects(mappedProjects);
+        setFilteredProjects(mappedProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
         toast({
@@ -96,6 +126,20 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
 
     fetchProjects();
   }, [toast]);
+
+  // Helper function to determine project type from other fields
+  const determineProjectType = (project: ProjectData): string => {
+    // This is a placeholder logic - you may want to replace with actual logic
+    // based on your application's requirements or store project_type in the database
+    if (project.client_name?.toLowerCase().includes('commercial')) {
+      return 'commercial';
+    } else if (project.address?.toLowerCase().includes('apartment') || 
+              project.address?.toLowerCase().includes('condo')) {
+      return 'mixed';
+    } else {
+      return 'residential'; // Default type
+    }
+  };
 
   // Apply filters whenever filter states change
   useEffect(() => {

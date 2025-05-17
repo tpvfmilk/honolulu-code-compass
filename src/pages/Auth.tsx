@@ -1,16 +1,16 @@
-
-import { useState } from "react";
+// src/pages/Auth.tsx
+import { FC } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-type AuthProps = {
-  onLogout: (() => void) | (() => Promise<void>);
-};
+// Define the props interface for the Auth page
+export interface AuthProps {
+  onLogout: () => Promise<void>;
+}
 
-const Auth = ({ onLogout }: AuthProps) => {
+const Auth: FC<AuthProps> = ({ onLogout }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 

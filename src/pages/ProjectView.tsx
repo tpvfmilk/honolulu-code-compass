@@ -14,7 +14,7 @@ export interface ProjectData {
   name: string;
   tmk: string;
   status: "draft" | "in-progress" | "completed" | "needs-revision";
-  district?: string; 
+  district: string;  // Changed from optional to required
   lastUpdated: Date;
   address?: string;
   client_name?: string;
@@ -67,11 +67,21 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
           name: projectData.name || "",
           tmk: projectData.tmk || "",
           status: (projectData.status as "draft" | "in-progress" | "completed" | "needs-revision") || "draft",
-          district: projectData.district || undefined, // Make district optional
+          district: projectData.district || "Unknown", // Changed: now always set with fallback
           lastUpdated: new Date(projectData.updated_at || Date.now()),
           address: projectData.address || "",
           client_name: projectData.client_name || "",
-          property_owner: projectData.property_owner || ""
+          property_owner: projectData.property_owner || "",
+          // Map new fields
+          project_type: projectData.project_type,
+          stories: projectData.stories,
+          building_height: projectData.building_height,
+          total_building_area: projectData.total_building_area,
+          lot_area_sqft: projectData.lot_area_sqft,
+          existing_use: projectData.existing_use,
+          proposed_use: projectData.proposed_use,
+          construction_type: projectData.construction_type,
+          is_fully_sprinklered: projectData.is_fully_sprinklered
         };
 
         setProject(formattedProject);
@@ -111,19 +121,14 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
     return <NotFound />;
   }
 
-  // Create a Project object with a fallback for district
-  const projectWithDistrict: Project = {
-    ...project,
-    district: project.district || "Unknown"
-  };
-
+  // Since district is now required in ProjectData, we don't need this conversion anymore
   return (
     <AppLayout onLogout={onLogout}>
       <ProjectHeader 
         project={project} 
         onEditProject={handleEditProject} 
       />
-      <ProjectDetail project={projectWithDistrict} />
+      <ProjectDetail project={project as Project} />
     </AppLayout>
   );
 };

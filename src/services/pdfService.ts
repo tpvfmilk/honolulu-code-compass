@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
 
-// Extend the jsPDF type to include autoTable
+// Define a more accurate type for jsPDF with autoTable
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
@@ -11,7 +11,10 @@ declare module "jspdf" {
       pageSize: {
         width: number;
         height: number;
+        getWidth: () => number;
+        getHeight: () => number;
       };
+      pages: number[];
       getNumberOfPages: () => number;
     };
   }

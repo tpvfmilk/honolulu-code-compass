@@ -1,6 +1,6 @@
 
 // src/pages/Auth.tsx
-import { FC, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
@@ -16,20 +16,23 @@ const Auth: FC<AuthProps> = ({ onLogout }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useSession();
+  const [redirecting, setRedirecting] = useState(false);
 
-  // Redirect if already logged in
+  // Redirect if already logged in - with safeguard against loops
   useEffect(() => {
-    if (session) {
+    if (session && !redirecting) {
+      console.log("Auth page: User is already logged in, redirecting to profile");
+      setRedirecting(true);
       navigate("/profile");
     }
-  }, [session, navigate]);
+  }, [session, navigate, redirecting]);
 
   const handleAuthSuccess = () => {
     toast({
       title: "Authentication successful",
       description: "You have been logged in successfully",
     });
-    navigate("/profile");
+    // Let the App.tsx handle the redirection based on session state
   };
 
   // Create a wrapper function that calls onLogout without exposing its async nature

@@ -25,18 +25,22 @@ function AppRoutes() {
   const { session, setSession } = useSession();
   const navigate = useNavigate();
   
-  // Track if this is the initial load
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  // Prevent multiple redirects
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Logged in" : "No session");
       setSession(session);
       setLoading(false);
+      setSessionChecked(true);
     });
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state change:", _event, session ? "Session exists" : "No session");
       setSession(session);
     });
 
@@ -45,9 +49,9 @@ function AppRoutes() {
     };
   }, [setSession]);
 
-  // Only navigate when not loading and only if we're on an unauthorized route
+  // Handle navigation separately from auth state changes
   useEffect(() => {
-    if (!loading) {
+    if (!loading && sessionChecked && !isRedirecting) {
       const currentPath = window.location.pathname;
       
       // Public routes - always accessible
@@ -57,21 +61,22 @@ function AppRoutes() {
       // Protected routes - require authentication
       const needsAuth = !isPublicRoute;
       
-      // Only redirect if this is not the initial load to prevent redirect loops
       if (!session && needsAuth) {
-        console.log("No session and requires auth, redirecting to /auth");
+        console.log(`Redirecting to /auth from ${currentPath} - no session and requires auth`);
+        setIsRedirecting(true);
         navigate("/auth");
       } else if (session && currentPath === "/auth") {
-        console.log("User is authenticated, redirecting from /auth to /profile");
+        console.log("Redirecting to /profile - user is authenticated on /auth page");
+        setIsRedirecting(true);
         navigate("/profile");
       }
       
-      // Mark initial load as complete
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
-      }
+      // Reset redirecting flag after navigation
+      setTimeout(() => {
+        setIsRedirecting(false);
+      }, 100);
     }
-  }, [session, loading, navigate, isInitialLoad]);
+  }, [session, loading, navigate, sessionChecked, isRedirecting]);
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;

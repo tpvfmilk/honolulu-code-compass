@@ -14,11 +14,21 @@ export interface ProjectData {
   name: string;
   tmk: string;
   status: "draft" | "in-progress" | "completed" | "needs-revision";
-  district?: string; // Made optional
+  district?: string; 
   lastUpdated: Date;
   address?: string;
   client_name?: string;
   property_owner?: string;
+  // Add new fields from our database
+  project_type?: string;
+  stories?: number;
+  building_height?: number;
+  total_building_area?: number;
+  lot_area_sqft?: number;
+  existing_use?: string;
+  proposed_use?: string;
+  construction_type?: string;
+  is_fully_sprinklered?: boolean;
 }
 
 // Interface used by ProjectDetail component

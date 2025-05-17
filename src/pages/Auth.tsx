@@ -1,59 +1,106 @@
 
-// src/pages/Auth.tsx
-import { FC, useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { AuthForm } from "@/components/auth/AuthForm";
+import React, { useState } from "react";
+import AuthForm from "../components/auth/AuthForm";
+import { supabase } from "../integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "@/hooks/useSession";
 
-// Define the props interface for the Auth page
-export interface AuthProps {
-  onLogout: () => Promise<void>;
-}
-
-const Auth: FC<AuthProps> = ({ onLogout }) => {
+const Auth = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session } = useSession();
-  const [redirecting, setRedirecting] = useState(false);
 
-  // Redirect if already logged in - with safeguard against loops
-  useEffect(() => {
-    if (session && !redirecting) {
-      console.log("Auth page: User is already logged in, redirecting to profile");
-      setRedirecting(true);
-      navigate("/profile");
-    }
-  }, [session, navigate, redirecting]);
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
 
-  const handleAuthSuccess = () => {
-    toast({
-      title: "Authentication successful",
-      description: "You have been logged in successfully",
-    });
-    // Let the App.tsx handle the redirection based on session state
-  };
+      if (error) {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
 
-  // Create a wrapper function that calls onLogout without exposing its async nature
-  const wrappedLogout = () => {
-    onLogout().catch(error => {
-      console.error("Logout error:", error);
       toast({
-        title: "Logout error",
-        description: "There was a problem logging out",
+        title: "Login successful",
+        description: "Welcome back!",
+      });
+      navigate("/profile");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login error",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-    });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (email: string, password: string, username: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Sign up successful",
+        description: "Welcome to Hawaii Code Pro!",
+      });
+      navigate("/profile");
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Sign up error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AppLayout onLogout={wrappedLogout}>
-      <div className="max-w-md mx-auto mt-8">
-        <h1 className="text-2xl font-bold mb-6">Sign In or Sign Up</h1>
-        <AuthForm onSuccess={handleAuthSuccess} />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Hawaii Code Pro
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Sign in or create an account
+          </p>
+        </div>
+        <AuthForm 
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+          loading={loading}
+        />
       </div>
-    </AppLayout>
+    </div>
   );
 };
 

@@ -1,366 +1,163 @@
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
-import { useToast } from "@/components/ui/use-toast";
 
-const Profile = ({ onLogout }: { onLogout: () => void }) => {
-  const [notifications, setNotifications] = useState({
-    email: true,
-    updates: false,
-    marketing: false,
-  });
-  const { session } = useSession();
+import React, { useEffect, useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+
+interface ProfileProps {
+  onLogout: () => Promise<void>;
+}
+
+const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const { toast } = useToast();
-  const [username, setUsername] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (session?.user) {
-      setUserEmail(session.user.email || "");
-      
-      // Fetch profile data from Supabase
-      const fetchProfile = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('id', session.user.id)
-            .single();
-            
-          if (error) {
-            console.error('Error fetching profile:', error);
-            return;
-          }
-          
-          if (data) {
-            setUsername(data.username || "");
-          }
-        } catch (error) {
-          console.error('Error fetching profile:', error);
+    const fetchProfile = async () => {
+      try {
+        // Get the current user
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        if (!currentUser) {
+          navigate('/auth');
+          return;
         }
-      };
-      
-      fetchProfile();
-    }
-  }, [session]);
-
-  const updateProfile = async () => {
-    if (!session?.user) return;
+        
+        setUser(currentUser);
+        setEmail(currentUser.email || '');
+        
+        // Fetch the user's profile data from the profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching profile:', profileError);
+        } else if (profileData) {
+          setUsername(profileData.username || '');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load profile data',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    setLoading(true);
+    fetchProfile();
+  }, [navigate, toast]);
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    
     try {
+      setLoading(true);
+      
+      // Update the user's profile in the profiles table
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          username: username 
-        })
-        .eq('id', session.user.id);
-
+        .update({ username })
+        .eq('id', user.id);
+        
       if (error) throw error;
       
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully",
+        title: 'Profile updated',
+        description: 'Your profile has been successfully updated',
       });
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
-        title: "Error updating profile",
-        description: error.message || "An error occurred while updating your profile",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <AppLayout onLogout={onLogout}>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout onLogout={onLogout}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+              />
+              <p className="mt-1 text-sm text-gray-500">Email cannot be changed</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <div>
+              <Button 
+                onClick={handleUpdateProfile} 
+                disabled={loading}
+                className="w-full sm:w-auto"
+              >
+                {loading ? 'Updating...' : 'Update Profile'}
+              </Button>
+            </div>
+          </div>
         </div>
-
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-[600px] grid-cols-4">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="firm">Firm</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
-          </TabsList>
+        
+        <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-medium mb-4">Account Settings</h2>
           
-          <TabsContent value="profile" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>
-                  Update your profile information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); updateProfile(); }}>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input 
-                        id="username" 
-                        value={username} 
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Your username" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      value={userEmail} 
-                      disabled={true} 
-                      placeholder="Your email"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
-                  </div>
-
-                  <Button type="submit" disabled={loading}>
-                    {loading ? "Updating..." : "Update Profile"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Authentication</CardTitle>
-                <CardDescription>
-                  Manage your account security
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button 
-                  variant="destructive" 
-                  onClick={onLogout}
-                >
-                  Sign Out
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Professional Information</CardTitle>
-                <CardDescription>
-                  Update your professional details and license information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="licenseNumber">License Number</Label>
-                      <Input id="licenseNumber" placeholder="HAR-12345" defaultValue="HAR-12345" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="licenseExpiration">License Expiration</Label>
-                      <Input 
-                        id="licenseExpiration" 
-                        type="date"
-                        defaultValue="2026-12-31"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Professional Title</Label>
-                    <Input id="title" placeholder="Principal Architect" defaultValue="Principal Architect" />
-                  </div>
-                  
-                  <Button type="submit">Update Professional Info</Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="firm" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Firm Information</CardTitle>
-                <CardDescription>
-                  Update your firm details and branding
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firmName">Firm Name</Label>
-                    <Input id="firmName" placeholder="Architecture Firm" defaultValue="Hawaii Design Partners" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="firmAddress">Firm Address</Label>
-                    <Input id="firmAddress" placeholder="123 Main St" defaultValue="1234 Waikiki Ave, Honolulu, HI 96815" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="firmWebsite">Website</Label>
-                    <Input id="firmWebsite" placeholder="https://example.com" defaultValue="https://hawaiidesignpartners.com" />
-                  </div>
-                  
-                  <Button type="submit">Update Firm Information</Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Branding & Customization</CardTitle>
-                <CardDescription>
-                  Customize how your firm appears on generated documents
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Logo and document customization options will be implemented here
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Settings</CardTitle>
-                <CardDescription>
-                  Manage how and when you receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="email-notifications">Email Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive email notifications about your account and projects
-                      </p>
-                    </div>
-                    <Switch 
-                      id="email-notifications" 
-                      checked={notifications.email}
-                      onCheckedChange={(checked) => 
-                        setNotifications({...notifications, email: checked})
-                      }
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="update-notifications">Product Updates</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive notifications about new features and improvements
-                      </p>
-                    </div>
-                    <Switch 
-                      id="update-notifications" 
-                      checked={notifications.updates}
-                      onCheckedChange={(checked) => 
-                        setNotifications({...notifications, updates: checked})
-                      }
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="marketing-notifications">Marketing</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Receive marketing communications and special offers
-                      </p>
-                    </div>
-                    <Switch 
-                      id="marketing-notifications" 
-                      checked={notifications.marketing}
-                      onCheckedChange={(checked) => 
-                        setNotifications({...notifications, marketing: checked})
-                      }
-                    />
-                  </div>
-                </div>
-                
-                <Button variant="outline" className="mt-4">Save Preferences</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="subscription" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Plan</CardTitle>
-                <CardDescription>
-                  You are currently on the Professional plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold text-lg">Professional Plan</h3>
-                        <p className="text-muted-foreground">$49/month, billed monthly</p>
-                      </div>
-                      <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-medium">Current Plan</span>
-                    </div>
-                    <div className="mt-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center">✓</div>
-                        <span>Unlimited projects</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center">✓</div>
-                        <span>Professional PDF exports</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center">✓</div>
-                        <span>All zoning districts</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-4">
-                    <Button variant="outline">Change Plan</Button>
-                    <Button variant="outline" className="text-destructive hover:text-destructive">Cancel Subscription</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing History</CardTitle>
-                <CardDescription>
-                  View your recent invoices and payment history
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Billing history will be displayed here
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium mb-2">Change Password</h3>
+              <Button variant="outline" onClick={() => navigate('/auth')}>
+                Reset Password
+              </Button>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-medium mb-2 text-red-600">Danger Zone</h3>
+              <Button variant="destructive" onClick={onLogout}>
+                Log Out
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </AppLayout>
   );

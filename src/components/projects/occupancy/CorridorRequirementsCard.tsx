@@ -27,7 +27,7 @@ export const CorridorRequirementsCard = ({ corridorRequirements, isCalculating }
                 <Info className="h-4 w-4 ml-1 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Based on IBC Section 1020</p>
+                <p>Per IBC Section 1020: Corridors</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -36,10 +36,10 @@ export const CorridorRequirementsCard = ({ corridorRequirements, isCalculating }
       
       <CardContent>
         {isCalculating ? (
-          <div className="h-20 flex items-center justify-center">
+          <div className="h-32 flex items-center justify-center">
             <div className="animate-pulse flex flex-col items-center space-y-2">
+              <div className="h-4 w-40 bg-slate-200 rounded"></div>
               <div className="h-4 w-32 bg-slate-200 rounded"></div>
-              <div className="h-4 w-24 bg-slate-200 rounded"></div>
             </div>
           </div>
         ) : corridorRequirements ? (
@@ -47,34 +47,42 @@ export const CorridorRequirementsCard = ({ corridorRequirements, isCalculating }
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-50 p-3 rounded-md">
                 <div className="text-sm text-muted-foreground">Minimum Width</div>
-                <div className="text-2xl font-bold">{corridorRequirements.minWidth}"</div>
+                <div className="text-2xl font-bold">
+                  {corridorRequirements.minWidth}"
+                  <span className="text-sm font-normal ml-1">
+                    ({(corridorRequirements.minWidth / 12).toFixed(1)}')
+                  </span>
+                </div>
               </div>
               
               <div className="bg-slate-50 p-3 rounded-md">
                 <div className="text-sm text-muted-foreground">Fire Rating</div>
                 <div className="text-2xl font-bold">
-                  {corridorRequirements.fireRating > 0 
-                    ? `${corridorRequirements.fireRating} hour${corridorRequirements.fireRating > 1 ? 's' : ''}` 
-                    : 'None required'}
+                  {corridorRequirements.fireRating > 0 ? 
+                    `${corridorRequirements.fireRating} hour` : 
+                    "None required"}
                 </div>
               </div>
             </div>
             
             <div className="bg-blue-50 p-3 rounded-md">
-              <div className="text-sm font-medium">Requirement Determination</div>
-              <div className="text-sm text-blue-900 mt-1">
+              <div className="text-sm font-medium">Reasoning</div>
+              <div className="text-blue-900 mt-1">
                 {corridorRequirements.reasoning}
               </div>
             </div>
             
             <div className="text-sm text-muted-foreground">
-              <p>IBC Section 1020: Corridors</p>
-              <p>IBC Table 1020.1: Corridor Fire-Resistance Rating</p>
+              <p>Corridor width requirements are based on occupant load and occupancy type.</p>
+              <p className="mt-1">IBC Section 1020.2: Corridor Width and Capacity</p>
+              <p className="mt-1">IBC Table 1020.1: Corridor Fire-Resistance Rating</p>
             </div>
           </div>
         ) : (
           <div className="text-center p-6">
-            <p className="text-muted-foreground">Define spaces to calculate corridor requirements</p>
+            <p className="text-muted-foreground">
+              Add occupant information to calculate corridor requirements
+            </p>
           </div>
         )}
       </CardContent>

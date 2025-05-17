@@ -2,14 +2,12 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { CheckCircle } from 'lucide-react';
 import { SpaceWithLoad } from './useOccupancyCalculations';
 
 interface OccupantLoadCardProps {
   occupantLoad: {
     total: number;
     bySpace: SpaceWithLoad[];
-    worstCase: number;
     hasHighDensity: boolean;
   } | null;
   isCalculating: boolean;

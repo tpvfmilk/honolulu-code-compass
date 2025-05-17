@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { FormData, Space, travelDistanceLimits } from '../types';
+import { FormData, Space, travelDistanceLimits, spaceTypesByOccupancy } from '../types';
 
 export interface SpaceWithLoad extends Space {
   loadFactor: number;

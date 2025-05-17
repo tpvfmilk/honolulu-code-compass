@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Check, X, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AccessibilityComplianceCardProps {
   accessibilityRequirements: {
@@ -16,7 +17,7 @@ interface AccessibilityComplianceCardProps {
 
 export const AccessibilityComplianceCard = ({ 
   accessibilityRequirements, 
-  elevatorProvided, 
+  elevatorProvided,
   isCalculating 
 }: AccessibilityComplianceCardProps) => {
   if (!accessibilityRequirements && !isCalculating) return null;
@@ -24,94 +25,118 @@ export const AccessibilityComplianceCard = ({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold">Accessibility Requirements</CardTitle>
+        <CardTitle className="text-lg font-semibold flex items-center">
+          Accessibility Compliance
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 ml-1 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Per IBC Chapter 11 and ADA Standards</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </CardTitle>
       </CardHeader>
       
       <CardContent>
         {isCalculating ? (
-          <div className="h-24 flex items-center justify-center">
+          <div className="h-32 flex items-center justify-center">
             <div className="animate-pulse flex flex-col items-center space-y-2">
               <div className="h-4 w-40 bg-slate-200 rounded"></div>
               <div className="h-4 w-32 bg-slate-200 rounded"></div>
+              <div className="h-4 w-36 bg-slate-200 rounded"></div>
             </div>
           </div>
         ) : accessibilityRequirements ? (
           <div className="space-y-4">
-            {/* Elevator Requirement */}
-            <div className="bg-slate-50 p-3 rounded-md flex justify-between items-center">
-              <div>
-                <div className="font-medium">Elevator Required</div>
-                {accessibilityRequirements.elevatorRequired && accessibilityRequirements.rationale.length > 0 && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {accessibilityRequirements.rationale[0]}
-                  </div>
-                )}
-              </div>
-              <div>
-                {accessibilityRequirements.elevatorRequired ? (
-                  <div className="flex items-center">
-                    <span className="mr-2 font-medium">Yes</span>
-                    {elevatorProvided ? (
-                      <Check className="h-5 w-5 text-green-600" />
+            {/* Elevator Requirements */}
+            <div className="bg-slate-50 p-3 rounded-md">
+              <div className="text-sm text-muted-foreground">Elevator Requirements</div>
+              <div className="flex items-center mt-1 justify-between">
+                <div className="font-medium">
+                  {accessibilityRequirements.elevatorRequired ? 'Elevator Required' : 'Elevator Not Required'}
+                </div>
+                <div>
+                  {accessibilityRequirements.elevatorRequired ? (
+                    elevatorProvided ? (
+                      <span className="inline-flex items-center text-green-600">
+                        <Check className="h-4 w-4 mr-1" /> Provided
+                      </span>
                     ) : (
-                      <X className="h-5 w-5 text-red-600" />
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    <span className="mr-2 font-medium">No</span>
-                    <Check className="h-5 w-5 text-green-600" />
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Accessible Parking */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-3 rounded-md">
-                <div className="text-sm text-muted-foreground">Accessible Parking</div>
-                <div className="text-2xl font-bold">{accessibilityRequirements.accessibleParking}</div>
-                <div className="text-xs text-muted-foreground">spaces required</div>
+                      <span className="inline-flex items-center text-red-600">
+                        <AlertCircle className="h-4 w-4 mr-1" /> Not Provided
+                      </span>
+                    )
+                  ) : (
+                    <span className="text-muted-foreground">Not applicable</span>
+                  )}
+                </div>
               </div>
               
-              <div className="bg-slate-50 p-3 rounded-md">
-                <div className="text-sm text-muted-foreground">Van-Accessible</div>
-                <div className="text-2xl font-bold">{accessibilityRequirements.vanAccessible}</div>
-                <div className="text-xs text-muted-foreground">spaces required</div>
-              </div>
+              {accessibilityRequirements.rationale.length > 0 && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <div>Reasoning:</div>
+                  <ul className="list-disc pl-4 mt-1">
+                    {accessibilityRequirements.rationale.map((reason, index) => (
+                      <li key={index}>{reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             
-            {/* Violations */}
-            {accessibilityRequirements.elevatorRequired && !elevatorProvided && (
-              <div className="bg-red-50 p-3 rounded-md border border-red-200">
-                <div className="font-medium flex items-center text-red-800 mb-1">
-                  <AlertCircle className="h-4 w-4 mr-1" /> Compliance Issues
+            {/* Accessible Parking Requirements */}
+            <div className="bg-slate-50 p-3 rounded-md">
+              <div className="text-sm text-muted-foreground">Accessible Parking Requirements</div>
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div>
+                  <div className="text-sm">Standard Accessible:</div>
+                  <div className="text-xl font-bold">
+                    {accessibilityRequirements.accessibleParking - accessibilityRequirements.vanAccessible}
+                  </div>
                 </div>
-                <p className="text-sm text-red-700">
-                  Elevator is required but not provided. Multi-story buildings with public access require elevator access to all floors.
-                </p>
+                <div>
+                  <div className="text-sm">Van Accessible:</div>
+                  <div className="text-xl font-bold">
+                    {accessibilityRequirements.vanAccessible}
+                  </div>
+                </div>
               </div>
-            )}
+              <div className="text-sm font-medium mt-2">
+                Total: {accessibilityRequirements.accessibleParking} accessible spaces required
+              </div>
+            </div>
             
             {/* Additional Requirements */}
-            <div className="text-sm">
-              <div className="font-medium mb-1">Other Requirements</div>
-              <ul className="list-disc pl-5 text-muted-foreground">
-                <li>Accessible route from parking to building entrance</li>
-                <li>Accessible restrooms on each floor</li>
-                <li>Compliant door clearances and hardware</li>
-                <li>Accessible signage and wayfinding</li>
+            <div className="border-t pt-3">
+              <div className="text-sm font-medium mb-2">Additional Requirements:</div>
+              <ul className="text-sm space-y-1 text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Accessible route from public way to entrance
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Accessible entrances
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Accessible toilet rooms
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Accessibility signage
+                </li>
               </ul>
-            </div>
-            
-            <div className="text-sm text-muted-foreground">
-              <p>IBC Chapter 11: Accessibility</p>
-              <p>ICC A117.1: Accessible and Usable Buildings and Facilities</p>
             </div>
           </div>
         ) : (
           <div className="text-center p-6">
-            <p className="text-muted-foreground">Input accessibility data to view requirements</p>
+            <p className="text-muted-foreground">
+              Enter accessibility details to check compliance
+            </p>
           </div>
         )}
       </CardContent>

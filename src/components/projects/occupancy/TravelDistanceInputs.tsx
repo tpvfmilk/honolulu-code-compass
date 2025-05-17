@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { AlertTriangle, Check, AlertCircle, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { TravelDistances, travelDistanceLimits } from '../types';
+import { TravelDistances } from './useOccupancyCalculations';
+import { travelDistanceLimits } from '../types';
 
 interface TravelDistanceInputsProps {
   travelDistances: TravelDistances;

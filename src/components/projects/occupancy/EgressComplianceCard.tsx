@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Check, AlertTriangle, AlertCircle } from 'lucide-react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { TravelDistances, TravelLimits } from './useOccupancyCalculations';
+import { Check, AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { TravelLimits, TravelDistances } from './useOccupancyCalculations';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface EgressComplianceCardProps {
   travelDistanceCompliance: {
@@ -18,90 +19,107 @@ interface EgressComplianceCardProps {
   isSprinklered: boolean;
 }
 
-export const EgressComplianceCard = ({
-  travelDistanceCompliance,
-  travelDistances,
-  isCalculating,
-  isSprinklered
+export const EgressComplianceCard = ({ 
+  travelDistanceCompliance, 
+  travelDistances, 
+  isCalculating, 
+  isSprinklered 
 }: EgressComplianceCardProps) => {
   if (!travelDistanceCompliance && !isCalculating) return null;
   
-  // Helper to render status icon
-  const renderStatusIcon = (isCompliant: boolean) => {
+  const getStatusIcon = (isCompliant: boolean, value?: string) => {
+    if (!value) return null;
+    
     if (isCompliant) {
       return <Check className="h-4 w-4 text-green-600" />;
+    } else {
+      return <AlertCircle className="h-4 w-4 text-red-600" />;
     }
-    return <AlertCircle className="h-4 w-4 text-red-600" />;
   };
   
-  // Display actual value or placeholder
-  const displayValue = (value: string) => {
-    return value ? `${value} ft` : '-';
-  };
-
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold">Egress Compliance</CardTitle>
+        <CardTitle className="text-lg font-semibold flex items-center">
+          Egress Compliance
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 ml-1 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Per IBC Section 1017: Exit Access Travel Distance</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </CardTitle>
       </CardHeader>
       
       <CardContent>
         {isCalculating ? (
           <div className="h-32 flex items-center justify-center">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="h-20 w-48 bg-slate-200 rounded"></div>
+            <div className="animate-pulse flex flex-col items-center space-y-2">
+              <div className="h-4 w-40 bg-slate-200 rounded"></div>
+              <div className="h-4 w-32 bg-slate-200 rounded"></div>
+              <div className="h-4 w-36 bg-slate-200 rounded"></div>
             </div>
           </div>
         ) : travelDistanceCompliance ? (
           <div className="space-y-4">
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-slate-50">
                     <TableHead>Requirement</TableHead>
-                    <TableHead className="text-right">Allowable</TableHead>
-                    <TableHead className="text-right">Actual</TableHead>
-                    <TableHead className="w-16 text-center">Status</TableHead>
+                    <TableHead>Allowable</TableHead>
+                    <TableHead>Actual</TableHead>
+                    <TableHead className="w-16 text-right">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">Max Exit Access Travel</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-medium">
+                      Maximum Exit Access Travel
+                    </TableCell>
+                    <TableCell>
                       {travelDistanceCompliance.allowableLimits.maxTravel} ft
                     </TableCell>
-                    <TableCell className="text-right">
-                      {displayValue(travelDistances.maxExitAccess)}
+                    <TableCell>
+                      {travelDistances.maxExitAccess || '—'}
                     </TableCell>
-                    <TableCell className="text-center">
-                      {renderStatusIcon(travelDistanceCompliance.maxTravelCompliant)}
+                    <TableCell className="text-right">
+                      {getStatusIcon(travelDistanceCompliance.maxTravelCompliant, travelDistances.maxExitAccess)}
                     </TableCell>
                   </TableRow>
                   
                   <TableRow>
-                    <TableCell className="font-medium">Common Path Travel</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-medium">
+                      Common Path of Travel
+                    </TableCell>
+                    <TableCell>
                       {travelDistanceCompliance.allowableLimits.commonPath} ft
                     </TableCell>
-                    <TableCell className="text-right">
-                      {displayValue(travelDistances.commonPath)}
+                    <TableCell>
+                      {travelDistances.commonPath || '—'}
                     </TableCell>
-                    <TableCell className="text-center">
-                      {renderStatusIcon(travelDistanceCompliance.commonPathCompliant)}
+                    <TableCell className="text-right">
+                      {getStatusIcon(travelDistanceCompliance.commonPathCompliant, travelDistances.commonPath)}
                     </TableCell>
                   </TableRow>
                   
                   <TableRow>
-                    <TableCell className="font-medium">Dead End Corridor</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-medium">
+                      Dead End Corridor
+                    </TableCell>
+                    <TableCell>
                       {travelDistanceCompliance.allowableLimits.deadEnd} ft
                     </TableCell>
-                    <TableCell className="text-right">
-                      {displayValue(travelDistances.deadEnd)}
+                    <TableCell>
+                      {travelDistances.deadEnd || '—'}
                     </TableCell>
-                    <TableCell className="text-center">
-                      {renderStatusIcon(travelDistanceCompliance.deadEndCompliant)}
+                    <TableCell className="text-right">
+                      {getStatusIcon(travelDistanceCompliance.deadEndCompliant, travelDistances.deadEnd)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -109,11 +127,12 @@ export const EgressComplianceCard = ({
             </div>
             
             {travelDistanceCompliance.violations.length > 0 && (
-              <div className="bg-red-50 p-3 rounded-md border border-red-200">
-                <div className="font-medium flex items-center text-red-800 mb-1">
-                  <AlertTriangle className="h-4 w-4 mr-1" /> Compliance Issues
+              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                <div className="flex items-center gap-2 text-red-800 font-medium">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>Egress Travel Distance Violations</span>
                 </div>
-                <ul className="text-sm text-red-700 space-y-1">
+                <ul className="text-sm text-red-800 mt-2 pl-6 list-disc">
                   {travelDistanceCompliance.violations.map((violation, index) => (
                     <li key={index}>{violation}</li>
                   ))}
@@ -122,15 +141,20 @@ export const EgressComplianceCard = ({
             )}
             
             <div className="text-sm text-muted-foreground">
-              <p>IBC Table 1017.1: Exit Access Travel Distance</p>
               {isSprinklered && (
-                <p className="mt-1">✓ Sprinkler increase applied to allowable distances</p>
+                <p className="flex items-center gap-1">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Increased travel distance allowances applied (sprinklered building)
+                </p>
               )}
+              <p className="mt-1">IBC Table 1017.1: Exit Access Travel Distance Limits</p>
             </div>
           </div>
         ) : (
           <div className="text-center p-6">
-            <p className="text-muted-foreground">Enter travel distances to check compliance</p>
+            <p className="text-muted-foreground">
+              Enter travel distances to check compliance
+            </p>
           </div>
         )}
       </CardContent>

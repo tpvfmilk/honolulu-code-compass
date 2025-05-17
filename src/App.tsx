@@ -42,11 +42,23 @@ function AppRoutes() {
     };
   }, [setSession]);
 
+  // Only navigate when not loading and only if we're on an unauthorized route
   useEffect(() => {
-    if (!session && !loading && window.location.pathname !== "/" && window.location.pathname !== "/auth") {
-      navigate("/auth");
-    } else if (session && !loading && window.location.pathname === "/auth") {
-      navigate("/profile");
+    if (!loading) {
+      const currentPath = window.location.pathname;
+      
+      // Public routes - always accessible
+      const publicRoutes = ['/', '/auth', '/help'];
+      const isPublicRoute = publicRoutes.includes(currentPath);
+      
+      // Protected routes - require authentication
+      const needsAuth = !isPublicRoute;
+      
+      if (!session && needsAuth) {
+        navigate("/auth");
+      } else if (session && currentPath === "/auth") {
+        navigate("/profile");
+      }
     }
   }, [session, loading, navigate]);
 

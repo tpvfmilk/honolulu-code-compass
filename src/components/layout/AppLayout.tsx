@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 import {
   Sidebar,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Home, FileText, Settings, Users, LogOut } from "lucide-react";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 type AppLayoutProps = {
@@ -76,15 +77,23 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
                 <SidebarMenuButton asChild>
                   <NavLink to="/" end className={getNavCls}>
                     <Home className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Dashboard</span>}
+                    {sidebar.state !== "collapsed" && <span>Home</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/projects" className={getNavCls}>
+                  <NavLink to="/project/new" className={getNavCls}>
                     <FileText className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Projects</span>}
+                    {sidebar.state !== "collapsed" && <span>New Project</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/help" className={getNavCls}>
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Help</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,17 +107,9 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/settings" className={getNavCls}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Settings</span>}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/team" className={getNavCls}>
-                    <Users className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Team</span>}
+                  <NavLink to="/profile" className={getNavCls}>
+                    <User className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Profile</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

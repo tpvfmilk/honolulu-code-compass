@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useSession, SessionProvider } from "./hooks/useSession";
 import { supabase } from "./integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -126,6 +127,7 @@ function App() {
       <SessionProvider>
         <SidebarProvider>
           <AppRoutes />
+          <Toaster />
         </SidebarProvider>
       </SessionProvider>
     </BrowserRouter>

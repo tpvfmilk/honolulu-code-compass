@@ -1,5 +1,6 @@
 
-import { FormData, ZoningCalculationsState } from "../types";
+import { FormData } from "../types";
+import { ZoningCalculationsState, zoningDistricts } from "../zoning/types/zoningTypes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ZoningSelector } from "../zoning/ZoningSelector";

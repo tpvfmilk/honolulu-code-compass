@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { FormData, initialFormData, ZoningCalculationsState, wizardSteps } from "./types";
+import { FormData, initialFormData, wizardSteps } from "./types";
+import { ZoningCalculationsState } from "./zoning/types/zoningTypes";
 
 export const useProjectWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);

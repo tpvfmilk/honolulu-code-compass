@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Select,
@@ -13,11 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-type ZoningDistrict = {
-  value: string;
-  label: string;
-  group: string;
-};
+// Import type from the new file
+import type { ZoningDistrict } from "./types/zoningTypes";
 
 type ZoningSelectorProps = {
   value: string;

@@ -10,7 +10,8 @@ import { FireSafetyStep } from "./steps/FireSafetyStep";
 import { OccupancyDetailsStep } from "./steps/OccupancyDetailsStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import { useProjectWizard } from "./useProjectWizard";
-import { wizardSteps, zoningDistricts, buildingTypes } from "./types";
+import { wizardSteps } from "./types";
+import { zoningDistricts, buildingTypes } from "./zoning/types/zoningTypes";
 
 export const ProjectWizard = () => {
   const {

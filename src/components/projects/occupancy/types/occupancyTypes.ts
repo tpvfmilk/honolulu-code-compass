@@ -1,9 +1,9 @@
 
 // Import from the new location
-import type { Space, TravelDistances as FormTravelDistances } from '../types/occupancyDefinitions';
+import type { Space, TravelDistances as FormTravelDistances } from './occupancyDefinitions';
 
 // Re-export TravelDistances to fix the import error
-export interface TravelDistances extends FormTravelDistances {}
+export type { TravelDistances } from './occupancyDefinitions';
 
 export interface SpaceWithLoad extends Space {
   loadFactor: number;

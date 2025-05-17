@@ -1,4 +1,3 @@
-
 import { ZoningCalculationsState } from './zoning/zoningTypes';
 import { OccupancyDetails } from './occupancy/occupancyTypes';
 import { FireSafetyData, SecondaryOccupancy } from './building/buildingTypes';

@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
@@ -16,6 +15,9 @@ declare module "jspdf" {
       };
       pages: number[];
       getNumberOfPages: () => number;
+      events?: any;
+      scaleFactor?: number;
+      getEncryptor?: (objectId: number) => (data: string) => string;
     };
   }
 }

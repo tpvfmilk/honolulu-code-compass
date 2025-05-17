@@ -1,48 +1,14 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthForm } from "../components/auth/AuthForm";
 import { AppLayout } from "../components/layout/AppLayout";
 import { StatsCards } from "../components/dashboard/StatsCards";
 import { ProjectGrid } from "../components/dashboard/ProjectGrid";
 import { Project } from "../components/dashboard/ProjectCard";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, ShieldCheck, FileText } from "lucide-react";
+import { ArrowRight, Clock, ShieldCheck, FileText, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const MOCK_PROJECTS: Project[] = [
-  {
-    id: "1",
-    name: "Kailua Beach House",
-    tmk: "(1) 4-2-002:001",
-    status: "completed",
-    district: "R-5 Residential",
-    lastUpdated: new Date(2023, 4, 10),
-  },
-  {
-    id: "2",
-    name: "Manoa Valley ADU",
-    tmk: "(1) 2-9-005:022",
-    status: "in-progress",
-    district: "R-7.5 Residential",
-    lastUpdated: new Date(2023, 5, 2),
-  },
-  {
-    id: "3",
-    name: "Kakaako Office Building",
-    tmk: "(1) 2-1-058:123",
-    status: "draft",
-    district: "BMX-3 Business Mixed Use",
-    lastUpdated: new Date(2023, 5, 15),
-  },
-  {
-    id: "4",
-    name: "Waikiki Condo Renovation",
-    tmk: "(1) 2-6-012:037",
-    status: "needs-revision",
-    district: "A-2 Apartment",
-    lastUpdated: new Date(2023, 4, 28),
-  },
-];
+import { getUserProjects, ProjectData } from "@/services/dataService";
 
 const ACTIVITIES = [
   { id: 1, project: "Kailua Beach House", action: "Code sheet exported", time: "2 hours ago" },
@@ -66,8 +32,40 @@ const TESTIMONIALS = [
 const Index = () => {
   // Always authenticated for now
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>([]);
   const navigate = useNavigate();
   
+  // Fetch projects from database
+  useEffect(() => {
+    const loadProjects = async () => {
+      setIsLoading(true);
+      try {
+        const projectsData = await getUserProjects();
+        
+        // Convert to the Project type used by ProjectCard
+        const formattedProjects = projectsData.map((project) => ({
+          id: project.id!,
+          name: project.name,
+          tmk: project.tmk,
+          status: project.status as "draft" | "in-progress" | "completed" | "needs-revision",
+          district: "Unknown", // We would need to fetch this from project_data
+          lastUpdated: new Date(project.updated_at || Date.now())
+        }));
+        
+        setProjects(formattedProjects);
+      } catch (error) {
+        console.error("Error loading projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (isAuthenticated) {
+      loadProjects();
+    }
+  }, [isAuthenticated]);
+
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
@@ -97,31 +95,47 @@ const Index = () => {
           </div>
 
           <StatsCards 
-            totalProjects={MOCK_PROJECTS.length} 
-            completedProjects={MOCK_PROJECTS.filter(p => p.status === "completed").length}
-            inProgressProjects={MOCK_PROJECTS.filter(p => p.status === "in-progress").length}
+            totalProjects={projects.length} 
+            completedProjects={projects.filter(p => p.status === "completed").length}
+            inProgressProjects={projects.filter(p => p.status === "in-progress").length}
           />
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <h2 className="text-2xl font-semibold mb-4">Your Projects</h2>
-              <ProjectGrid projects={MOCK_PROJECTS} />
+              
+              {isLoading ? (
+                <div className="flex justify-center items-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : projects.length > 0 ? (
+                <ProjectGrid projects={projects} />
+              ) : (
+                <div className="bg-card rounded-lg border p-8 text-center">
+                  <p className="text-muted-foreground mb-4">No projects created yet</p>
+                  <Button onClick={() => navigate('/projects/new')}>Create Your First Project</Button>
+                </div>
+              )}
             </div>
             <div>
               <h2 className="text-2xl font-semibold mb-4">Recent Activity</h2>
               <div className="bg-card rounded-lg border p-4 space-y-3">
-                {ACTIVITIES.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 pb-3 border-b last:border-0 last:pb-0">
-                    <div className="mt-1 bg-muted rounded-full p-1">
-                      <Clock className="h-4 w-4" />
+                {projects.length > 0 ? (
+                  ACTIVITIES.map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-3 pb-3 border-b last:border-0 last:pb-0">
+                      <div className="mt-1 bg-muted rounded-full p-1">
+                        <Clock className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{activity.project}</p>
+                        <p className="text-sm text-muted-foreground">{activity.action}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{activity.project}</p>
-                      <p className="text-sm text-muted-foreground">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">No recent activity</p>
+                )}
               </div>
             </div>
           </div>

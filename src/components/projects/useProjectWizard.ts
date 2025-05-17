@@ -1,15 +1,23 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { FormData, initialFormData, wizardSteps } from "./types";
 import { ZoningCalculationsState } from "./zoning/types/zoningTypes";
+import { 
+  fetchZoningDistricts, 
+  saveProject, 
+  saveProjectData,
+  ZoningDistrictData
+} from "@/services/dataService";
 
 export const useProjectWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [zoningDistricts, setZoningDistricts] = useState<ZoningDistrictData[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [calculations, setCalculations] = useState<ZoningCalculationsState>({
     setbacks: null,
     heightLimits: null,
@@ -20,13 +28,23 @@ export const useProjectWizard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Fetch zoning districts from database
+  useEffect(() => {
+    const loadZoningDistricts = async () => {
+      const districts = await fetchZoningDistricts();
+      setZoningDistricts(districts);
+    };
+    
+    loadZoningDistricts();
+  }, []);
+
   // TMK validation function
   const validateTmkFormat = (tmk: string): boolean => {
     const tmkPattern = /^\d-\d-\d{3}:\d{3}$/;
     return tmkPattern.test(tmk);
   };
 
-  const updateFormData = (key: keyof FormData, value: string | boolean) => {
+  const updateFormData = (key: keyof FormData, value: string | boolean | any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
 
     // Trigger calculations for zoning step
@@ -37,103 +55,61 @@ export const useProjectWizard = () => {
     }
   };
 
+  // Get zoning district data based on selected district code
+  const getZoningDistrictData = (districtCode: string) => {
+    return zoningDistricts.find(d => d.code === districtCode);
+  };
+
   const performZoningCalculations = (district: string, lotAreaStr: string, isCornerLot: boolean) => {
     if (!district || !lotAreaStr) return;
     
     setIsCalculating(true);
     
-    // Simulate API calculation delay
+    // Get zoning district data from database
+    const districtData = getZoningDistrictData(district);
+    if (!districtData) {
+      console.error("District data not found:", district);
+      setIsCalculating(false);
+      return;
+    }
+    
+    // Convert lot area from string to number
+    const lotArea = parseFloat(lotAreaStr.replace(/,/g, ''));
+    
+    // Use district data for calculations
     setTimeout(() => {
-      const lotArea = parseFloat(lotAreaStr.replace(/,/g, ''));
-      
-      // Example calculation logic based on zoning district
-      let calculationResults: ZoningCalculationsState = {
-        setbacks: null,
-        heightLimits: null,
-        coverage: null,
-        dwellingUnits: null
+      const calculationResults: ZoningCalculationsState = {
+        setbacks: { 
+          front: districtData.front_setback, 
+          side: districtData.side_setback, 
+          rear: districtData.rear_setback,
+          streetSide: isCornerLot ? Math.round(districtData.side_setback * 1.5) : undefined 
+        },
+        heightLimits: { 
+          maxHeight: districtData.max_building_height, 
+          maxStories: districtData.max_stories || 2 // fallback if null
+        },
+        coverage: { 
+          maxCoveragePercent: districtData.max_lot_coverage * 100,
+          maxCoverage: lotArea * districtData.max_lot_coverage,
+          farBase: districtData.max_far || 0.7, // fallback if null
+          maxFloorArea: lotArea * (districtData.max_far || 0.7)
+        },
+        dwellingUnits: {
+          maxUnits: Math.floor(lotArea / districtData.min_lot_area),
+          allowsOhana: lotArea >= districtData.min_lot_area * 1.5, // Example rule
+          allowsADU: lotArea >= 3500,
+          requiredParking: {
+            main: 2,
+            ohana: lotArea >= districtData.min_lot_area * 1.5 ? 1 : 0,
+            adu: lotArea >= 3500 ? 1 : 0,
+            total: 2 + (lotArea >= districtData.min_lot_area * 1.5 ? 1 : 0) + (lotArea >= 3500 ? 1 : 0)
+          }
+        }
       };
-      
-      // Apply calculations based on district
-      switch(district) {
-        case "R-5":
-          calculationResults = {
-            setbacks: { front: 25, side: 5, rear: 15, streetSide: isCornerLot ? 20 : undefined },
-            heightLimits: { maxHeight: 30, maxStories: 2.5 },
-            coverage: { 
-              maxCoveragePercent: 50,
-              maxCoverage: lotArea * 0.5,
-              farBase: 0.7,
-              farConditional: 0.8,
-              maxFloorArea: lotArea * 0.7,
-              maxConditionalFloorArea: lotArea * 0.8
-            },
-            dwellingUnits: {
-              maxUnits: Math.floor(lotArea / 5000),
-              allowsOhana: true,
-              allowsADU: lotArea >= 3500,
-              requiredParking: {
-                main: 2,
-                ohana: 1,
-                adu: 1,
-                total: 2 + (lotArea >= 3500 ? 2 : 0)
-              }
-            }
-          };
-          break;
-          
-        case "R-3.5":
-          calculationResults = {
-            setbacks: { front: 20, side: 5, rear: 10, streetSide: isCornerLot ? 15 : undefined },
-            heightLimits: { maxHeight: 25, maxStories: 2 },
-            coverage: { 
-              maxCoveragePercent: 60,
-              maxCoverage: lotArea * 0.6,
-              farBase: 0.8,
-              maxFloorArea: lotArea * 0.8
-            },
-            dwellingUnits: {
-              maxUnits: Math.floor(lotArea / 3500),
-              allowsOhana: true,
-              allowsADU: lotArea >= 3500,
-              requiredParking: {
-                main: 2,
-                ohana: 1,
-                adu: 1,
-                total: 2 + (lotArea >= 3500 ? 2 : 0)
-              }
-            }
-          };
-          break;
-          
-        default:
-          // Default calculations for other zones
-          calculationResults = {
-            setbacks: { front: 20, side: 5, rear: 10 },
-            heightLimits: { maxHeight: 30, maxStories: 2 },
-            coverage: { 
-              maxCoveragePercent: 40,
-              maxCoverage: lotArea * 0.4,
-              farBase: 0.6,
-              maxFloorArea: lotArea * 0.6
-            },
-            dwellingUnits: {
-              maxUnits: Math.floor(lotArea / 7500),
-              allowsOhana: false,
-              allowsADU: false,
-              requiredParking: {
-                main: 2,
-                ohana: 0,
-                adu: 0,
-                total: 2
-              }
-            }
-          };
-      }
       
       setCalculations(calculationResults);
       setIsCalculating(false);
-      
     }, 500); // 500ms delay for animation
   };
 
@@ -148,6 +124,9 @@ export const useProjectWizard = () => {
         });
         return;
       }
+      
+      // Save project draft when moving past first step
+      saveDraft();
     }
     
     // For the Zoning Info step, validate district and lot area
@@ -162,6 +141,11 @@ export const useProjectWizard = () => {
     
     if (currentStep < wizardSteps.length - 1) {
       setCurrentStep(currentStep + 1);
+      
+      // Save form data for current step
+      if (projectId) {
+        saveProjectData(projectId, currentStep, formData);
+      }
     }
   };
 
@@ -171,26 +155,77 @@ export const useProjectWizard = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const saveDraft = async () => {
+    try {
+      const savedProjectId = await saveProject({
+        id: projectId || undefined,
+        name: formData.name,
+        tmk: formData.tmk,
+        address: formData.address || null,
+        status: 'draft'
+      });
+      
+      if (savedProjectId) {
+        setProjectId(savedProjectId);
+        
+        // Save form data for current step
+        await saveProjectData(savedProjectId, currentStep, formData);
+        
+        toast({
+          title: "Draft Saved",
+          description: "Your project draft has been saved successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      toast({
+        variant: "destructive",
+        title: "Save Failed",
+        description: "There was an error saving your draft"
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Project Created",
-        description: "Your project has been created successfully",
+    try {
+      const savedProjectId = await saveProject({
+        id: projectId || undefined,
+        name: formData.name,
+        tmk: formData.tmk,
+        address: formData.address || null,
+        status: 'completed',
+        is_complete: true
       });
-      navigate("/");
-    }, 1500);
+      
+      if (savedProjectId) {
+        // Save final form data
+        await saveProjectData(savedProjectId, currentStep, formData);
+        
+        toast({
+          title: "Project Created",
+          description: "Your project has been created successfully",
+        });
+        navigate("/");
+      } else {
+        throw new Error("Failed to save project");
+      }
+    } catch (error) {
+      console.error("Error submitting project:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: "There was an error creating your project"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const handleSaveDraft = () => {
-    toast({
-      title: "Draft Saved",
-      description: "Your project draft has been saved successfully",
-    });
+    saveDraft();
   };
 
   return {
@@ -204,6 +239,7 @@ export const useProjectWizard = () => {
     handlePrevious,
     handleSubmit,
     handleSaveDraft,
-    validateTmkFormat
+    validateTmkFormat,
+    zoningDistricts
   };
 };

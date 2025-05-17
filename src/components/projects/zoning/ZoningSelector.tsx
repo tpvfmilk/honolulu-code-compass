@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Select,
@@ -12,32 +13,51 @@ import { Input } from "@/components/ui/input";
 import { Search, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Import type from the new file
-import type { ZoningDistrict } from "./types/zoningTypes";
+// Import type from the new services folder
+import type { ZoningDistrictData } from "@/services/dataService";
 
 type ZoningSelectorProps = {
   value: string;
   onChange: (value: string) => void;
-  zoningDistricts: ZoningDistrict[];
+  zoningDistricts: ZoningDistrictData[];
 };
 
 export const ZoningSelector = ({ value, onChange, zoningDistricts }: ZoningSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   
-  // Group districts by category
-  const groupedDistricts = zoningDistricts.reduce<Record<string, ZoningDistrict[]>>((groups, district) => {
-    if (!groups[district.group]) {
-      groups[district.group] = [];
+  // Group districts by code prefix (e.g., "R-", "A-", "B-")
+  const groupedDistricts = zoningDistricts.reduce<Record<string, ZoningDistrictData[]>>((groups, district) => {
+    // Extract the first letter or first two letters before the dash
+    const prefix = district.code.split('-')[0];
+    const groupName = getGroupName(prefix);
+    
+    if (!groups[groupName]) {
+      groups[groupName] = [];
     }
-    groups[district.group].push(district);
+    groups[groupName].push(district);
     return groups;
   }, {});
+  
+  // Helper function to get readable group names
+  function getGroupName(prefix: string): string {
+    const groupMap: Record<string, string> = {
+      'R': 'Residential Districts',
+      'A': 'Apartment Districts',
+      'B': 'Business Districts',
+      'BMX': 'Business Mixed Use Districts',
+      'I': 'Industrial Districts',
+      'P': 'Preservation Districts',
+      'AMX': 'Apartment Mixed Use Districts'
+    };
+    
+    return groupMap[prefix] || 'Other Districts';
+  }
   
   // Filter districts based on search term
   const filteredDistricts = searchTerm 
     ? zoningDistricts.filter(d => 
-        d.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        d.value.toLowerCase().includes(searchTerm.toLowerCase())
+        d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        d.code.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : zoningDistricts;
 
@@ -61,8 +81,8 @@ export const ZoningSelector = ({ value, onChange, zoningDistricts }: ZoningSelec
           {searchTerm ? (
             // Show filtered results when searching
             filteredDistricts.map((district) => (
-              <SelectItem key={district.value} value={district.value}>
-                {district.label}
+              <SelectItem key={district.id} value={district.code}>
+                {district.code} - {district.name}
               </SelectItem>
             ))
           ) : (
@@ -71,8 +91,8 @@ export const ZoningSelector = ({ value, onChange, zoningDistricts }: ZoningSelec
               <SelectGroup key={group}>
                 <SelectLabel>{group}</SelectLabel>
                 {districts.map((district) => (
-                  <SelectItem key={district.value} value={district.value}>
-                    {district.label}
+                  <SelectItem key={district.id} value={district.code}>
+                    {district.code} - {district.name}
                   </SelectItem>
                 ))}
               </SelectGroup>

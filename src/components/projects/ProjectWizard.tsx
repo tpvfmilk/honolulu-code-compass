@@ -11,7 +11,7 @@ import { OccupancyDetailsStep } from "./steps/OccupancyDetailsStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import { useProjectWizard } from "./useProjectWizard";
 import { wizardSteps } from "./types";
-import { zoningDistricts, buildingTypes } from "./zoning/types/zoningTypes";
+import { buildingTypes } from "./zoning/types/zoningTypes";
 
 export const ProjectWizard = () => {
   const {
@@ -25,7 +25,8 @@ export const ProjectWizard = () => {
     handlePrevious,
     handleSubmit,
     handleSaveDraft,
-    validateTmkFormat
+    validateTmkFormat,
+    zoningDistricts
   } = useProjectWizard();
 
   return (

@@ -3,29 +3,6 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
 
-// Create a comprehensive interface for the internal property
-interface PdfDocumentInternal {
-  pageSize: {
-    width: number;
-    height: number;
-    getWidth: () => number;
-    getHeight: () => number;
-  };
-  pages: number[];
-  getNumberOfPages: () => number;
-  events: any;
-  scaleFactor: number;
-  getEncryptor: (objectId: number) => (data: string) => string;
-}
-
-// Define a more accurate type for jsPDF with autoTable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    internal: PdfDocumentInternal;
-  }
-}
-
 // Store the last Y position after creating a table
 let lastTableY = 0;
 

@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
 
+// Extend the jsPDF type to include autoTable
 declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;

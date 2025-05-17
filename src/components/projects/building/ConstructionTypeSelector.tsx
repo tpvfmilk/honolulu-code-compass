@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Select, 
@@ -27,7 +28,23 @@ export const ConstructionTypeSelector = ({ value, onChange }: ConstructionTypeSe
       setIsLoading(true);
       try {
         const types = await fetchConstructionTypes();
-        setConstructionTypes(types);
+        // Sort construction types by their roman numeral order (I, II, III, IV, V)
+        const sortedTypes = [...types].sort((a, b) => {
+          // Extract the roman numeral part (I, II, III, IV, V)
+          const getRomanNumeral = (code: string) => code.split('-')[0];
+          const romanOrder: Record<string, number> = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5 };
+          
+          const aOrder = romanOrder[getRomanNumeral(a.code)] || 99;
+          const bOrder = romanOrder[getRomanNumeral(b.code)] || 99;
+          
+          // First sort by roman numeral
+          if (aOrder !== bOrder) return aOrder - bOrder;
+          
+          // Then sort by the subtype (A, B)
+          return a.code.localeCompare(b.code);
+        });
+        
+        setConstructionTypes(sortedTypes);
       } catch (error) {
         console.error("Error loading construction types:", error);
       } finally {
@@ -92,7 +109,7 @@ export const ConstructionTypeSelector = ({ value, onChange }: ConstructionTypeSe
               <SelectLabel>{group}</SelectLabel>
               {types.map((type) => (
                 <SelectItem key={type.id} value={type.code}>
-                  {type.code} - {type.name}
+                  {type.name}
                 </SelectItem>
               ))}
             </SelectGroup>

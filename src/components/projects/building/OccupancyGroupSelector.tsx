@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { 
   Select, 
@@ -27,7 +28,24 @@ export const OccupancyGroupSelector = ({ value, onChange }: OccupancyGroupSelect
       setIsLoading(true);
       try {
         const groups = await fetchOccupancyGroups();
-        setOccupancyGroups(groups);
+        // Sort occupancy groups by their code
+        const sortedGroups = [...groups].sort((a, b) => {
+          // First sort by the main letter (A, B, etc.)
+          const aLetter = a.code.charAt(0);
+          const bLetter = b.code.charAt(0);
+          
+          if (aLetter !== bLetter) {
+            return aLetter.localeCompare(bLetter);
+          }
+          
+          // For same letters, sort by number 
+          // Extract numerical parts (e.g., "1" from "A-1")
+          const aNum = parseInt(a.code.split('-')[1] || '0');
+          const bNum = parseInt(b.code.split('-')[1] || '0');
+          return aNum - bNum;
+        });
+        
+        setOccupancyGroups(sortedGroups);
       } catch (error) {
         console.error("Error loading occupancy groups:", error);
       } finally {

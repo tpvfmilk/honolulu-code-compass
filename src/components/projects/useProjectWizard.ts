@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { FormData, initialFormData, wizardSteps } from "./types";
-import { ZoningCalculationsState } from "./zoning/types/zoningTypes";
+import { FormData, initialFormData, wizardSteps } from "./types/projectTypes";
+import { ZoningCalculationsState } from "./types/zoning/zoningTypes";
 import { 
   fetchZoningDistricts, 
   saveProject, 

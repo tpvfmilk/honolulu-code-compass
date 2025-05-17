@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
@@ -10,8 +9,8 @@ import { FireSafetyStep } from "./steps/FireSafetyStep";
 import { OccupancyDetailsStep } from "./steps/OccupancyDetailsStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import { useProjectWizard } from "./useProjectWizard";
-import { wizardSteps } from "./types";
-import { buildingTypes } from "./zoning/types/zoningTypes";
+import { wizardSteps } from "./types/projectTypes";
+import { buildingTypes } from "./types/zoning/zoningTypes";
 
 export const ProjectWizard = () => {
   const {

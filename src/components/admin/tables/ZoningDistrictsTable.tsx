@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -405,6 +406,18 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: { searchQu
                 <TableHead className="text-center">
                   Rear<br/>Setback
                 </TableHead>
+                <TableHead 
+                  className="text-center cursor-pointer"
+                  onClick={() => handleSort("max_lot_coverage")}
+                >
+                  Max Lot<br/>Coverage {getSortIcon("max_lot_coverage")}
+                </TableHead>
+                <TableHead 
+                  className="text-center cursor-pointer"
+                  onClick={() => handleSort("max_far")}
+                >
+                  Max<br/>FAR {getSortIcon("max_far")}
+                </TableHead>
                 <TableHead className="text-right w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -412,7 +425,7 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: { searchQu
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={`skeleton-${i}`}>
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 11 }).map((_, j) => (
                       <TableCell key={`cell-${i}-${j}`} className="py-4">
                         <div className="h-4 bg-gray-200 rounded animate-pulse" />
                       </TableCell>
@@ -430,6 +443,8 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: { searchQu
                     <TableCell className="text-center">{row.front_setback}′</TableCell>
                     <TableCell className="text-center">{row.side_setback}′</TableCell>
                     <TableCell className="text-center">{row.rear_setback}′</TableCell>
+                    <TableCell className="text-center">{row.max_lot_coverage}%</TableCell>
+                    <TableCell className="text-center">{row.max_far || "N/A"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
                         <Button 
@@ -472,7 +487,7 @@ export const ZoningDistrictsTable = ({ searchQuery, setSearchQuery }: { searchQu
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-24 text-center">
+                  <TableCell colSpan={11} className="h-24 text-center">
                     {searchQuery ? "No matching records found." : "No zoning districts found."}
                   </TableCell>
                 </TableRow>

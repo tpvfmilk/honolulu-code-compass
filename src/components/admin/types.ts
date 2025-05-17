@@ -1,4 +1,3 @@
-
 // Common types for admin tables
 
 export interface ZoningDistrict {
@@ -18,7 +17,7 @@ export interface ZoningDistrict {
   updated_at?: string;
 }
 
-export interface HeightAreaLimitRecord {
+export type HeightAreaLimitRecord = {
   id: string;
   constructionType: string;
   occupancyGroup: string;
@@ -28,9 +27,10 @@ export interface HeightAreaLimitRecord {
   sprinklerHeightBonus: number;
   sprinklerStoryBonus: number;
   sprinklerAreaMultiplier: number;
+  sprinklersAllowed?: boolean; // Added for explicit display
   ibcTableReference: string;
   notes: string;
-}
+};
 
 export interface FireRatingRecord {
   id: string;

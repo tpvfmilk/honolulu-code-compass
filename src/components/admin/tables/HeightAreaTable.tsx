@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import {
   Table,
@@ -13,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { HeightAreaLimitRecord } from "@/components/admin/types";
 import { TablePagination } from "@/components/admin/TablePagination";
-import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
+import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -70,6 +69,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
           sprinklerHeightBonus: 20, // Default value as this isn't in the DB schema
           sprinklerStoryBonus: 1, // Default value
           sprinklerAreaMultiplier: item.sprinkler_increase_allowed ? 3 : 1,
+          sprinklersAllowed: item.sprinkler_increase_allowed, // Add direct field for sprinkler_increase_allowed
           ibcTableReference: "Tables 504.3, 504.4, 506.2",
           notes: ""
         }));
@@ -265,6 +265,12 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
                 >
                   Area (sq ft) {getSortIcon("maxAreaPerFloor")}
                 </TableHead>
+                <TableHead 
+                  className="text-center cursor-pointer"
+                  onClick={() => handleSort("sprinklersAllowed")}
+                >
+                  Sprinklers<br/>Allowed {getSortIcon("sprinklersAllowed")}
+                </TableHead>
                 <TableHead className="text-right w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -272,7 +278,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={`skeleton-${i}`}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <TableCell key={`cell-${i}-${j}`} className="py-4">
                         <div className="h-4 bg-gray-200 rounded animate-pulse" />
                       </TableCell>
@@ -287,6 +293,12 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
                     <TableCell className="text-right">{row.maxHeight}</TableCell>
                     <TableCell className="text-right">{row.maxStories}</TableCell>
                     <TableCell className="text-right">{row.maxAreaPerFloor.toLocaleString()}</TableCell>
+                    <TableCell className="text-center">
+                      {row.sprinklersAllowed ? 
+                        <Check className="h-4 w-4 mx-auto text-green-500" /> : 
+                        <X className="h-4 w-4 mx-auto text-red-500" />
+                      }
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
                         <Button 
@@ -309,7 +321,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     {searchQuery ? "No matching records found." : "No records found."}
                   </TableCell>
                 </TableRow>

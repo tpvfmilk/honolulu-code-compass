@@ -1,7 +1,11 @@
+
 import {
   createBrowserRouter,
   RouterProvider,
   useNavigate,
+  Routes,
+  Route,
+  BrowserRouter,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSession, SessionProvider } from "./hooks/useSession";
@@ -15,7 +19,7 @@ import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 
-function App() {
+function AppRoutes() {
   const [loading, setLoading] = useState(true);
   const { session, setSession } = useSession();
   const navigate = useNavigate();
@@ -29,7 +33,7 @@ function App() {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-  }, []);
+  }, [setSession]);
 
   useEffect(() => {
     if (!session && !loading && window.location.pathname !== "/") {
@@ -44,47 +48,27 @@ function App() {
   }
 
   return (
-    <>
-      <RouterProvider router={router} />
-    </>
+    <Routes>
+      <Route path="/" element={<Index onLogout={() => navigate('/')} />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/project/new" element={<ProjectCreate />} />
+      <Route path="/project/:id" element={<ProjectView />} />
+      <Route path="/admin" element={<AdminDashboard onLogout={() => navigate('/')} />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
-function SessionApp() {
+function App() {
   return (
-    <SessionProvider>
-      <App />
-    </SessionProvider>
+    <BrowserRouter>
+      <SessionProvider>
+        <AppRoutes />
+      </SessionProvider>
+    </BrowserRouter>
   );
 }
 
-export default SessionApp;
-
-// Routes
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Index onLogin={() => navigate('/auth')} />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: '/help',
-    element: <Help />,
-  },
-  {
-    path: '/profile',
-    element: <Profile />,
-  },
-  {
-    path: '/project/new',
-    element: <ProjectCreate />,
-  },
-  {
-    path: '/project/:id',
-    element: <ProjectView />,
-  },
-  {
-    path: '/admin',
-    element: <AdminDashboard onLogout={() => navigate('/')} />,
-  },
-]);
+export default App;

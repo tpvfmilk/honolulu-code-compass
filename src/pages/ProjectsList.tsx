@@ -109,12 +109,9 @@ const ProjectsList = ({ onLogout }: ProjectsListProps) => {
         </div>
         
         <StatsCards 
-          stats={{
-            total: stats.total,
-            active: stats.active,
-            completed: stats.completed,
-            pending: stats.pending
-          }} 
+          totalProjects={stats.total}
+          completedProjects={stats.completed}
+          inProgressProjects={stats.active}
         />
         
         <Tabs defaultValue="all" className="mt-8" onValueChange={setActiveFilter}>

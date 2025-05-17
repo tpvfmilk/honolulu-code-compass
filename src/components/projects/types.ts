@@ -3,7 +3,8 @@
 import { ZoningCalculationsState, zoningDistricts, buildingTypes } from './zoning/types/zoningTypes';
 
 // Re-export for backward compatibility
-export { ZoningCalculationsState, zoningDistricts, buildingTypes };
+export { zoningDistricts, buildingTypes };
+export type { ZoningCalculationsState };
 
 export type FormData = {
   name: string;

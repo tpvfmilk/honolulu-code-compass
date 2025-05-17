@@ -306,6 +306,7 @@ export type Database = {
           id: string
           is_complete: boolean | null
           name: string
+          project_type: string | null
           property_owner: string | null
           status: string | null
           tmk: string | null
@@ -320,6 +321,7 @@ export type Database = {
           id?: string
           is_complete?: boolean | null
           name: string
+          project_type?: string | null
           property_owner?: string | null
           status?: string | null
           tmk?: string | null
@@ -334,6 +336,7 @@ export type Database = {
           id?: string
           is_complete?: boolean | null
           name?: string
+          project_type?: string | null
           property_owner?: string | null
           status?: string | null
           tmk?: string | null

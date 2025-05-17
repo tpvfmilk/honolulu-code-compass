@@ -11,73 +11,65 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
-import { HeightAreaLimitRecord } from "@/components/admin/types";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { fetchConstructionTypes, fetchHeightAreaLimits, fetchOccupancyGroups } from "@/services/dataService";
+import { fetchOccupancyGroups, fetchTravelDistances } from "@/services/dataService";
 
-interface HeightAreaTableProps {
+interface TravelDistance {
+  id: string;
+  occupancyGroup: string;
+  sprinklered: boolean;
+  maxTravelDistance: number;
+  maxCommonPath: number;
+  maxDeadEnd: number;
+}
+
+interface TravelDistancesTableProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
 
-export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTableProps) => {
-  const [data, setData] = useState<HeightAreaLimitRecord[]>([]);
+export const TravelDistancesTable = ({ searchQuery, setSearchQuery }: TravelDistancesTableProps) => {
+  const [data, setData] = useState<TravelDistance[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<keyof HeightAreaLimitRecord>("constructionType");
+  const [sortField, setSortField] = useState<keyof TravelDistance>("occupancyGroup");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [constructionTypes, setConstructionTypes] = useState<Record<string, string>>({});
-  const [occupancyGroups, setOccupancyGroups] = useState<Record<string, string>>({});
   
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         
-        // Load construction types and occupancy groups for mapping
-        const types = await fetchConstructionTypes();
+        // Load occupancy groups for mapping
         const groups = await fetchOccupancyGroups();
-        const typeMap: Record<string, string> = {};
         const groupMap: Record<string, string> = {};
-        
-        types.forEach(type => {
-          typeMap[type.id] = type.code;
-        });
         
         groups.forEach(group => {
           groupMap[group.id] = group.code;
         });
         
-        setConstructionTypes(typeMap);
-        setOccupancyGroups(groupMap);
+        // Load travel distance data
+        const travelDistanceData = await fetchTravelDistances();
         
-        // Load height and area limits
-        const heightAreaData = await fetchHeightAreaLimits();
-        
-        // Map data to the format expected by the component
-        const formattedData: HeightAreaLimitRecord[] = heightAreaData.map(item => ({
+        // Map data to our desired format
+        const formattedData: TravelDistance[] = travelDistanceData.map(item => ({
           id: item.id,
-          constructionType: typeMap[item.construction_type_id] || 'Unknown',
           occupancyGroup: groupMap[item.occupancy_group_id] || 'Unknown',
-          maxHeight: item.max_height_ft,
-          maxStories: item.max_stories,
-          maxAreaPerFloor: item.base_allowable_area,
-          sprinklerHeightBonus: 20, // Default value as this isn't in the DB schema
-          sprinklerStoryBonus: 1, // Default value
-          sprinklerAreaMultiplier: item.sprinkler_increase_allowed ? 3 : 1,
-          ibcTableReference: "Tables 504.3, 504.4, 506.2",
-          notes: ""
+          sprinklered: item.sprinklered,
+          maxTravelDistance: item.max_travel_distance_ft,
+          maxCommonPath: item.max_common_path_ft,
+          maxDeadEnd: item.max_dead_end_ft
         }));
         
         setData(formattedData);
       } catch (error) {
-        console.error("Error loading height and area data:", error);
-        toast.error("Failed to load height and area limitations data");
+        console.error("Error loading travel distance data:", error);
+        toast.error("Failed to load travel distance data");
         setData([]);
       } finally {
         setIsLoading(false);
@@ -96,9 +88,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     if (searchQuery) {
       const lowerCaseQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
-        item.constructionType.toLowerCase().includes(lowerCaseQuery) ||
-        item.occupancyGroup.toLowerCase().includes(lowerCaseQuery) ||
-        item.notes.toLowerCase().includes(lowerCaseQuery)
+        item.occupancyGroup.toLowerCase().includes(lowerCaseQuery)
       );
     }
     
@@ -108,7 +98,15 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
       
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-      } else {
+      } 
+      else if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+        if (sortDirection === "asc") {
+          return aValue === bValue ? 0 : aValue ? 1 : -1;
+        } else {
+          return aValue === bValue ? 0 : aValue ? -1 : 1;
+        }
+      }
+      else {
         const aString = String(aValue || "").toLowerCase();
         const bString = String(bValue || "").toLowerCase();
         return sortDirection === "asc" 
@@ -125,7 +123,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     currentPage * rowsPerPage
   );
   
-  const handleSort = (field: keyof HeightAreaLimitRecord) => {
+  const handleSort = (field: keyof TravelDistance) => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -134,7 +132,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     }
   };
   
-  const getSortIcon = (field: keyof HeightAreaLimitRecord) => {
+  const getSortIcon = (field: keyof TravelDistance) => {
     if (field !== sortField) return null;
     return sortDirection === "asc" ? 
       <ArrowUp className="inline h-3 w-3 ml-1" /> : 
@@ -153,10 +151,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
   const handleCsvUpload = async (csvData: any[]) => {
     try {
       console.log("CSV data to process:", csvData);
-      
-      // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       toast.success(`Successfully processed ${csvData.length} records`);
       setIsUploadOpen(false);
       return true;
@@ -180,8 +175,8 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <CardTitle>Height & Area Limitations</CardTitle>
-            <CardDescription>Maximum building heights, stories, and areas by construction type and occupancy (IBC Tables 504.3, 504.4, 506.2)</CardDescription>
+            <CardTitle>Egress Travel Distances</CardTitle>
+            <CardDescription>Maximum travel distances by occupancy group and sprinkler condition (IBC Table 1017.2)</CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button 
@@ -206,14 +201,14 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Upload Height & Area Data</DialogTitle>
+                  <DialogTitle>Upload Travel Distance Data</DialogTitle>
                   <DialogDescription>
-                    Upload a CSV file with height and area limitations data. Download the template for the correct format.
+                    Upload a CSV file with travel distance limitations data. Download the template for the correct format.
                   </DialogDescription>
                 </DialogHeader>
                 <CsvUploader 
                   onUpload={handleCsvUpload} 
-                  templateName="height_area_limits" 
+                  templateName="travel_distances" 
                 />
               </DialogContent>
             </Dialog>
@@ -229,7 +224,11 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
         </div>
       </CardHeader>
       <CardContent>
-        <SearchableTable searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <SearchableTable 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          placeholder="Search by occupancy group..." 
+        />
         
         <div className="rounded-md border">
           <Table>
@@ -237,33 +236,33 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               <TableRow>
                 <TableHead 
                   className="w-[120px] cursor-pointer"
-                  onClick={() => handleSort("constructionType")}
-                >
-                  Type {getSortIcon("constructionType")}
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer"
                   onClick={() => handleSort("occupancyGroup")}
                 >
                   Occupancy {getSortIcon("occupancyGroup")}
                 </TableHead>
                 <TableHead 
-                  className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxHeight")}
+                  className="cursor-pointer"
+                  onClick={() => handleSort("sprinklered")}
                 >
-                  Height (ft) {getSortIcon("maxHeight")}
+                  Sprinklered {getSortIcon("sprinklered")}
                 </TableHead>
                 <TableHead 
                   className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxStories")}
+                  onClick={() => handleSort("maxTravelDistance")}
                 >
-                  Stories {getSortIcon("maxStories")}
+                  Max Travel<br/>Distance (ft) {getSortIcon("maxTravelDistance")}
                 </TableHead>
                 <TableHead 
                   className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxAreaPerFloor")}
+                  onClick={() => handleSort("maxCommonPath")}
                 >
-                  Area (sq ft) {getSortIcon("maxAreaPerFloor")}
+                  Common Path<br/>(ft) {getSortIcon("maxCommonPath")}
+                </TableHead>
+                <TableHead 
+                  className="text-right cursor-pointer"
+                  onClick={() => handleSort("maxDeadEnd")}
+                >
+                  Dead End<br/>Corridor (ft) {getSortIcon("maxDeadEnd")}
                 </TableHead>
                 <TableHead className="text-right w-[120px]">Actions</TableHead>
               </TableRow>
@@ -282,11 +281,11 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               ) : paginatedData.length > 0 ? (
                 paginatedData.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.constructionType}</TableCell>
-                    <TableCell>{row.occupancyGroup}</TableCell>
-                    <TableCell className="text-right">{row.maxHeight}</TableCell>
-                    <TableCell className="text-right">{row.maxStories}</TableCell>
-                    <TableCell className="text-right">{row.maxAreaPerFloor.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">{row.occupancyGroup}</TableCell>
+                    <TableCell>{row.sprinklered ? "Yes" : "No"}</TableCell>
+                    <TableCell className="text-right">{row.maxTravelDistance}</TableCell>
+                    <TableCell className="text-right">{row.maxCommonPath}</TableCell>
+                    <TableCell className="text-right">{row.maxDeadEnd}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
                         <Button 

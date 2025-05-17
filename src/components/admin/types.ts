@@ -48,3 +48,19 @@ export interface LoadFactorRecord {
   description: string;
   ibcTableReference: string;
 }
+
+export interface TravelDistanceRecord {
+  id: string;
+  occupancyGroup: string;
+  sprinklered: boolean;
+  maxTravelDistance: number;
+  maxCommonPath: number;
+  maxDeadEnd: number;
+}
+
+export interface OccupancySeparationRecord {
+  id: string;
+  fromOccupancy: string;
+  toOccupancy: string;
+  ratingHours: number;
+}

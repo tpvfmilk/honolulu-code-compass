@@ -52,7 +52,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => currentPath === path;
+  const isActive = (path: string) => currentPath === path || currentPath.startsWith(path);
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
 

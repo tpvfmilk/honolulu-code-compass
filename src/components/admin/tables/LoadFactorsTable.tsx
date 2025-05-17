@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,12 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { LoadFactorRecord } from "@/components/admin/types";
-import { mockLoadFactorsData } from "@/components/admin/mockData";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { fetchLoadFactors, fetchOccupancyGroups } from "@/services/dataService";
 
 interface LoadFactorsTableProps {
   searchQuery: string;
@@ -25,11 +25,41 @@ interface LoadFactorsTableProps {
 }
 
 export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTableProps) => {
-  const [data, setData] = useState<LoadFactorRecord[]>(mockLoadFactorsData);
+  const [data, setData] = useState<LoadFactorRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<keyof LoadFactorRecord>("occupancyGroup");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Load occupancy groups for mapping
+        const groups = await fetchOccupancyGroups();
+        const groupMap: Record<string, string> = {};
+        
+        groups.forEach(group => {
+          groupMap[group.id] = group.code;
+        });
+        
+        // Load load factors data
+        const loadFactorData = await fetchLoadFactors();
+        
+        setData(loadFactorData);
+      } catch (error) {
+        console.error("Error loading load factor data:", error);
+        toast.error("Failed to load occupant load factors data");
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
   
   const rowsPerPage = 10;
   
@@ -53,8 +83,8 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       } else {
-        const aString = String(aValue).toLowerCase();
-        const bString = String(bValue).toLowerCase();
+        const aString = String(aValue || "").toLowerCase();
+        const bString = String(bValue || "").toLowerCase();
         return sortDirection === "asc" 
           ? aString.localeCompare(bString)
           : bString.localeCompare(aString);
@@ -213,7 +243,17 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.length > 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`}>
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <TableCell key={`cell-${i}-${j}`} className="py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : paginatedData.length > 0 ? (
                 paginatedData.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.occupancyGroup}</TableCell>
@@ -243,7 +283,7 @@ export const LoadFactorsTable = ({ searchQuery, setSearchQuery }: LoadFactorsTab
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center">
-                    No records found.
+                    {searchQuery ? "No matching records found." : "No records found."}
                   </TableCell>
                 </TableRow>
               )}

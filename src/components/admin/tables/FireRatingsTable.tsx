@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,12 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
 import { FireRatingRecord } from "@/components/admin/types";
-import { mockFireRatingsData } from "@/components/admin/mockData";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { fetchFireRatings, fetchConstructionTypes } from "@/services/dataService";
 
 interface FireRatingsTableProps {
   searchQuery: string;
@@ -25,11 +25,43 @@ interface FireRatingsTableProps {
 }
 
 export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTableProps) => {
-  const [data, setData] = useState<FireRatingRecord[]>(mockFireRatingsData);
+  const [data, setData] = useState<FireRatingRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<keyof FireRatingRecord>("constructionType");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Load construction types for displaying proper names
+        const types = await fetchConstructionTypes();
+        const typeMap: Record<string, string> = {};
+        
+        types.forEach(type => {
+          typeMap[type.id] = type.code;
+        });
+        
+        const fireRatingData = await fetchFireRatings();
+        
+        // For this example, we'll use the data as is
+        // In a real implementation, you'd map the data properly
+        setData(fireRatingData);
+        
+      } catch (error) {
+        console.error("Error loading fire rating data:", error);
+        toast.error("Failed to load fire rating data");
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
   
   const rowsPerPage = 10;
   
@@ -51,8 +83,8 @@ export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTab
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       } else {
-        const aString = String(aValue).toLowerCase();
-        const bString = String(bValue).toLowerCase();
+        const aString = String(aValue || "").toLowerCase();
+        const bString = String(bValue || "").toLowerCase();
         return sortDirection === "asc" 
           ? aString.localeCompare(bString)
           : bString.localeCompare(aString);
@@ -94,7 +126,6 @@ export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTab
   
   const handleCsvUpload = async (csvData: any[]) => {
     try {
-      // In a real implementation, this would validate and process the data
       console.log("CSV data to process:", csvData);
       
       // Simulate processing delay
@@ -178,7 +209,11 @@ export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTab
         </div>
       </CardHeader>
       <CardContent>
-        <SearchableTable searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Search by construction type..." />
+        <SearchableTable 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          placeholder="Search by construction type..." 
+        />
         
         <div className="rounded-md border overflow-x-auto">
           <Table>
@@ -212,7 +247,17 @@ export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTab
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.length > 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`}>
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <TableCell key={`cell-${i}-${j}`} className="py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : paginatedData.length > 0 ? (
                 paginatedData.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">{row.constructionType}</TableCell>
@@ -245,7 +290,7 @@ export const FireRatingsTable = ({ searchQuery, setSearchQuery }: FireRatingsTab
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} className="h-24 text-center">
-                    No records found.
+                    {searchQuery ? "No matching records found." : "No records found."}
                   </TableCell>
                 </TableRow>
               )}

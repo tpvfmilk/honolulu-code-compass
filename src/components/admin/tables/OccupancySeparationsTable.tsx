@@ -11,73 +11,61 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SearchableTable } from "@/components/admin/SearchableTable";
-import { HeightAreaLimitRecord } from "@/components/admin/types";
 import { TablePagination } from "@/components/admin/TablePagination";
 import { Download, Upload, Plus, ArrowUp, ArrowDown, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { CsvUploader } from "@/components/admin/CsvUploader";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { fetchConstructionTypes, fetchHeightAreaLimits, fetchOccupancyGroups } from "@/services/dataService";
+import { fetchOccupancyGroups, fetchOccupancySeparations } from "@/services/dataService";
 
-interface HeightAreaTableProps {
+interface OccupancySeparation {
+  id: string;
+  fromOccupancy: string;
+  toOccupancy: string;
+  ratingHours: number;
+}
+
+interface OccupancySeparationsTableProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
 
-export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTableProps) => {
-  const [data, setData] = useState<HeightAreaLimitRecord[]>([]);
+export const OccupancySeparationsTable = ({ searchQuery, setSearchQuery }: OccupancySeparationsTableProps) => {
+  const [data, setData] = useState<OccupancySeparation[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<keyof HeightAreaLimitRecord>("constructionType");
+  const [sortField, setSortField] = useState<keyof OccupancySeparation>("fromOccupancy");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [constructionTypes, setConstructionTypes] = useState<Record<string, string>>({});
-  const [occupancyGroups, setOccupancyGroups] = useState<Record<string, string>>({});
   
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         
-        // Load construction types and occupancy groups for mapping
-        const types = await fetchConstructionTypes();
+        // Load occupancy groups for mapping
         const groups = await fetchOccupancyGroups();
-        const typeMap: Record<string, string> = {};
         const groupMap: Record<string, string> = {};
-        
-        types.forEach(type => {
-          typeMap[type.id] = type.code;
-        });
         
         groups.forEach(group => {
           groupMap[group.id] = group.code;
         });
         
-        setConstructionTypes(typeMap);
-        setOccupancyGroups(groupMap);
+        // Load separation data
+        const separationData = await fetchOccupancySeparations();
         
-        // Load height and area limits
-        const heightAreaData = await fetchHeightAreaLimits();
-        
-        // Map data to the format expected by the component
-        const formattedData: HeightAreaLimitRecord[] = heightAreaData.map(item => ({
+        // Map data to our desired format
+        const formattedData: OccupancySeparation[] = separationData.map(item => ({
           id: item.id,
-          constructionType: typeMap[item.construction_type_id] || 'Unknown',
-          occupancyGroup: groupMap[item.occupancy_group_id] || 'Unknown',
-          maxHeight: item.max_height_ft,
-          maxStories: item.max_stories,
-          maxAreaPerFloor: item.base_allowable_area,
-          sprinklerHeightBonus: 20, // Default value as this isn't in the DB schema
-          sprinklerStoryBonus: 1, // Default value
-          sprinklerAreaMultiplier: item.sprinkler_increase_allowed ? 3 : 1,
-          ibcTableReference: "Tables 504.3, 504.4, 506.2",
-          notes: ""
+          fromOccupancy: groupMap[item.from_occupancy_id] || 'Unknown',
+          toOccupancy: groupMap[item.to_occupancy_id] || 'Unknown',
+          ratingHours: item.required_rating_hours
         }));
         
         setData(formattedData);
       } catch (error) {
-        console.error("Error loading height and area data:", error);
-        toast.error("Failed to load height and area limitations data");
+        console.error("Error loading occupancy separation data:", error);
+        toast.error("Failed to load occupancy separation data");
         setData([]);
       } finally {
         setIsLoading(false);
@@ -96,9 +84,8 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     if (searchQuery) {
       const lowerCaseQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
-        item.constructionType.toLowerCase().includes(lowerCaseQuery) ||
-        item.occupancyGroup.toLowerCase().includes(lowerCaseQuery) ||
-        item.notes.toLowerCase().includes(lowerCaseQuery)
+        item.fromOccupancy.toLowerCase().includes(lowerCaseQuery) ||
+        item.toOccupancy.toLowerCase().includes(lowerCaseQuery)
       );
     }
     
@@ -125,7 +112,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     currentPage * rowsPerPage
   );
   
-  const handleSort = (field: keyof HeightAreaLimitRecord) => {
+  const handleSort = (field: keyof OccupancySeparation) => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -134,7 +121,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
     }
   };
   
-  const getSortIcon = (field: keyof HeightAreaLimitRecord) => {
+  const getSortIcon = (field: keyof OccupancySeparation) => {
     if (field !== sortField) return null;
     return sortDirection === "asc" ? 
       <ArrowUp className="inline h-3 w-3 ml-1" /> : 
@@ -153,10 +140,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
   const handleCsvUpload = async (csvData: any[]) => {
     try {
       console.log("CSV data to process:", csvData);
-      
-      // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       toast.success(`Successfully processed ${csvData.length} records`);
       setIsUploadOpen(false);
       return true;
@@ -165,6 +149,12 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
       toast.error("Failed to process CSV data");
       return false;
     }
+  };
+  
+  // Format hours for display
+  const formatHours = (hours: number) => {
+    if (hours === 0) return "No separation";
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
   };
   
   const handleAddRecord = () => {
@@ -180,8 +170,8 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <CardTitle>Height & Area Limitations</CardTitle>
-            <CardDescription>Maximum building heights, stories, and areas by construction type and occupancy (IBC Tables 504.3, 504.4, 506.2)</CardDescription>
+            <CardTitle>Required Separation of Occupancies</CardTitle>
+            <CardDescription>Fire-resistance rating required between different occupancy groups (IBC Table 508.4)</CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button 
@@ -206,14 +196,14 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Upload Height & Area Data</DialogTitle>
+                  <DialogTitle>Upload Occupancy Separation Data</DialogTitle>
                   <DialogDescription>
-                    Upload a CSV file with height and area limitations data. Download the template for the correct format.
+                    Upload a CSV file with occupancy separation requirements data. Download the template for the correct format.
                   </DialogDescription>
                 </DialogHeader>
                 <CsvUploader 
                   onUpload={handleCsvUpload} 
-                  templateName="height_area_limits" 
+                  templateName="occupancy_separations" 
                 />
               </DialogContent>
             </Dialog>
@@ -229,7 +219,11 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
         </div>
       </CardHeader>
       <CardContent>
-        <SearchableTable searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <SearchableTable 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          placeholder="Search by occupancy group..." 
+        />
         
         <div className="rounded-md border">
           <Table>
@@ -237,33 +231,21 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               <TableRow>
                 <TableHead 
                   className="w-[120px] cursor-pointer"
-                  onClick={() => handleSort("constructionType")}
+                  onClick={() => handleSort("fromOccupancy")}
                 >
-                  Type {getSortIcon("constructionType")}
+                  From Occupancy {getSortIcon("fromOccupancy")}
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer"
-                  onClick={() => handleSort("occupancyGroup")}
+                  className="w-[120px] cursor-pointer"
+                  onClick={() => handleSort("toOccupancy")}
                 >
-                  Occupancy {getSortIcon("occupancyGroup")}
+                  To Occupancy {getSortIcon("toOccupancy")}
                 </TableHead>
                 <TableHead 
-                  className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxHeight")}
+                  className="text-center cursor-pointer"
+                  onClick={() => handleSort("ratingHours")}
                 >
-                  Height (ft) {getSortIcon("maxHeight")}
-                </TableHead>
-                <TableHead 
-                  className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxStories")}
-                >
-                  Stories {getSortIcon("maxStories")}
-                </TableHead>
-                <TableHead 
-                  className="text-right cursor-pointer"
-                  onClick={() => handleSort("maxAreaPerFloor")}
-                >
-                  Area (sq ft) {getSortIcon("maxAreaPerFloor")}
+                  Required Rating {getSortIcon("ratingHours")}
                 </TableHead>
                 <TableHead className="text-right w-[120px]">Actions</TableHead>
               </TableRow>
@@ -272,7 +254,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={`skeleton-${i}`}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 4 }).map((_, j) => (
                       <TableCell key={`cell-${i}-${j}`} className="py-4">
                         <div className="h-4 bg-gray-200 rounded animate-pulse" />
                       </TableCell>
@@ -282,11 +264,9 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
               ) : paginatedData.length > 0 ? (
                 paginatedData.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.constructionType}</TableCell>
-                    <TableCell>{row.occupancyGroup}</TableCell>
-                    <TableCell className="text-right">{row.maxHeight}</TableCell>
-                    <TableCell className="text-right">{row.maxStories}</TableCell>
-                    <TableCell className="text-right">{row.maxAreaPerFloor.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">{row.fromOccupancy}</TableCell>
+                    <TableCell>{row.toOccupancy}</TableCell>
+                    <TableCell className="text-center">{formatHours(row.ratingHours)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
                         <Button 
@@ -309,7 +289,7 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={4} className="h-24 text-center">
                     {searchQuery ? "No matching records found." : "No records found."}
                   </TableCell>
                 </TableRow>

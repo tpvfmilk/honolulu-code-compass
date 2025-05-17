@@ -49,13 +49,13 @@ export const HeightAreaTable = ({ searchQuery, setSearchQuery }: HeightAreaTable
           id: item.id,
           constructionType: typeMap[item.construction_type_id] || 'Unknown',
           occupancyGroup: groupMap[item.occupancy_group_id] || 'Unknown',
-          maxHeight: item.max_height_ft,
-          maxStories: item.max_stories,
+          maxHeight: item.base_height_ft,
+          maxStories: item.base_stories,
           maxAreaPerFloor: item.base_allowable_area,
-          sprinklerHeightBonus: 20, // Default value as this isn't in the DB schema
-          sprinklerStoryBonus: 1, // Default value
-          sprinklerAreaMultiplier: item.sprinkler_increase_allowed ? 3 : 1,
-          sprinklersAllowed: item.sprinkler_increase_allowed, // Add direct field for sprinkler_increase_allowed
+          sprinkleredHeight: item.sprinklered_height_ft,
+          sprinkleredStories: item.sprinklered_stories,
+          sprinkleredArea: item.sprinklered_area,
+          sprinklersAllowed: item.sprinkler_increase_allowed === true,
           ibcTableReference: "Tables 504.3, 504.4, 506.2",
           notes: ""
         }));

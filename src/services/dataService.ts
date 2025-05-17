@@ -155,9 +155,12 @@ export const fetchHeightAreaLimits = async (): Promise<HeightAreaLimitData[]> =>
       id,
       construction_type_id,
       occupancy_group_id,
-      max_height_ft,
-      max_stories,
+      base_height_ft,
+      base_stories,
       base_allowable_area,
+      sprinklered_height_ft,
+      sprinklered_stories,
+      sprinklered_area,
       sprinkler_increase_allowed
     `)
     .order('occupancy_group_id');

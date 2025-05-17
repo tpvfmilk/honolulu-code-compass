@@ -166,35 +166,44 @@ export type Database = {
       height_area_limits: {
         Row: {
           base_allowable_area: number
+          base_height_ft: number
+          base_stories: number
           construction_type_id: string
           created_at: string | null
           id: string
-          max_height_ft: number
-          max_stories: number
           occupancy_group_id: string
           sprinkler_increase_allowed: boolean | null
+          sprinklered_area: number | null
+          sprinklered_height_ft: number | null
+          sprinklered_stories: number | null
           updated_at: string | null
         }
         Insert: {
           base_allowable_area: number
+          base_height_ft: number
+          base_stories: number
           construction_type_id: string
           created_at?: string | null
           id?: string
-          max_height_ft: number
-          max_stories: number
           occupancy_group_id: string
           sprinkler_increase_allowed?: boolean | null
+          sprinklered_area?: number | null
+          sprinklered_height_ft?: number | null
+          sprinklered_stories?: number | null
           updated_at?: string | null
         }
         Update: {
           base_allowable_area?: number
+          base_height_ft?: number
+          base_stories?: number
           construction_type_id?: string
           created_at?: string | null
           id?: string
-          max_height_ft?: number
-          max_stories?: number
           occupancy_group_id?: string
           sprinkler_increase_allowed?: boolean | null
+          sprinklered_area?: number | null
+          sprinklered_height_ft?: number | null
+          sprinklered_stories?: number | null
           updated_at?: string | null
         }
         Relationships: [

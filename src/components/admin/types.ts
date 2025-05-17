@@ -21,13 +21,16 @@ export type HeightAreaLimitRecord = {
   id: string;
   constructionType: string;
   occupancyGroup: string;
+  // Base values (no sprinklers)
   maxHeight: number;
   maxStories: number;
   maxAreaPerFloor: number;
-  sprinklerHeightBonus: number;
-  sprinklerStoryBonus: number;
-  sprinklerAreaMultiplier: number;
-  sprinklersAllowed?: boolean; // Added for explicit display
+  // Sprinklered values
+  sprinkleredHeight?: number;
+  sprinkleredStories?: number;
+  sprinkleredArea?: number;
+  // Other fields
+  sprinklersAllowed: boolean;
   ibcTableReference: string;
   notes: string;
 };
@@ -92,9 +95,12 @@ export interface HeightAreaLimitData {
   id: string;
   construction_type_id: string;
   occupancy_group_id: string;
-  max_height_ft: number;
-  max_stories: number;
+  base_height_ft: number;
+  base_stories: number;
   base_allowable_area: number;
+  sprinklered_height_ft?: number;
+  sprinklered_stories?: number;
+  sprinklered_area?: number;
   sprinkler_increase_allowed: boolean | null;
   created_at?: string;
   updated_at?: string;

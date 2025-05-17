@@ -48,7 +48,32 @@ export const getDisplayName = (format: string): string => {
     if (codeFormat === 'IV-HT') {
       return 'Type IV - Heavy Timber';
     }
+    return `Type ${codeFormat}`; 
   }
   
   return `Type ${codeFormat}`;
+};
+
+/**
+ * Gets the construction type group name based on roman numeral prefix
+ */
+export const getConstructionTypeGroupName = (prefix: string): string => {
+  const groupMap: Record<string, string> = {
+    'I': 'Type I - Fire Resistive',
+    'II': 'Type II - Non-Combustible',
+    'III': 'Type III - Limited Combustible',
+    'IV': 'Type IV - Heavy Timber',
+    'V': 'Type V - Combustible'
+  };
+  
+  return groupMap[prefix] || 'Other Types';
+};
+
+/**
+ * Extract the roman numeral part from a construction type code
+ */
+export const getRomanNumeral = (code: string): string => {
+  // Match I, II, III, IV, or V regardless of what follows
+  const match = code.match(/^(I{1,3}|IV|V)/);
+  return match ? match[0] : '';
 };

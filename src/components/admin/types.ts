@@ -68,3 +68,54 @@ export interface OccupancySeparationRecord {
   toOccupancy: string;
   ratingHours: number;
 }
+
+// Database specific types for queries
+export interface ConstructionTypeData {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OccupancyGroupData {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HeightAreaLimitData {
+  id: string;
+  construction_type_id: string;
+  occupancy_group_id: string;
+  max_height_ft: number;
+  max_stories: number;
+  base_allowable_area: number;
+  sprinkler_increase_allowed: boolean | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TravelDistanceData {
+  id: string;
+  occupancy_group_id: string;
+  sprinklered: boolean;
+  max_travel_distance_ft: number;
+  max_common_path_ft: number;
+  max_dead_end_ft: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SeparationData {
+  id: string;
+  from_occupancy_id: string;
+  to_occupancy_id: string;
+  required_rating_hours: number;
+  created_at?: string;
+  updated_at?: string;
+}

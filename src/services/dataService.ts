@@ -3,11 +3,17 @@ import {
   HeightAreaLimitRecord, 
   FireRatingRecord, 
   LoadFactorRecord, 
-  ZoningDistrict 
+  ZoningDistrict,
+  ConstructionTypeData,
+  OccupancyGroupData,
+  HeightAreaLimitData,
+  TravelDistanceData,
+  SeparationData
 } from "@/components/admin/types";
 
 // Types
 export type ZoningDistrictData = ZoningDistrict;
+export type { ConstructionTypeData, OccupancyGroupData, HeightAreaLimitData, TravelDistanceData, SeparationData };
 
 // Project data type
 export type ProjectData = {

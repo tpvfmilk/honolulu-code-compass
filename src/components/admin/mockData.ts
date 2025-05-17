@@ -1,8 +1,8 @@
 
-import { HeightAreaLimitRecord, FireRatingRecord, LoadFactorRecord, ZoningDistrict } from "./types";
+import { HeightAreaLimitRecord, FireRatingRecord, LoadFactorRecord } from "./types";
 
-// Sample height area data
-export const MOCK_HEIGHT_AREA_DATA: HeightAreaLimitRecord[] = [
+// Mock data for Height & Area Limits
+export const mockHeightAreaData: HeightAreaLimitRecord[] = [
   {
     id: "1",
     constructionType: "V-B",
@@ -12,7 +12,7 @@ export const MOCK_HEIGHT_AREA_DATA: HeightAreaLimitRecord[] = [
     maxAreaPerFloor: 11500,
     sprinklerHeightBonus: 20,
     sprinklerStoryBonus: 1,
-    sprinklerAreaMultiplier: 2.0,
+    sprinklerAreaMultiplier: 3,
     ibcTableReference: "Table 504.3",
     notes: "Assembly fixed seating"
   },
@@ -25,27 +25,53 @@ export const MOCK_HEIGHT_AREA_DATA: HeightAreaLimitRecord[] = [
     maxAreaPerFloor: 19000,
     sprinklerHeightBonus: 20,
     sprinklerStoryBonus: 1,
-    sprinklerAreaMultiplier: 2.0,
+    sprinklerAreaMultiplier: 3,
     ibcTableReference: "Table 504.3",
     notes: "Business occupancy"
   },
   {
     id: "3",
     constructionType: "III-B",
-    occupancyGroup: "R-2",
+    occupancyGroup: "M",
     maxHeight: 55,
-    maxStories: 3,
-    maxAreaPerFloor: 16000,
+    maxStories: 2,
+    maxAreaPerFloor: 21500,
     sprinklerHeightBonus: 20,
     sprinklerStoryBonus: 1,
-    sprinklerAreaMultiplier: 3.0,
-    ibcTableReference: "Table 504.4",
-    notes: "Multi-family residential"
+    sprinklerAreaMultiplier: 3,
+    ibcTableReference: "Table 504.3",
+    notes: "Mercantile"
   },
+  {
+    id: "4",
+    constructionType: "II-A",
+    occupancyGroup: "R-2",
+    maxHeight: 65,
+    maxStories: 4,
+    maxAreaPerFloor: 24000,
+    sprinklerHeightBonus: 20,
+    sprinklerStoryBonus: 1,
+    sprinklerAreaMultiplier: 3,
+    ibcTableReference: "Table 504.3",
+    notes: "Residential apartments"
+  },
+  {
+    id: "5",
+    constructionType: "I-A",
+    occupancyGroup: "S-1",
+    maxHeight: 85,
+    maxStories: 5,
+    maxAreaPerFloor: 48000,
+    sprinklerHeightBonus: 20,
+    sprinklerStoryBonus: 1,
+    sprinklerAreaMultiplier: 3,
+    ibcTableReference: "Table 504.3",
+    notes: "Storage moderate hazard"
+  }
 ];
 
-// Sample fire rating data
-export const MOCK_FIRE_RATING_DATA: FireRatingRecord[] = [
+// Mock data for Fire Ratings
+export const mockFireRatingsData: FireRatingRecord[] = [
   {
     id: "1",
     constructionType: "I-A",
@@ -55,10 +81,32 @@ export const MOCK_FIRE_RATING_DATA: FireRatingRecord[] = [
     nonbearingPartitions: 0,
     floorConstruction: 2,
     roofConstruction: 1.5,
-    ibcTableReference: "Table 601",
+    ibcTableReference: "Table 601"
   },
   {
     id: "2",
+    constructionType: "I-B",
+    structuralFrame: 2,
+    bearingWallsExterior: 2,
+    bearingWallsInterior: 2,
+    nonbearingPartitions: 0,
+    floorConstruction: 2,
+    roofConstruction: 1,
+    ibcTableReference: "Table 601"
+  },
+  {
+    id: "3",
+    constructionType: "II-A",
+    structuralFrame: 1,
+    bearingWallsExterior: 1,
+    bearingWallsInterior: 1,
+    nonbearingPartitions: 0,
+    floorConstruction: 1,
+    roofConstruction: 1,
+    ibcTableReference: "Table 601"
+  },
+  {
+    id: "4",
     constructionType: "II-B",
     structuralFrame: 0,
     bearingWallsExterior: 0,
@@ -66,69 +114,61 @@ export const MOCK_FIRE_RATING_DATA: FireRatingRecord[] = [
     nonbearingPartitions: 0,
     floorConstruction: 0,
     roofConstruction: 0,
-    ibcTableReference: "Table 601",
-  },
-];
-
-// Sample load factor data
-export const MOCK_LOAD_FACTOR_DATA: LoadFactorRecord[] = [
-  {
-    id: "1",
-    occupancyGroup: "A-1",
-    spaceType: "Fixed seating",
-    loadFactor: 0,
-    description: "Number of fixed seats",
-    ibcTableReference: "Table 1004.5",
-  },
-  {
-    id: "2",
-    occupancyGroup: "B",
-    spaceType: "Office space",
-    loadFactor: 150,
-    description: "Sq ft per occupant",
-    ibcTableReference: "Table 1004.5",
-  },
-];
-
-export const MOCK_ZONING_DISTRICTS: ZoningDistrict[] = [
-  {
-    id: "1",
-    code: "R-3.5",
-    name: "Residential",
-    maxHeight: 25,
-    maxStories: 2,
-    setbacks: { front: 10, side: 5, rear: 5 }
-  },
-  {
-    id: "2",
-    code: "R-5",
-    name: "Residential",
-    maxHeight: 25,
-    maxStories: 2,
-    setbacks: { front: 10, side: 5, rear: 5 }
-  },
-  {
-    id: "3",
-    code: "R-7.5",
-    name: "Residential",
-    maxHeight: 25,
-    maxStories: 2,
-    setbacks: { front: 10, side: 5, rear: 5 }
-  },
-  {
-    id: "4",
-    code: "R-10",
-    name: "Residential",
-    maxHeight: 25,
-    maxStories: 2,
-    setbacks: { front: 10, side: 5, rear: 10 }
+    ibcTableReference: "Table 601"
   },
   {
     id: "5",
-    code: "AMX-2",
-    name: "Apartment Mixed Use",
-    maxHeight: 60,
-    maxStories: 4,
-    setbacks: { front: 10, side: 10, rear: 10 }
+    constructionType: "III-A",
+    structuralFrame: 1,
+    bearingWallsExterior: 2,
+    bearingWallsInterior: 1,
+    nonbearingPartitions: 0,
+    floorConstruction: 1,
+    roofConstruction: 1,
+    ibcTableReference: "Table 601"
+  }
+];
+
+// Mock data for Load Factors
+export const mockLoadFactorsData: LoadFactorRecord[] = [
+  {
+    id: "1",
+    occupancyGroup: "A-1",
+    spaceType: "Fixed seating areas",
+    loadFactor: 0,
+    description: "Use actual number of fixed seats",
+    ibcTableReference: "Table 1004.5"
   },
+  {
+    id: "2",
+    occupancyGroup: "A-2",
+    spaceType: "Concentrated, without fixed seating",
+    loadFactor: 7,
+    description: "Standing space, dining areas",
+    ibcTableReference: "Table 1004.5"
+  },
+  {
+    id: "3",
+    occupancyGroup: "B",
+    spaceType: "Office areas",
+    loadFactor: 150,
+    description: "Business areas",
+    ibcTableReference: "Table 1004.5"
+  },
+  {
+    id: "4",
+    occupancyGroup: "E",
+    spaceType: "Educational classroom area",
+    loadFactor: 20,
+    description: "Classroom areas",
+    ibcTableReference: "Table 1004.5"
+  },
+  {
+    id: "5",
+    occupancyGroup: "I-2",
+    spaceType: "Inpatient treatment areas",
+    loadFactor: 240,
+    description: "Hospital patient rooms",
+    ibcTableReference: "Table 1004.5"
+  }
 ];

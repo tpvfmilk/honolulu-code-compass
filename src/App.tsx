@@ -1,51 +1,90 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useNavigate,
+} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSession, SessionProvider } from "./hooks/useSession";
+import { supabase } from "./integrations/supabase/client";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import ProjectCreate from "./pages/ProjectCreate";
 import ProjectView from "./pages/ProjectView";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
-import CodeSheetPreview from "./pages/CodeSheetPreview";
-import Profile from "./pages/Profile";
-import Help from "./pages/Help";
 
-const queryClient = new QueryClient();
+function App() {
+  const [loading, setLoading] = useState(true);
+  const { session, setSession } = useSession();
+  const navigate = useNavigate();
 
-const App = () => {
-  const [isLoggedOut, setIsLoggedOut] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-  const handleLogout = () => {
-    setIsLoggedOut(true);
-  };
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!session && !loading && window.location.pathname !== "/") {
+      navigate("/auth");
+    } else if (session && !loading && window.location.pathname === "/auth") {
+      navigate("/profile");
+    }
+  }, [session, loading, navigate]);
+
+  if (loading) {
+    return <></>;
+  }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <SidebarProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/projects/new" element={<ProjectCreate onLogout={handleLogout} />} />
-              <Route path="/projects/:id" element={<ProjectView onLogout={handleLogout} />} />
-              <Route path="/admin" element={<AdminDashboard onLogout={handleLogout} />} />
-              <Route path="/projects/:id/preview" element={<CodeSheetPreview onLogout={handleLogout} />} />
-              <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
-              <Route path="/help" element={<Help onLogout={handleLogout} />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </SidebarProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <>
+      <RouterProvider router={router} />
+    </>
   );
-};
+}
 
-export default App;
+function SessionApp() {
+  return (
+    <SessionProvider>
+      <App />
+    </SessionProvider>
+  );
+}
+
+export default SessionApp;
+
+// Routes
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Index onLogin={() => navigate('/auth')} />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: '/help',
+    element: <Help />,
+  },
+  {
+    path: '/profile',
+    element: <Profile />,
+  },
+  {
+    path: '/project/new',
+    element: <ProjectCreate />,
+  },
+  {
+    path: '/project/:id',
+    element: <ProjectView />,
+  },
+  {
+    path: '/admin',
+    element: <AdminDashboard onLogout={() => navigate('/')} />,
+  },
+]);

@@ -10,11 +10,9 @@ const Help = ({ onLogout }: HelpProps) => {
   return (
     <AppLayout onLogout={onLogout}>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Help & Support</h1>
-          <p className="text-muted-foreground">Find answers to common questions about the platform</p>
-        </div>
-
+        <h1 className="text-3xl font-bold">Help & Support</h1>
+        <p className="text-muted-foreground">Find answers to common questions about the platform</p>
+      
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>

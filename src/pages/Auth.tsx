@@ -14,8 +14,12 @@ const Auth = () => {
     navigate("/profile");
   };
 
+  const handleLogout = () => {
+    // Empty function since logout is not needed on auth page
+  };
+
   return (
-    <AppLayout onLogout={() => {}}>
+    <AppLayout onLogout={handleLogout}>
       <div className="max-w-md mx-auto mt-8">
         <h1 className="text-2xl font-bold mb-6">Sign In or Sign Up</h1>
         <AuthForm onSuccess={handleAuthSuccess} />

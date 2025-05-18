@@ -12,7 +12,7 @@ import { AccessibilityComplianceCard } from "../occupancy/AccessibilityComplianc
 import { FormData } from "../types";
 import { useOccupancyCalculations } from "../occupancy/useOccupancyCalculations";
 import type { TravelDistances } from "../occupancy/types/occupancyDefinitions";
-import type { Space } from "../occupancy/types/occupancyDefinitions";
+import type { Space } from "../occupancy/types/occupancyTypes";
 
 export interface OccupancyDetailsStepProps {
   formData: FormData;
@@ -37,7 +37,9 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
         type: '',
         area: '',
         floorLevel: '1',
-        notes: ''
+        notes: '',
+        spaceType: '',
+        occupiedBy: ''
       };
       
       const initialTravelDistances: TravelDistances = {

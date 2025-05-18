@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
-import { Space, spaceTypesByOccupancy } from '../types';
+import { Space } from './types/occupancyTypes';
 import { SpaceEntryCard } from './SpaceEntryCard';
 import { EmptySpacesState } from './EmptySpacesState';
 import { calculateTotalArea } from './spaceUtils';
@@ -29,7 +28,9 @@ export const SpaceBreakdownForm = ({
       type: '',
       area: '',
       floorLevel: '1',
-      notes: ''
+      notes: '',
+      spaceType: '',
+      occupiedBy: ''
     };
     onSpacesChange([...spaces, newSpace]);
   };

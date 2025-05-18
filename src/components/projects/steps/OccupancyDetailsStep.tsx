@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { SpaceBreakdownForm } from "../occupancy/SpaceBreakdownForm";
@@ -10,9 +9,8 @@ import { EgressComplianceCard } from "../occupancy/EgressComplianceCard";
 import { CorridorRequirementsCard } from "../occupancy/CorridorRequirementsCard";
 import { AccessibilityComplianceCard } from "../occupancy/AccessibilityComplianceCard";
 import { FormData } from "../types";
-import { useOccupancyCalculations } from "../occupancy/useOccupancyCalculations";
-import type { TravelDistances } from "../occupancy/types/occupancyDefinitions";
-import type { Space } from "../occupancy/types/occupancyTypes";
+import { useOccupancyCalculations } from "../occupancy/hooks/useOccupancyCalculations";
+import type { TravelDistances, Space } from "../occupancy/types/occupancyDefinitions";
 
 export interface OccupancyDetailsStepProps {
   formData: FormData;

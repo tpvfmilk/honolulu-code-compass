@@ -2,7 +2,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Space } from '../types/occupancyTypes';
+import { Space } from '../types/occupancyDefinitions';
 import { formatArea } from './spaceEntryUtils';
 
 interface SpaceAreaInfoProps {

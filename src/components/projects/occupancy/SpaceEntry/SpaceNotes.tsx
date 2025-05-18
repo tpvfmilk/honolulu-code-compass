@@ -2,7 +2,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Space } from '../types/occupancyTypes';
+import { Space } from '../types/occupancyDefinitions';
 import { SpaceTypeInfo } from '@/services/dataService';
 import { calculateOccupantLoad, getFactorForType } from './spaceEntryUtils';
 

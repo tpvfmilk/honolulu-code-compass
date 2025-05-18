@@ -1,10 +1,12 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
-import { Space } from './types/occupancyTypes';
+import { Space } from './types/occupancyDefinitions';
 import { SpaceEntryCard } from './SpaceEntryCard';
 import { EmptySpacesState } from './EmptySpacesState';
 import { calculateTotalArea } from './spaceUtils';
+import { spaceTypesByOccupancy } from '../types/occupancy/occupancyTypes';
 
 interface SpaceBreakdownFormProps {
   spaces: Space[];

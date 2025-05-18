@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
-import { Space } from './types/occupancyTypes';
+import { Space } from './types/occupancyDefinitions';
 import { SpaceTypeInfo, getOccupancyGroupIdByCode, fetchSpaceTypesByOccupancy } from '@/services/dataService';
 import { SpaceBasicInfo } from './SpaceEntry/SpaceBasicInfo';
 import { SpaceAreaInfo } from './SpaceEntry/SpaceAreaInfo';

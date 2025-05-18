@@ -1,5 +1,5 @@
 
-import { Space } from '../types/occupancyTypes';
+import { Space } from '../types/occupancyDefinitions';
 import { SpaceTypeInfo } from '@/services/dataService';
 
 // Format area with commas

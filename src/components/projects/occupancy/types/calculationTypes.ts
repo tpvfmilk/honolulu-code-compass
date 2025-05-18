@@ -2,6 +2,9 @@
 import { Space, TravelDistances } from './occupancyDefinitions';
 import { SpaceWithLoad } from './occupancyTypes';
 
+// Re-export SpaceWithLoad
+export type { SpaceWithLoad };
+
 // Re-export interfaces used in calculations
 export interface TravelLimits {
   maxTravel: number;

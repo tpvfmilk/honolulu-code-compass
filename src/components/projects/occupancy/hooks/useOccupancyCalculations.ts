@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { FormData } from '../../types';
-import { OccupancyCalculationResults } from '../types/calculationTypes';
+import { OccupancyCalculationResults, SpaceWithLoad, ComplianceIssue, TravelLimits } from '../types/calculationTypes';
 import { calculateOccupancyResults } from '../utils/calculationUtils';
 
 // Re-export types from the types file
 export type { TravelDistances } from '../types/occupancyDefinitions';
-export type { SpaceWithLoad, ComplianceIssue, TravelLimits } from '../types/calculationTypes';
+export type { SpaceWithLoad, ComplianceIssue, TravelLimits };
 
 export const useOccupancyCalculations = (formData: FormData) => {
   const [calculations, setCalculations] = useState<OccupancyCalculationResults | null>(null);

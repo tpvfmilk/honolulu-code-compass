@@ -6,9 +6,10 @@ import {
   CardContent
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX, AlertTriangle } from "lucide-react";
 import { FormData } from "../types";
 import { getBuildingCompliance } from "../utils/buildingCodeUtils";
+import { Badge } from "@/components/ui/badge";
 
 interface ComplianceDisplayProps {
   formData: FormData;
@@ -33,11 +34,11 @@ export const ComplianceDisplay = ({ formData, isCalculating }: ComplianceDisplay
     return "bg-green-600";
   };
   
-  // Helper function for progress background color
-  const getProgressBgClass = (compliant: boolean, warning: boolean) => {
-    if (!compliant) return "bg-destructive/20";
-    if (warning) return "bg-amber-500/20";
-    return "bg-green-600/20";
+  // Helper function for status icon
+  const StatusIcon = ({ compliant, warning }: { compliant: boolean, warning: boolean }) => {
+    if (!compliant) return <CircleX className="inline-block ml-1 h-4 w-4 text-destructive" />;
+    if (warning) return <AlertTriangle className="inline-block ml-1 h-4 w-4 text-amber-500" />;
+    return <CircleCheck className="inline-block ml-1 h-4 w-4 text-green-600" />;
   };
   
   return (
@@ -60,20 +61,20 @@ export const ComplianceDisplay = ({ formData, isCalculating }: ComplianceDisplay
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Building Height:</span>
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                   <span className={`text-sm font-semibold ${getStatusClass(compliance!.height.compliant, compliance!.height.warning)}`}>
                     {compliance!.height.allowable} feet 
-                    {compliance!.height.compliant 
-                      ? <CircleCheck className="inline-block ml-1 h-4 w-4 text-green-600" /> 
-                      : <CircleX className="inline-block ml-1 h-4 w-4 text-destructive" />
-                    }
+                    <StatusIcon compliant={compliance!.height.compliant} warning={compliance!.height.warning} />
                   </span>
+                  {!compliance!.height.compliant && (
+                    <Badge className="ml-1 bg-destructive text-xs">Exceeds Limit</Badge>
+                  )}
                 </div>
               </div>
               <div className="space-y-1">
                 <Progress 
-                  value={compliance!.height.actual > 0 ? (compliance!.height.actual / compliance!.height.allowable) * 100 : 0} 
-                  className={getProgressBgClass(compliance!.height.compliant, compliance!.height.warning)}
+                  value={compliance!.height.actual > 0 ? Math.min(100, (compliance!.height.actual / compliance!.height.allowable) * 100) : 0} 
+                  className="h-2"
                   indicatorClassName={getProgressColorClass(compliance!.height.compliant, compliance!.height.warning)}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -87,20 +88,20 @@ export const ComplianceDisplay = ({ formData, isCalculating }: ComplianceDisplay
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Building Stories:</span>
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                   <span className={`text-sm font-semibold ${getStatusClass(compliance!.stories.compliant, compliance!.stories.warning)}`}>
                     {compliance!.stories.allowable} stories 
-                    {compliance!.stories.compliant 
-                      ? <CircleCheck className="inline-block ml-1 h-4 w-4 text-green-600" /> 
-                      : <CircleX className="inline-block ml-1 h-4 w-4 text-destructive" />
-                    }
+                    <StatusIcon compliant={compliance!.stories.compliant} warning={compliance!.stories.warning} />
                   </span>
+                  {!compliance!.stories.compliant && (
+                    <Badge className="ml-1 bg-destructive text-xs">Exceeds Limit</Badge>
+                  )}
                 </div>
               </div>
               <div className="space-y-1">
                 <Progress 
-                  value={compliance!.stories.actual > 0 ? (compliance!.stories.actual / compliance!.stories.allowable) * 100 : 0} 
-                  className={getProgressBgClass(compliance!.stories.compliant, compliance!.stories.warning)}
+                  value={compliance!.stories.actual > 0 ? Math.min(100, (compliance!.stories.actual / compliance!.stories.allowable) * 100) : 0} 
+                  className="h-2"
                   indicatorClassName={getProgressColorClass(compliance!.stories.compliant, compliance!.stories.warning)}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -114,20 +115,20 @@ export const ComplianceDisplay = ({ formData, isCalculating }: ComplianceDisplay
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Building Area:</span>
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                   <span className={`text-sm font-semibold ${getStatusClass(compliance!.area.compliant, compliance!.area.warning)}`}>
                     {compliance!.area.allowable.toLocaleString()} sf 
-                    {compliance!.area.compliant 
-                      ? <CircleCheck className="inline-block ml-1 h-4 w-4 text-green-600" /> 
-                      : <CircleX className="inline-block ml-1 h-4 w-4 text-destructive" />
-                    }
+                    <StatusIcon compliant={compliance!.area.compliant} warning={compliance!.area.warning} />
                   </span>
+                  {!compliance!.area.compliant && (
+                    <Badge className="ml-1 bg-destructive text-xs">Exceeds Limit</Badge>
+                  )}
                 </div>
               </div>
               <div className="space-y-1">
                 <Progress 
-                  value={compliance!.area.actual > 0 ? (compliance!.area.actual / compliance!.area.allowable) * 100 : 0} 
-                  className={getProgressBgClass(compliance!.area.compliant, compliance!.area.warning)}
+                  value={compliance!.area.actual > 0 ? Math.min(100, (compliance!.area.actual / compliance!.area.allowable) * 100) : 0} 
+                  className="h-2"
                   indicatorClassName={getProgressColorClass(compliance!.area.compliant, compliance!.area.warning)}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">

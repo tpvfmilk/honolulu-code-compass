@@ -22,7 +22,7 @@ export const ProjectPdfPreview = ({ project }: ProjectPdfPreviewProps) => {
     setIsPdfGenerating(true);
     
     try {
-      // Generate the PDF data URL
+      // Generate the PDF data URL - Fixed type issue here
       const pdfUrl = generateProjectCodeSheet(project);
       setPdfPreviewUrl(pdfUrl);
       

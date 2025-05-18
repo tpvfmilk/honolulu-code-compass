@@ -3,8 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ZoningCalculationsState } from "../types/zoning/zoningTypes";
 import { useState, useEffect } from "react";
-import { CircleCheck, CircleX, AlertTriangle } from "lucide-react";
+import { CircleCheck, CircleX, AlertTriangle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 type BuildingEnvelopeCardProps = {
   heightLimits: ZoningCalculationsState['heightLimits'];
@@ -48,11 +54,22 @@ export const BuildingEnvelopeCard = ({
     value: Math.min(100, (actualBuildingArea / coverage.maxCoverage) * 100)
   } : null;
   
-  const farCompliance = actualBuildingArea && coverage && lotArea ? {
+  // For FAR or special calculation methods, determine which max value to use
+  const getMaxFloorArea = () => {
+    if (!coverage) return 0;
+    
+    if (coverage.specialRuleApplies && coverage.calculationMethod === "UnitBased") {
+      return coverage.maxFloorArea; // This is already the minimum of unit-based and lot coverage
+    } else {
+      return coverage.maxFloorArea; // Standard FAR calculation
+    }
+  };
+  
+  const farCompliance = actualBuildingArea && coverage ? {
     actualFAR: actualBuildingArea / lotArea,
-    compliant: (actualBuildingArea / lotArea) <= coverage.farBase,
-    warning: (actualBuildingArea / lotArea) > coverage.farBase * 0.85 && (actualBuildingArea / lotArea) <= coverage.farBase,
-    value: Math.min(100, ((actualBuildingArea / lotArea) / coverage.farBase) * 100)
+    compliant: actualBuildingArea <= getMaxFloorArea(),
+    warning: actualBuildingArea > getMaxFloorArea() * 0.85 && actualBuildingArea <= getMaxFloorArea(),
+    value: Math.min(100, (actualBuildingArea / getMaxFloorArea()) * 100)
   } : null;
 
   useEffect(() => {
@@ -112,6 +129,9 @@ export const BuildingEnvelopeCard = ({
   };
   
   if (!heightLimits || !coverage) return null;
+
+  // Determine whether to show special calculation method description
+  const showSpecialCalculation = coverage.specialRuleApplies && coverage.specialRuleExplanation;
   
   return (
     <Card>
@@ -119,6 +139,14 @@ export const BuildingEnvelopeCard = ({
         <CardTitle className="text-lg font-semibold">Building Envelope</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Special District Rule Notification */}
+        {showSpecialCalculation && (
+          <div className="bg-blue-50 border border-blue-200 p-2 rounded-md text-xs text-blue-700 flex items-start gap-2">
+            <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <span>{coverage.specialRuleExplanation}</span>
+          </div>
+        )}
+      
         {/* Building Height */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -204,18 +232,50 @@ export const BuildingEnvelopeCard = ({
           )}
         </div>
         
-        {/* Floor Area Ratio (FAR) */}
+        {/* Floor Area Limit - Conditional display based on calculation method */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Floor Area Ratio (FAR)</p>
             <div className="flex items-center gap-1">
-              <p className={`text-sm font-medium ${actualBuildingArea ? getStatusColor(farCompliance?.compliant, farCompliance?.warning) : ""}`}>
-                {farCompliance 
-                  ? `${farCompliance.actualFAR.toFixed(2)} / ` 
-                  : ""}
-                {coverage.farBase.toFixed(2)} max
-                <StatusIcon compliant={farCompliance?.compliant} warning={farCompliance?.warning} />
+              <p className="text-sm font-medium">
+                {coverage.specialRuleApplies && coverage.calculationMethod === "UnitBased" 
+                  ? "Maximum Building Area" 
+                  : "Floor Area Ratio (FAR)"}
               </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    {coverage.specialRuleApplies && coverage.calculationMethod === "UnitBased" 
+                      ? "Maximum building area is determined by the number of allowed dwelling units (3,000 sq ft per unit), limited by lot coverage."
+                      : "Floor Area Ratio (FAR) is the ratio of a building's total floor area to the size of the land upon which it is built."}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-1">
+              {coverage.specialRuleApplies && coverage.calculationMethod === "UnitBased" ? (
+                <p className={`text-sm font-medium ${
+                  actualBuildingArea ? getStatusColor(farCompliance?.compliant, farCompliance?.warning) : ""
+                }`}>
+                  {actualBuildingArea 
+                    ? `${actualBuildingArea.toLocaleString()} / ` 
+                    : ""}
+                  {coverage.maxFloorArea.toLocaleString()} sq ft max
+                  <StatusIcon compliant={farCompliance?.compliant} warning={farCompliance?.warning} />
+                </p>
+              ) : (
+                <p className={`text-sm font-medium ${
+                  actualBuildingArea ? getStatusColor(farCompliance?.compliant, farCompliance?.warning) : ""
+                }`}>
+                  {farCompliance 
+                    ? `${farCompliance.actualFAR.toFixed(2)} / ` 
+                    : ""}
+                  {coverage.farBase.toFixed(2)} max
+                  <StatusIcon compliant={farCompliance?.compliant} warning={farCompliance?.warning} />
+                </p>
+              )}
               {farCompliance && !farCompliance.compliant && (
                 <Badge className="ml-1 bg-destructive text-xs">Exceeds Limit</Badge>
               )}
@@ -230,10 +290,22 @@ export const BuildingEnvelopeCard = ({
                 : undefined
             }
           />
-          {actualBuildingArea && (
+          {actualBuildingArea && !coverage.specialRuleApplies && (
             <p className="text-xs text-muted-foreground">
               {actualBuildingArea.toLocaleString()} / {coverage.maxFloorArea.toLocaleString()} sq ft
             </p>
+          )}
+          
+          {/* Special calculation method detail explanation */}
+          {coverage.specialRuleApplies && coverage.calculationMethod === "UnitBased" && 
+           coverage.maxAreaByUnits && (
+            <div className="text-xs text-muted-foreground">
+              <span>Calculated as: min(</span>
+              <span className="font-medium">{Math.floor(lotArea / (coverage.maxAreaByUnits / 3000))} units × 3,000 sq ft = {coverage.maxAreaByUnits.toLocaleString()} sq ft</span>
+              <span>, </span>
+              <span className="font-medium">{coverage.maxCoveragePercent.toFixed(1)}% lot coverage = {coverage.maxCoverage.toLocaleString()} sq ft</span>
+              <span>)</span>
+            </div>
           )}
         </div>
       </CardContent>

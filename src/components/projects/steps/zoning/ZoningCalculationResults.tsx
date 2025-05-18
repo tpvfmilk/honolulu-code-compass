@@ -68,6 +68,7 @@ export const ZoningCalculationResults = ({
         dwellingUnits={calculations.dwellingUnits}
         zoning={formData.district}
         lotArea={lotArea}
+        calculationMethod={calculations.coverage?.calculationMethod}
       />
     </div>
   );

@@ -25,6 +25,11 @@ export type ZoningCalculationsState = {
     farConditional?: number;
     maxFloorArea: number;
     maxConditionalFloorArea?: number;
+    // New fields for district-specific calculations
+    specialRuleApplies?: boolean;
+    specialRuleExplanation?: string;
+    maxAreaByUnits?: number;
+    calculationMethod?: "FAR" | "UnitBased" | "LotCoverage";
   } | null;
   dwellingUnits: {
     maxUnits: number;

@@ -9,12 +9,18 @@ type ZoningCalculationResultsProps = {
   formData: FormData;
   calculations: ZoningCalculationsState;
   isCalculating: boolean;
+  actualHeight?: number;
+  actualStories?: number;
+  actualBuildingArea?: number;
 };
 
 export const ZoningCalculationResults = ({ 
   formData, 
   calculations,
-  isCalculating
+  isCalculating,
+  actualHeight,
+  actualStories,
+  actualBuildingArea
 }: ZoningCalculationResultsProps) => {
   const lotArea = parseFloat(formData.lotArea.replace(/,/g, ''));
 
@@ -53,9 +59,9 @@ export const ZoningCalculationResults = ({
         heightLimits={calculations.heightLimits}
         coverage={calculations.coverage}
         lotArea={lotArea}
-        actualHeight={formData.height ? parseFloat(formData.height) : undefined}
-        actualStories={formData.stories ? parseInt(formData.stories) : undefined}
-        actualBuildingArea={formData.totalBuildingArea ? parseFloat(formData.totalBuildingArea.replace(/,/g, '')) : undefined}
+        actualHeight={actualHeight}
+        actualStories={actualStories}
+        actualBuildingArea={actualBuildingArea}
       />
       
       <DwellingUnitsCard 

@@ -22,6 +22,13 @@ export const ZoningInfoStep = ({
   // Calculate acres from square feet
   const lotAreaSqFt = parseFloat((formData.lotArea || "0").replace(/,/g, ''));
   const lotAreaAcres = (lotAreaSqFt / 43560).toFixed(2);
+  
+  // Parse numerical values for the building envelope calculations
+  const actualHeight = formData.height ? parseFloat(formData.height) : undefined;
+  const actualStories = formData.stories ? parseInt(formData.stories) : undefined;
+  const actualBuildingArea = formData.totalBuildingArea 
+    ? parseFloat(formData.totalBuildingArea.replace(/,/g, '')) 
+    : undefined;
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -41,6 +48,9 @@ export const ZoningInfoStep = ({
           formData={formData}
           calculations={calculations}
           isCalculating={isCalculating}
+          actualHeight={actualHeight}
+          actualStories={actualStories}
+          actualBuildingArea={actualBuildingArea}
         />
       </div>
     </div>

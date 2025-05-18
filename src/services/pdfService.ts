@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ProjectData } from "../pages/ProjectView";
@@ -120,7 +119,7 @@ export const generateProjectCodeSheet = (project: ProjectData): string => {
   doc.text(`Fire Sprinklers: ${project.is_fully_sprinklered ? "Yes - Fully Sprinklered" : "Not Required"}`, 20, lastTableY + 50);
   
   // Add footer
-  const pageCount = doc.internal.getNumberOfPages();
+  const pageCount = (doc.internal as any).getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);

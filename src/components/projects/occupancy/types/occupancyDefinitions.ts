@@ -8,7 +8,7 @@ export interface Space {
   area: string;
   floorLevel: string;
   notes?: string;
-  loadFactor?: string; // Added to store load factor from database
+  loadFactor?: string | number; // Modified to accept both string and number to fix type compatibility
 }
 
 export interface TravelDistances {

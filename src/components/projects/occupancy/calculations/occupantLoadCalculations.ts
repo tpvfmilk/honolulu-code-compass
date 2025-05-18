@@ -17,10 +17,13 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
   const spaceDetails = spaces.map(space => {
     // Get the space type info from the occupancy group database
     // Note: In the actual implementation, we'd fetch this from the database
-    const factor = parseInt(space.loadFactor as string) || 100; // Default to 100 if not specified
+    const factor = typeof space.loadFactor === 'number' 
+      ? space.loadFactor 
+      : parseInt(space.loadFactor as string) || 100; // Default to 100 if not specified
+    
     const area = parseFloat(space.area) || 0;
     
-    // Use Math.floor instead of Math.ceil to round down to the lowest whole number
+    // Use Math.floor to round down to the lowest whole number
     const spaceLoad = Math.floor(area / factor);
     
     totalLoad += spaceLoad;

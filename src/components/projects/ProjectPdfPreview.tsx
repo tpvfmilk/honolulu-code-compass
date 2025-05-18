@@ -13,42 +13,42 @@ interface ProjectPdfPreviewProps {
 
 export const ProjectPdfPreview = ({ project }: ProjectPdfPreviewProps) => {
   const { toast } = useToast();
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
-  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [excelPreviewUrl, setExcelPreviewUrl] = useState<string | null>(null);
+  const [isExcelGenerating, setIsExcelGenerating] = useState(false);
 
-  const handleGeneratePDF = () => {
+  const handleGenerateExcel = () => {
     if (!project) return;
     
-    setIsPdfGenerating(true);
+    setIsExcelGenerating(true);
     
     try {
-      // Generate the PDF data URL - Fixed type issue here
-      const pdfUrl = generateProjectCodeSheet(project);
-      setPdfPreviewUrl(pdfUrl);
+      // Generate the Excel data URL
+      const excelUrl = generateProjectCodeSheet(project);
+      setExcelPreviewUrl(excelUrl);
       
       toast({
-        title: "PDF Generated",
+        title: "Excel Generated",
         description: "Your code information sheet has been generated successfully."
       });
     } catch (err) {
-      console.error("Error generating PDF:", err);
+      console.error("Error generating Excel:", err);
       toast({
         title: "Error",
-        description: "Failed to generate PDF. Please try again.",
+        description: "Failed to generate Excel. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsPdfGenerating(false);
+      setIsExcelGenerating(false);
     }
   };
 
-  const handleDownloadPDF = () => {
-    if (!pdfPreviewUrl || !project) return;
+  const handleDownloadExcel = () => {
+    if (!excelPreviewUrl || !project) return;
     
     // Create an anchor element and set properties
     const link = document.createElement("a");
-    link.href = pdfPreviewUrl;
-    link.download = `${project.name}-Code-Sheet.pdf`;
+    link.href = excelPreviewUrl;
+    link.download = `${project.name}-Code-Sheet.xlsx`;
     
     // Append to the document, click it, and remove it
     document.body.appendChild(link);
@@ -57,7 +57,7 @@ export const ProjectPdfPreview = ({ project }: ProjectPdfPreviewProps) => {
     
     toast({
       title: "Download Started",
-      description: "Your PDF is being downloaded."
+      description: "Your Excel file is being downloaded."
     });
   };
 
@@ -65,42 +65,42 @@ export const ProjectPdfPreview = ({ project }: ProjectPdfPreviewProps) => {
     <Sheet>
       <SheetTrigger asChild>
         <Button 
-          onClick={handleGeneratePDF}
+          onClick={handleGenerateExcel}
           className="hawaii-gradient flex items-center gap-2"
-          disabled={isPdfGenerating}
+          disabled={isExcelGenerating}
         >
           <FileText className="h-4 w-4" />
-          <span>{isPdfGenerating ? "Generating..." : "Generate Code Sheet"}</span>
+          <span>{isExcelGenerating ? "Generating..." : "Generate Code Sheet"}</span>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-xl md:max-w-2xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Code Information Sheet</SheetTitle>
           <SheetDescription>
-            Preview of the generated PDF for {project.name}
+            Preview of the generated Excel for {project.name}
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6 flex flex-col gap-4">
-          {pdfPreviewUrl ? (
+          {excelPreviewUrl ? (
             <>
-              <div className="border rounded-md overflow-hidden h-[70vh]">
-                <iframe 
-                  src={pdfPreviewUrl} 
-                  className="w-full h-full"
-                  title="PDF Preview"
-                />
+              <div className="border rounded-md overflow-hidden p-4 bg-secondary">
+                <div className="text-center mb-4">
+                  <FileText className="h-12 w-12 mx-auto text-primary" />
+                  <p className="mt-2 font-medium">{project.name}-Code-Sheet.xlsx</p>
+                  <p className="text-sm text-muted-foreground">Excel file is ready for download</p>
+                </div>
               </div>
               <Button 
-                onClick={handleDownloadPDF}
+                onClick={handleDownloadExcel}
                 className="hawaii-gradient flex items-center gap-2 self-end"
               >
                 <FileText className="h-4 w-4" />
-                <span>Download PDF</span>
+                <span>Download Excel</span>
               </Button>
             </>
           ) : (
             <div className="flex items-center justify-center min-h-[50vh]">
-              <p>Click "Generate Code Sheet" to preview the PDF</p>
+              <p>Click "Generate Code Sheet" to create the Excel file</p>
             </div>
           )}
         </div>

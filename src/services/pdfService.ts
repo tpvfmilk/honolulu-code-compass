@@ -1,6 +1,5 @@
 
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import * as XLSX from 'xlsx';
 import { ProjectData } from "../pages/ProjectView";
 
 // Helper function to format dates
@@ -12,56 +11,27 @@ const formatDate = (date: Date): string => {
   });
 };
 
-// Function to generate a PDF for a project
-export const generateProjectPDF = (project: ProjectData) => {
-  // Create new PDF document
-  const doc = new jsPDF();
+// Function to generate an Excel file for a project
+export const generateProjectExcel = (project: ProjectData): string => {
+  // Create a new workbook
+  const wb = XLSX.utils.book_new();
   
-  // Add company logo/header
-  doc.setFontSize(24);
-  doc.setTextColor(41, 128, 185); // Blue color
-  doc.text("Hawaii Code Analysis", 20, 20);
-  
-  // Add project title
-  doc.setFontSize(16);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`Project: ${project.name}`, 20, 35);
-  
-  // Add generated date
-  doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  const today = new Date();
-  doc.text(`Generated: ${formatDate(today)}`, 20, 42);
-  
-  // Add TMK
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`TMK: ${project.tmk || "Not provided"}`, 20, 52);
-  doc.text(`Address: ${project.address || "Not provided"}`, 20, 60);
-  
-  // Project info table
+  // Create Project Info worksheet
   const projectInfoData = [
+    ["Project Name", project.name || ""],
+    ["TMK", project.tmk || "Not provided"],
+    ["Address", project.address || "Not provided"],
     ["Project Type", project.project_type || "New Construction"],
     ["Client", project.client_name || "Not provided"],
     ["Property Owner", project.property_owner || "Not provided"],
     ["County", project.county || "Not specified"],
-    ["Zoning District", project.district]
+    ["Zoning District", project.district || ""]
   ];
   
-  // @ts-ignore - jsPDF-AutoTable types are not fully compatible
-  doc.autoTable({
-    startY: 70,
-    head: [['Property', 'Value']],
-    body: projectInfoData,
-    theme: 'striped',
-    headStyles: { fillColor: [41, 128, 185] }
-  });
+  const wsProjectInfo = XLSX.utils.aoa_to_sheet([["Property", "Value"], ...projectInfoData]);
+  XLSX.utils.book_append_sheet(wb, wsProjectInfo, "Project Info");
   
-  // Get last table end position
-  // @ts-ignore - jsPDF-AutoTable types are not fully compatible
-  const lastTableY = (doc as any).lastAutoTable.finalY;
-  
-  // Add zoning summary table
+  // Create Zoning Data worksheet
   const zoningData = [
     ["Lot Area", project.lot_area_sqft ? `${project.lot_area_sqft.toLocaleString()} sq ft` : "Not provided"],
     ["Stories", project.stories || "Not provided"],
@@ -70,20 +40,10 @@ export const generateProjectPDF = (project: ProjectData) => {
     ["Proposed Use", project.proposed_use || "Not provided"]
   ];
   
-  // @ts-ignore - jsPDF-AutoTable types are not fully compatible
-  doc.autoTable({
-    startY: lastTableY + 15,
-    head: [['Zoning Info', 'Value']],
-    body: zoningData,
-    theme: 'striped',
-    headStyles: { fillColor: [46, 204, 113] }
-  });
+  const wsZoning = XLSX.utils.aoa_to_sheet([["Zoning Info", "Value"], ...zoningData]);
+  XLSX.utils.book_append_sheet(wb, wsZoning, "Zoning Data");
   
-  // Get last table end position for next table
-  // @ts-ignore - jsPDF-AutoTable types are not fully compatible
-  const zoningTableY = (doc as any).lastAutoTable.finalY;
-  
-  // Add parking table
+  // Create Parking Data worksheet
   const parkingData = [
     ["Standard Stalls Required", project.standard_stalls_required || "0"],
     ["Standard Stalls Provided", project.standard_stalls_provided || "0"],
@@ -93,38 +53,26 @@ export const generateProjectPDF = (project: ProjectData) => {
     ["Loading Spaces Provided", project.loading_spaces_provided || "0"]
   ];
   
-  // @ts-ignore - jsPDF-AutoTable types are not fully compatible
-  doc.autoTable({
-    startY: zoningTableY + 15,
-    head: [['Parking Requirements', 'Value']],
-    body: parkingData,
-    theme: 'striped',
-    headStyles: { fillColor: [155, 89, 182] }
-  });
+  const wsParking = XLSX.utils.aoa_to_sheet([["Parking Requirements", "Value"], ...parkingData]);
+  XLSX.utils.book_append_sheet(wb, wsParking, "Parking Data");
   
-  // Construction type section
-  doc.setFontSize(14);
-  doc.text("Building Code Information", 20, lastTableY + 30);
-  doc.setFontSize(12);
-  doc.text(`Construction Type: ${project.construction_type || "Not specified"}`, 20, lastTableY + 40);
-  doc.text(`Fire Sprinklers: ${project.is_fully_sprinklered ? "Yes - Fully Sprinklered" : "Not Required"}`, 20, lastTableY + 50);
+  // Create Construction Type worksheet
+  const constructionData = [
+    ["Construction Type", project.construction_type || "Not specified"],
+    ["Fire Sprinklers", project.is_fully_sprinklered ? "Yes - Fully Sprinklered" : "Not Required"],
+    ["Date Generated", formatDate(new Date())]
+  ];
   
-  // Add footer
-  const pageCount = (doc as any).internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text(
-      `Hawaii Building Code Analysis - Page ${i} of ${pageCount}`, 
-      doc.internal.pageSize.getWidth() / 2, 
-      doc.internal.pageSize.getHeight() - 10, 
-      { align: "center" }
-    );
-  }
+  const wsConstruction = XLSX.utils.aoa_to_sheet([["Building Code Info", "Value"], ...constructionData]);
+  XLSX.utils.book_append_sheet(wb, wsConstruction, "Construction Data");
   
-  return doc;
+  // Generate a data URL for the Excel file
+  const excelBinary = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+  const excelDataUrl = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${excelBinary}`;
+  
+  return excelDataUrl;
 };
 
-// Alias for generateProjectPDF to maintain compatibility with any code that might be using this name
-export const generateProjectCodeSheet = generateProjectPDF;
+// Alias for generateProjectExcel to maintain compatibility with any code that might be using this name
+export const generateProjectCodeSheet = generateProjectExcel;
+

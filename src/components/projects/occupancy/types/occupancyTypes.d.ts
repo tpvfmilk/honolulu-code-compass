@@ -8,8 +8,8 @@ export interface Space {
   area: string;
   floorLevel: string;
   notes: string;
-  spaceType: string; // Added missing property
-  occupiedBy: string; // Added missing property
+  spaceType: string;
+  occupiedBy: string;
 }
 
 export interface SpaceWithLoad extends Space {

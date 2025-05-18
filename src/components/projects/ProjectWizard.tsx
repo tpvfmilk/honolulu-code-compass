@@ -1,20 +1,14 @@
+
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { WizardProgress } from "./WizardProgress";
-import { ProjectInfoStep } from "./steps/ProjectInfoStep";
-import { ZoningInfoStep } from "./steps/ZoningInfoStep";
-import { BuildingClassificationStep } from "./steps/BuildingClassificationStep";
-import { FireSafetyStep } from "./steps/FireSafetyStep";
-import { OccupancyDetailsStep } from "./steps/OccupancyDetailsStep";
-import { ReviewStep } from "./steps/ReviewStep";
 import { useProjectWizard } from "./useProjectWizard";
 import { wizardSteps } from "./types/projectTypes";
-import { buildingTypes } from "./types/zoning/zoningTypes";
 import { useParams } from "react-router-dom";
 import { getProjectById, getProjectData } from "../../services/dataService";
 import { useToast } from "@/components/ui/use-toast";
+import { WizardStepContent } from "./WizardStepContent";
+import { WizardFooter } from "./WizardFooter";
 
 export const ProjectWizard = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,7 +16,6 @@ export const ProjectWizard = () => {
   const [isLoadingProject, setIsLoadingProject] = useState(false);
   const [projectLoaded, setProjectLoaded] = useState(false);
 
-  // Make sure to destructure setFormData from useProjectWizard
   const {
     currentStep,
     formData,
@@ -36,7 +29,7 @@ export const ProjectWizard = () => {
     handleSaveDraft,
     validateTmkFormat,
     zoningDistricts,
-    setFormData  // Ensure this is available from useProjectWizard
+    setFormData
   } = useProjectWizard();
 
   // Load existing project data if in edit mode
@@ -77,7 +70,7 @@ export const ProjectWizard = () => {
           const stepResults = await Promise.all(promises);
           
           // Merge all step data into projectFormData
-          stepResults.forEach((stepData, index) => {
+          stepResults.forEach((stepData) => {
             if (stepData) {
               projectFormData = { ...projectFormData, ...stepData };
             }
@@ -139,89 +132,28 @@ export const ProjectWizard = () => {
 
           {/* Step Content */}
           <form onSubmit={handleSubmit}>
-            {currentStep === 0 && (
-              <ProjectInfoStep 
-                formData={formData} 
-                updateFormData={updateFormData} 
-              />
-            )}
-
-            {currentStep === 1 && (
-              <ZoningInfoStep 
-                formData={formData}
-                calculations={calculations}
-                isCalculating={isCalculating}
-                updateFormData={updateFormData}
-                zoningDistricts={zoningDistricts}
-              />
-            )}
-
-            {currentStep === 2 && (
-              <BuildingClassificationStep 
-                formData={formData} 
-                updateFormData={updateFormData}
-                buildingTypes={buildingTypes}
-              />
-            )}
-
-            {currentStep === 3 && (
-              <FireSafetyStep 
-                formData={formData}
-                updateFormData={updateFormData}
-              />
-            )}
-
-            {currentStep === 4 && <OccupancyDetailsStep 
+            <WizardStepContent 
+              currentStep={currentStep}
               formData={formData}
+              calculations={calculations}
+              isCalculating={isCalculating}
               updateFormData={updateFormData}
-            />}
-
-            {currentStep === 5 && <ReviewStep formData={formData} />}
+              zoningDistricts={zoningDistricts}
+            />
           </form>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-            </Button>
-          </div>
-          
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleSaveDraft}
-              className="text-muted-foreground"
-            >
-              <Save className="mr-2 h-4 w-4" /> Save Draft
-            </Button>
-            
-            {currentStep < wizardSteps.length - 1 ? (
-              <Button 
-                type="button" 
-                onClick={handleNext}
-                disabled={
-                  (currentStep === 0 && (!formData.name || !formData.tmk || !validateTmkFormat(formData.tmk))) ||
-                  (currentStep === 1 && (!formData.district || !formData.lotArea))
-                }
-              >
-                Next <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting}
-                className="hawaii-gradient"
-              >
-                {isSubmitting ? "Saving..." : (id ? "Update Project" : "Create Project")}
-              </Button>
-            )}
-          </div>
+        <CardFooter>
+          <WizardFooter
+            currentStep={currentStep}
+            formData={formData}
+            isSubmitting={isSubmitting}
+            id={id}
+            handlePrevious={handlePrevious}
+            handleNext={handleNext}
+            handleSaveDraft={handleSaveDraft}
+            handleSubmit={handleSubmit}
+            validateTmkFormat={validateTmkFormat}
+          />
         </CardFooter>
       </Card>
     </div>

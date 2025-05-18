@@ -110,7 +110,7 @@ export const generateProjectPDF = (project: ProjectData) => {
   doc.text(`Fire Sprinklers: ${project.is_fully_sprinklered ? "Yes - Fully Sprinklered" : "Not Required"}`, 20, lastTableY + 50);
   
   // Add footer
-  const pageCount = (doc.internal as any).getNumberOfPages();
+  const pageCount = (doc as any).internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
@@ -125,3 +125,6 @@ export const generateProjectPDF = (project: ProjectData) => {
   
   return doc;
 };
+
+// Alias for generateProjectPDF to maintain compatibility with any code that might be using this name
+export const generateProjectCodeSheet = generateProjectPDF;

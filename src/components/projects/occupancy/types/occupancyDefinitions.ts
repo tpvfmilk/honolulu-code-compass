@@ -4,6 +4,7 @@ export interface Space {
   id: string;
   name: string;
   spaceType: string;
+  type?: string; // Add type property as optional to fix errors
   occupiedBy: string;
   area: string;
   floorLevel: string;

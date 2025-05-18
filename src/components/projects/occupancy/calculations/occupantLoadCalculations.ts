@@ -1,7 +1,6 @@
 
 import type { Space } from '../types/occupancyDefinitions';
 import { SpaceWithLoad } from '../types/occupancyTypes';
-import { fetchSpaceTypesByOccupancy } from '@/services/dataService';
 
 // Calculate occupant loads for all spaces
 export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string): {
@@ -19,7 +18,7 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
     // Note: In the actual implementation, we'd fetch this from the database
     const factor = typeof space.loadFactor === 'number' 
       ? space.loadFactor 
-      : parseInt(space.loadFactor as string) || 100; // Default to 100 if not specified
+      : parseInt(String(space.loadFactor)) || 100; // Default to 100 if not specified
     
     const area = parseFloat(space.area) || 0;
     
@@ -38,7 +37,8 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
       loadFactor: factor,
       occupantLoad: spaceLoad,
       calculation: `${area} sf ÷ ${factor} = ${spaceLoad} people`,
-      highDensity: isHighDensity
+      highDensity: isHighDensity,
+      type: space.type || space.spaceType // Ensure type is always populated
     };
   });
   

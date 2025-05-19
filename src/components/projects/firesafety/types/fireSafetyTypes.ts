@@ -1,40 +1,75 @@
 
-import { FormData } from "../../types";
 import { OccupancyGroup } from "../../types/building/buildingClassificationTypes";
+import { FormData } from "../../types/projectTypes";
+
+export interface FireSafetyData {
+  separationDistance: string;
+  hasMixedOccupancy: boolean;
+  occupancySeparationType: string;
+  secondaryOccupancies: any[];
+  fireAlarmRequired: boolean;
+  fireAlarmType: string;
+  standpipeRequired: boolean;
+  emergencyPower: boolean;
+}
 
 export interface FireSafetyCalculationsProps {
   occupancyGroup: OccupancyGroup | "";
-  fireSafety: {
-    separationDistance: string;
-    hasMixedOccupancy: boolean;
-    occupancySeparationType: string;
-    secondaryOccupancies: any[];
-    fireAlarmRequired: boolean;
-    fireAlarmType: string;
-    standpipeRequired: boolean;
-    emergencyPower: boolean;
-  };
   sprinklerSystem: boolean;
-  stories: string;
   highRise?: boolean;
+  stories: string;
+  fireSafety?: FireSafetyData;
+  [key: string]: any; // Allow other properties for compatibility
 }
 
-// Type guard to check if input is FormData
-export function isFormData(input: FormData | FireSafetyCalculationsProps): input is FormData {
-  return 'name' in input && 'tmk' in input;
+export interface FireSafetyCalculations {
+  exteriorWallRating: {
+    rating: number;
+    reference: string;
+  };
+  occupancySeparations: {
+    separations: Array<{
+      from: string;
+      to: string;
+      rating: number;
+    }>;
+    required: boolean;
+    reference: string;
+  };
+  corridorRating: {
+    rating: number;
+    sprinkleredExempt: boolean;
+  };
+  shaftRatings: {
+    exitStairways: number;
+    elevatorShafts: number;
+    mechanicalShafts: number;
+    otherShafts: number;
+  };
+  openingProtectives: {
+    requirements: Record<string, number>;
+    reference: string;
+  };
+  fireDampers: {
+    fireDamperLocations: string[];
+    smokeDamperLocations: string[];
+    exceptions: string[];
+    reference: string;
+  };
 }
 
-// Helper to safely extract properties regardless of input type
-export function getProperty<K extends keyof FireSafetyCalculationsProps>(
-  input: FormData | FireSafetyCalculationsProps,
-  property: K
-): FireSafetyCalculationsProps[K] {
-  if (isFormData(input)) {
-    if (property === 'occupancyGroup') return input.occupancyGroup as FireSafetyCalculationsProps['occupancyGroup'];
-    if (property === 'sprinklerSystem') return input.sprinklerSystem as FireSafetyCalculationsProps['sprinklerSystem'];
-    if (property === 'stories') return input.stories as FireSafetyCalculationsProps['stories'];
-    if (property === 'fireSafety') return input.fireSafety as FireSafetyCalculationsProps['fireSafety'];
-    if (property === 'highRise') return input.highRise as FireSafetyCalculationsProps['highRise'];
+// Helper function to safely access property of either FormData or FireSafetyCalculationsProps
+export function getProperty<K extends keyof FormData | keyof FireSafetyCalculationsProps>(
+  obj: FormData | FireSafetyCalculationsProps,
+  key: K
+): any {
+  // Early return for undefined/null
+  if (!obj) return undefined;
+
+  // Check for the existence of key in the object
+  if (key in obj) {
+    return obj[key as keyof typeof obj];
   }
-  return input[property];
+  
+  return undefined;
 }

@@ -20,11 +20,30 @@ export const ProjectHeader = ({ project, onEditProject }: ProjectHeaderProps) =>
       .join(' ');
   };
   
+  const statusColors = {
+    "draft": "bg-gray-200 text-gray-800",
+    "in-progress": "bg-blue-100 text-blue-800",
+    "completed": "bg-green-100 text-green-800",
+    "needs-revision": "bg-amber-100 text-amber-800",
+  };
+  
+  const statusText = {
+    "draft": "Draft",
+    "in-progress": "In Progress",
+    "completed": "Completed",
+    "needs-revision": "Needs Revision",
+  };
+  
   return (
     <div className="mb-6">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{project.name}</h1>
+            <span className={`text-xs py-1 px-2 rounded-full ${statusColors[project.status]}`}>
+              {statusText[project.status]}
+            </span>
+          </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-muted-foreground">
             <p>TMK: {project.tmk}</p>
             {project.project_type && (

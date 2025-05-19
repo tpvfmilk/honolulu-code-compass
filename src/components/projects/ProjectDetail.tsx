@@ -5,8 +5,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Project } from "../dashboard/ProjectCard";
-import { Download, FileText, History, Pencil } from "lucide-react";
+import { Download, FileText, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { EgressComplianceCard } from "./occupancy/EgressComplianceCard";
+import { useFireSafetyCalculations } from "./firesafety/useFireSafetyCalculations";
+import { useOccupancyCalculations } from "./occupancy/hooks/useOccupancyCalculations";
 
 type ProjectDetailProps = {
   project: Project;
@@ -16,16 +19,50 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("summary");
+  
+  // Get fire safety calculations
+  const fireSafetyCalculations = useFireSafetyCalculations({
+    occupancyGroup: project.project_type || "",
+    fireSafety: {
+      separationDistance: "10",
+      hasMixedOccupancy: false,
+      occupancySeparationType: "",
+      secondaryOccupancies: [],
+      fireAlarmRequired: false,
+      fireAlarmType: "",
+      standpipeRequired: false,
+      emergencyPower: false
+    },
+    sprinklerSystem: project.is_fully_sprinklered || false,
+    stories: project.stories?.toString() || "1"
+  });
+
+  // Get occupancy calculations with default values
+  const { calculations: occupancyCalcs, isCalculating } = useOccupancyCalculations({
+    occupancyDetails: {
+      spaces: [],
+      travelDistances: {
+        maxExitAccess: "100",
+        commonPath: "75",
+        deadEnd: "50",
+        roomTravel: "50"
+      },
+      numberOfEmployees: "10",
+      isPublicAccommodation: true,
+      elevatorProvided: false,
+      totalParkingSpaces: project.standard_stalls_provided?.toString() || "0"
+    },
+    occupancyGroup: project.project_type || "B",
+    sprinklerSystem: project.is_fully_sprinklered || false,
+    stories: project.stories?.toString() || "1",
+    totalBuildingArea: project.total_building_area?.toString() || "0"
+  });
 
   const handleGeneratePDF = () => {
     toast({
       title: "PDF Generated",
       description: "Your code information sheet has been generated",
     });
-  };
-
-  const handleEditProject = () => {
-    navigate(`/project/edit/${project.id}`);
   };
 
   // Calculated properties based on project data
@@ -55,33 +92,20 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
-          <p className="text-muted-foreground">TMK: {project.tmk}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={handleEditProject}
-          >
-            <Pencil className="h-4 w-4" />
-            <span>Edit</span>
-          </Button>
-          <Button 
-            onClick={handleGeneratePDF}
-            className="hawaii-gradient flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            <span>Generate Code Sheet</span>
-          </Button>
-        </div>
+      <div className="flex justify-end">
+        <Button 
+          onClick={handleGeneratePDF}
+          className="hawaii-gradient flex items-center gap-2"
+        >
+          <FileText className="h-4 w-4" />
+          <span>Generate Code Sheet</span>
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
+          <TabsTrigger value="lifesafety">Life Safety</TabsTrigger>
           <TabsTrigger value="compliance">Compliance Analysis</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
@@ -115,13 +139,45 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
                     <dd className="font-medium">{project.lastUpdated.toLocaleDateString()}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Created By</dt>
-                    <dd className="font-medium">John Architect</dd>
+                    <dt className="text-muted-foreground">Project Type</dt>
+                    <dd className="font-medium">{project.project_type || "Not specified"}</dd>
                   </div>
                 </dl>
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Building Classification</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Construction Type</dt>
+                    <dd className="font-medium">{project.construction_type || "Not specified"}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Occupancy Group</dt>
+                    <dd className="font-medium">{project.project_type || "Not specified"}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Sprinkler System</dt>
+                    <dd className="font-medium">{project.is_fully_sprinklered ? "Yes" : "No"}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Building Stories</dt>
+                    <dd className="font-medium">{project.stories || "Not specified"}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Building Height</dt>
+                    <dd className="font-medium">{project.building_height ? `${project.building_height} ft` : "Not specified"}</dd>
+                  </div>
+                </dl>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Zoning Information</CardTitle>
@@ -134,21 +190,45 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Lot Area</dt>
-                    <dd className="font-medium">7,500 sq ft</dd>
+                    <dd className="font-medium">{project.lot_area_sqft ? `${project.lot_area_sqft.toLocaleString()} sq ft` : "Not specified"}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Building Type</dt>
-                    <dd className="font-medium">Single-Family Dwelling</dd>
+                    <dt className="text-muted-foreground">Existing Use</dt>
+                    <dd className="font-medium">{project.existing_use || "Not specified"}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Stories</dt>
-                    <dd className="font-medium">2</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Building Height</dt>
-                    <dd className="font-medium">24 feet</dd>
+                    <dt className="text-muted-foreground">Proposed Use</dt>
+                    <dd className="font-medium">{project.proposed_use || "Not specified"}</dd>
                   </div>
                 </dl>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Parking Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Standard Stalls</p>
+                    <p className="font-medium">
+                      {project.standard_stalls_provided || 0} / {project.standard_stalls_required || 0} required
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">ADA Stalls</p>
+                    <p className="font-medium">
+                      {project.ada_stalls_provided || 0} / {project.ada_stalls_required || 0} required
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Loading Spaces</p>
+                    <p className="font-medium">
+                      {project.loading_spaces_provided || 0} / {project.loading_spaces_required || 0} required
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -171,17 +251,118 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
                     <Download className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-secondary rounded-md">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">{project.name} - Calculation Worksheet</p>
-                      <p className="text-xs text-muted-foreground">Generated on 5/10/2023</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* New Life Safety Tab */}
+        <TabsContent value="lifesafety" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Occupancy Load</CardTitle>
+                <CardDescription>Based on IBC Table 1004.5</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isCalculating ? (
+                  <div className="animate-pulse py-4">Loading occupancy data...</div>
+                ) : (
+                  <dl className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Occupancy Group</dt>
+                      <dd className="font-medium">{project.project_type || "B (Business)"}</dd>
                     </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Estimated Occupant Load</dt>
+                      <dd className="font-medium">{occupancyCalcs?.occupantLoad?.total || "Not calculated"}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Required Exits</dt>
+                      <dd className="font-medium">{occupancyCalcs?.exitRequirements?.requiredExits || 2}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Min. Exit Door Width</dt>
+                      <dd className="font-medium">{occupancyCalcs?.exitRequirements?.doorWidth || 32} inches</dd>
+                    </div>
+                  </dl>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Egress Compliance Card */}
+            <EgressComplianceCard
+              travelDistanceCompliance={occupancyCalcs?.travelDistanceCompliance || null}
+              travelDistances={{
+                maxExitAccess: "100",
+                commonPath: "75", 
+                deadEnd: "50",
+                roomTravel: "50"
+              }}
+              isCalculating={isCalculating}
+              isSprinklered={project.is_fully_sprinklered || false}
+            />
+          </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Corridor Requirements</CardTitle>
+              <CardDescription>IBC Section 1020</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Min. Corridor Width</dt>
+                    <dd className="font-medium">44 inches</dd>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-primary">
-                    <Download className="h-4 w-4" />
-                  </Button>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Corridor Fire Rating</dt>
+                    <dd className="font-medium">
+                      {project.is_fully_sprinklered ? "0 hours (sprinklered)" : "1 hour"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Accessibility Compliance</CardTitle>
+              <CardDescription>IBC Chapter 11 & ADAAG Requirements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-medium mb-2">Required Accessible Features</h3>
+                  <ul className="space-y-1 text-sm">
+                    <li className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      <span>Accessible entrance</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      <span>Accessible route throughout building</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      <span>Accessible restrooms</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Parking Requirements</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">ADA Parking Stalls</dt>
+                      <dd className="font-medium">{project.ada_stalls_provided || 0} / {project.ada_stalls_required || 0} required</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Van Accessible</dt>
+                      <dd className="font-medium">1 van accessible stall required</dd>
+                    </div>
+                  </dl>
                 </div>
               </div>
             </CardContent>
@@ -237,7 +418,7 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
                         <p className="font-medium">30 ft (Max)</p>
                         <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
                       </div>
-                      <p className="font-medium mt-1">24 ft (Actual)</p>
+                      <p className="font-medium mt-1">{project.building_height || 24} ft (Actual)</p>
                     </div>
                     <div className="bg-secondary p-4 rounded-md">
                       <p className="text-sm text-muted-foreground">Lot Coverage</p>
@@ -259,16 +440,45 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
                 </div>
 
                 <div>
+                  <h3 className="font-semibold text-lg mb-3">Building Code Analysis</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-secondary p-4 rounded-md">
+                      <p className="text-sm text-muted-foreground">Building Construction Type</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="font-medium">{project.construction_type || "Type VB"}</p>
+                        <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      </div>
+                      <p className="font-medium mt-1">Compliant with occupancy group</p>
+                    </div>
+                    <div className="bg-secondary p-4 rounded-md">
+                      <p className="text-sm text-muted-foreground">Fire Resistance Requirements</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="font-medium">Exterior Walls: {fireSafetyCalculations.exteriorWallRating.rating} hour</p>
+                        <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      </div>
+                      <p className="font-medium mt-1">
+                        {fireSafetyCalculations.corridorRating.rating} hour corridors ({project.is_fully_sprinklered ? "sprinklered" : "non-sprinklered"})
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
                   <h3 className="font-semibold text-lg mb-3">Parking Requirements</h3>
                   <div className="bg-secondary p-4 rounded-md">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Required Parking Spaces</p>
-                        <p className="font-medium">2 spaces (1 space per dwelling unit + 1 guest)</p>
+                        <p className="font-medium">{project.standard_stalls_required || 2} spaces required</p>
                       </div>
-                      <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
+                      <div className={`w-5 h-5 rounded-full ${
+                        (project.standard_stalls_provided || 0) >= (project.standard_stalls_required || 0) ? 
+                        "bg-green-500 text-white" : "bg-yellow-500 text-white"
+                      } flex items-center justify-center text-xs`}>
+                        {(project.standard_stalls_provided || 0) >= (project.standard_stalls_required || 0) ? "✓" : "!"}
+                      </div>
                     </div>
-                    <p className="font-medium mt-2">3 spaces provided (2-car garage + 1 driveway)</p>
+                    <p className="font-medium mt-2">{project.standard_stalls_provided || 0} spaces provided</p>
                   </div>
                 </div>
               </div>

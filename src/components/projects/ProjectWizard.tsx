@@ -31,12 +31,17 @@ export const ProjectWizard = () => {
   // Use our extracted project loader hook
   const { isLoadingProject } = useProjectLoader(id, formData, setFormData);
 
+  // Prevent any form submission from navigating away
+  const preventFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
   if (isLoadingProject) {
     return <ProjectLoadingState />;
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-6">
+    <div className="max-w-6xl mx-auto py-6" onSubmit={preventFormSubmit}>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
@@ -54,16 +59,14 @@ export const ProjectWizard = () => {
           <WizardProgress steps={wizardSteps} currentStep={currentStep} />
 
           {/* Step Content */}
-          <form onSubmit={handleSubmit}>
-            <WizardStepContent 
-              currentStep={currentStep}
-              formData={formData}
-              calculations={calculations}
-              isCalculating={isCalculating}
-              updateFormData={updateFormData}
-              zoningDistricts={zoningDistricts}
-            />
-          </form>
+          <WizardStepContent 
+            currentStep={currentStep}
+            formData={formData}
+            calculations={calculations}
+            isCalculating={isCalculating}
+            updateFormData={updateFormData}
+            zoningDistricts={zoningDistricts}
+          />
         </CardContent>
         <CardFooter>
           <WizardFooter

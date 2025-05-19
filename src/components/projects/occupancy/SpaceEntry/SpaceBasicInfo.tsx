@@ -63,44 +63,51 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
 
   // Ensure we have a valid type value
   const spaceTypeValue = space.type || "";
+  console.log(`Rendering Space Basic Info with type=${spaceTypeValue}`);
   
   return (
-    <>
-      <div className="space-y-2">
-        <Label htmlFor={`space-name-${space.id}`}>Space Name</Label>
-        <Input
-          id={`space-name-${space.id}`}
-          value={space.name}
-          onChange={(e) => onUpdate(space.id, 'name', e.target.value)}
-          placeholder="e.g. Office, Lobby, etc."
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor={`space-type-${space.id}`}>Space Type</Label>
-        <Select
-          value={spaceTypeValue}
-          onValueChange={handleSpaceTypeChange}
-          disabled={loading}
-        >
-          <SelectTrigger id={`space-type-${space.id}`}>
-            <SelectValue placeholder="Select a space type" />
-          </SelectTrigger>
-          <SelectContent>
-            {spaceTypes.map((type) => (
-              <SelectItem key={type.code} value={type.code}>
-                {type.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {spaceTypeValue && (
-          <div className="text-xs text-muted-foreground mt-1">
-            Selected: {spaceTypeValue} {space.spaceType ? `(${space.spaceType})` : ''}
-          </div>
-        )}
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor={`space-name-${space.id}`}>Space Name</Label>
+          <Input
+            id={`space-name-${space.id}`}
+            value={space.name}
+            onChange={(e) => onUpdate(space.id, 'name', e.target.value)}
+            placeholder="e.g. Office, Lobby, etc."
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor={`space-type-${space.id}`}>Space Type</Label>
+          <Select
+            value={spaceTypeValue}
+            onValueChange={handleSpaceTypeChange}
+            disabled={loading}
+          >
+            <SelectTrigger 
+              id={`space-type-${space.id}`} 
+              className="w-full text-ellipsis"
+            >
+              <SelectValue placeholder="Select a space type" />
+            </SelectTrigger>
+            <SelectContent className="w-full max-w-[400px]">
+              {spaceTypes.map((type) => (
+                <SelectItem key={type.code} value={type.code}>
+                  {type.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {spaceTypeValue && (
+            <div className="text-xs text-muted-foreground mt-1">
+              Selected: {spaceTypeValue} {space.spaceType ? `(${space.spaceType})` : ''}
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Moved to its own row - full width */}
       <div className="space-y-2">
         <Label htmlFor={`occupancy-type-${space.id}`}>Occupancy Group</Label>
         <Select
@@ -108,10 +115,13 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
           onValueChange={handleOccupancyGroupChange}
           disabled={loading}
         >
-          <SelectTrigger id={`occupancy-type-${space.id}`}>
+          <SelectTrigger 
+            id={`occupancy-type-${space.id}`}
+            className="w-full text-ellipsis"
+          >
             <SelectValue placeholder="Select occupancy group" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="w-full max-w-[400px]">
             {occupancyGroups.map((group) => (
               <SelectItem key={group.id} value={group.code}>
                 {group.code} - {group.name}
@@ -120,6 +130,6 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
           </SelectContent>
         </Select>
       </div>
-    </>
+    </div>
   );
 };

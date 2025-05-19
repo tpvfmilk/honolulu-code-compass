@@ -27,11 +27,17 @@ export const WizardFooter: React.FC<WizardFooterProps> = ({
   handleSubmit,
   validateTmkFormat,
 }) => {
+  // Handle submit with preventDefault
+  const onSubmitClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    handleSubmit(e);
+  };
+
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between w-full">
       <div>
         <Button
-          type="button"
+          type="button" // Explicitly set button type
           variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 0}
@@ -42,7 +48,7 @@ export const WizardFooter: React.FC<WizardFooterProps> = ({
       
       <div className="flex gap-3">
         <Button
-          type="button"
+          type="button" // Explicitly set button type
           variant="ghost"
           onClick={handleSaveDraft}
           className="text-muted-foreground"
@@ -52,7 +58,7 @@ export const WizardFooter: React.FC<WizardFooterProps> = ({
         
         {currentStep < wizardSteps.length - 1 ? (
           <Button 
-            type="button" 
+            type="button" // Explicitly set button type
             onClick={handleNext}
             disabled={
               (currentStep === 0 && (!formData.name || !formData.tmk || !validateTmkFormat(formData.tmk))) ||
@@ -63,7 +69,8 @@ export const WizardFooter: React.FC<WizardFooterProps> = ({
           </Button>
         ) : (
           <Button 
-            onClick={handleSubmit} 
+            type="button" // Explicitly set button type
+            onClick={onSubmitClick}
             disabled={isSubmitting}
             className="hawaii-gradient"
           >

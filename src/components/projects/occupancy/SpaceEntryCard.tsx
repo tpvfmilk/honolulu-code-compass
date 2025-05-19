@@ -51,6 +51,7 @@ export const SpaceEntryCard = ({
   }, [primaryOccupancy]);
   
   console.log(`Space ${index + 1} has stories=${stories} and floorLevel=${space.floorLevel}`);
+  console.log(`Space type value: ${space.type}, Space type name: ${space.spaceType}`);
 
   return (
     <Card>
@@ -60,15 +61,20 @@ export const SpaceEntryCard = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => onRemove(space.id)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onRemove(space.id);
+            }}
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Basic Info */}
+        {/* Updated grid layout to provide more space for dropdowns */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Basic Info - now gets full width */}
           <SpaceBasicInfo 
             space={space}
             spaceTypes={spaceTypes}
@@ -76,19 +82,20 @@ export const SpaceEntryCard = ({
             loading={loading}
           />
           
-          {/* Area Info */}
-          <SpaceAreaInfo 
-            space={space}
-            onUpdate={onUpdate}
-            stories={stories}
-          />
-          
-          {/* Notes - Add the spaceTypes prop here */}
-          <SpaceNotes 
-            space={space} 
-            onUpdate={onUpdate}
-            spaceTypes={spaceTypes} 
-          />
+          {/* Area Info and Notes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SpaceAreaInfo 
+              space={space}
+              onUpdate={onUpdate}
+              stories={stories}
+            />
+            
+            <SpaceNotes 
+              space={space} 
+              onUpdate={onUpdate}
+              spaceTypes={spaceTypes} 
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

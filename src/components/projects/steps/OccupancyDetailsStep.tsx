@@ -64,7 +64,7 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
     }
   }, []);
   
-  // Handle space updates
+  // Handle space updates with preventDefault
   const handleSpacesChange = (spaces: Space[]) => {
     updateFormData('occupancyDetails', {
       ...formData.occupancyDetails,
@@ -88,8 +88,15 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
     });
   };
 
+  // Prevent form submission and navigation
+  const handleFormClick = (e: React.MouseEvent) => {
+    if (e.target instanceof HTMLButtonElement) {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onClick={handleFormClick}>
       <h3 className="text-xl font-medium">Occupancy Details & Life Safety</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

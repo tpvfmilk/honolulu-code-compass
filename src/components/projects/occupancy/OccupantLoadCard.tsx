@@ -40,13 +40,21 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
   useEffect(() => {
     if (occupantLoad) {
       console.log("Occupant load spaces:", occupantLoad.bySpace);
+      
+      // Debug each space to see what type info we have
+      occupantLoad.bySpace.forEach(space => {
+        console.log(`Space ${space.name} has type=${space.type}, spaceType=${space.spaceType}`);
+      });
     }
   }, [occupantLoad]);
 
   if (!occupantLoad && !isCalculating) return null;
   
   // Get human-readable name for space type
-  const getSpaceTypeName = (typeCode: string) => {
+  const getSpaceTypeName = (typeCode: string, spaceTypeName: string) => {
+    // If we already have a name stored, use it
+    if (spaceTypeName) return spaceTypeName;
+    
     if (!typeCode) return "Unknown";
     console.log(`Finding type name for code: ${typeCode}`);
     
@@ -101,7 +109,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                         {space.name || "Unnamed Space"}
                       </TableCell>
                       <TableCell>
-                        {space.spaceType || getSpaceTypeName(space.type)}
+                        {getSpaceTypeName(space.type, space.spaceType)}
                         {space.highDensity && (
                           <span className="ml-1 text-orange-500">(!)</span>
                         )}

@@ -26,49 +26,49 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
   updateFormData,
   zoningDistricts,
 }) => {
-  switch (currentStep) {
-    case 0:
-      return (
-        <ProjectInfoStep 
-          formData={formData} 
-          updateFormData={updateFormData} 
-        />
-      );
-    case 1:
-      return (
-        <ZoningInfoStep 
-          formData={formData}
-          calculations={calculations}
-          isCalculating={isCalculating}
-          updateFormData={updateFormData}
-          zoningDistricts={zoningDistricts}
-        />
-      );
-    case 2:
-      return (
-        <BuildingClassificationStep 
-          formData={formData} 
-          updateFormData={updateFormData}
-          buildingTypes={buildingTypes}
-        />
-      );
-    case 3:
-      return (
-        <FireSafetyStep 
-          formData={formData}
-          updateFormData={updateFormData}
-        />
-      );
-    case 4:
-      return (
-        <OccupancyDetailsStep 
-          formData={formData}
-          updateFormData={updateFormData}
-        />
-      );
-    case 5:
-      return <ReviewStep formData={formData} />;
-    default:
-      return <div>Unknown step</div>;
-  }
+  // Prevent default form submission that causes navigation to landing page
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleFormSubmit} noValidate>
+        {currentStep === 0 ? (
+          <ProjectInfoStep 
+            formData={formData} 
+            updateFormData={updateFormData} 
+          />
+        ) : currentStep === 1 ? (
+          <ZoningInfoStep 
+            formData={formData}
+            calculations={calculations}
+            isCalculating={isCalculating}
+            updateFormData={updateFormData}
+            zoningDistricts={zoningDistricts}
+          />
+        ) : currentStep === 2 ? (
+          <BuildingClassificationStep 
+            formData={formData} 
+            updateFormData={updateFormData}
+            buildingTypes={buildingTypes}
+          />
+        ) : currentStep === 3 ? (
+          <FireSafetyStep 
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        ) : currentStep === 4 ? (
+          <OccupancyDetailsStep 
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        ) : currentStep === 5 ? (
+          <ReviewStep formData={formData} />
+        ) : (
+          <div>Unknown step</div>
+        )}
+      </form>
+    </div>
+  );
 };

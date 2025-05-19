@@ -30,6 +30,7 @@ export const WizardFooter: React.FC<WizardFooterProps> = ({
   // Handle submit with preventDefault
   const onSubmitClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log("Submit clicked in WizardFooter");
     handleSubmit(e);
   };
 

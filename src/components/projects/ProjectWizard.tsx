@@ -34,6 +34,7 @@ export const ProjectWizard = () => {
   // Prevent any form submission from navigating away
   const preventFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission prevented in ProjectWizard");
   };
 
   if (isLoadingProject) {

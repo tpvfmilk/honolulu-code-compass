@@ -29,6 +29,7 @@ export const WizardStepContent: React.FC<WizardStepContentProps> = ({
   // Prevent default form submission that causes navigation to landing page
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission prevented in WizardStepContent");
   };
 
   return (

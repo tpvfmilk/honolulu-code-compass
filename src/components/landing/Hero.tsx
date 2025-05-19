@@ -1,6 +1,8 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+
 export const Hero = () => {
   return <div className="relative bg-white overflow-hidden w-full">
       <div className="max-w-7xl mx-auto">
@@ -39,8 +41,12 @@ export const Hero = () => {
         </div>
       </div>
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 hawaii-gradient">
-        <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
-          <img className="w-3/4 md:w-2/3 lg:w-3/4 max-w-md mx-auto" alt="Comply platform illustration" src="/lovable-uploads/a1031bb9-adfa-4926-911f-56a05cfc92b4.jpg" />
+        <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full">
+          <img 
+            className="w-full h-full object-cover object-center" 
+            alt="Comply platform illustration" 
+            src="/lovable-uploads/a1031bb9-adfa-4926-911f-56a05cfc92b4.jpg" 
+          />
         </div>
       </div>
     </div>;

@@ -29,6 +29,7 @@ export interface SpaceWithLoad {
   occupantLoad: number;
   calculation: string;
   highDensity?: boolean;
+  occupancyType?: string; // Added this property to match the usage
 }
 
 // Re-export TravelLimits interface

@@ -12,7 +12,7 @@ export interface SpaceWithLoad {
   occupantLoad: number;
   calculation: string;
   highDensity?: boolean;
-  occupancyType?: string;
+  occupancyType?: string;  // Added this property to match the usage
 }
 
 // Occupancy details interface

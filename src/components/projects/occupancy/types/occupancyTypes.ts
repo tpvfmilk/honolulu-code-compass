@@ -13,4 +13,5 @@ export interface SpaceWithLoad extends Space {
   calculation: string;
   highDensity?: boolean;
   type: string; // Ensure type is required
+  occupancyType?: string; // Added this property to match the usage
 }

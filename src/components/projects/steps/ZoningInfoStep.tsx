@@ -1,6 +1,6 @@
 
 import { FormData } from "../types";
-import { ZoningCalculationsState } from "../zoning/types/zoningTypes";
+import { ZoningCalculationsState } from "../types/zoning/zoningTypes";
 import { ZoningFormCard } from "./zoning/ZoningFormCard";
 import { ZoningCalculationResults } from "./zoning/ZoningCalculationResults";
 

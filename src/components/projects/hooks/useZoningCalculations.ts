@@ -64,7 +64,7 @@ export const useZoningCalculations = ({ zoningDistricts }: UseZoningCalculations
         maxFloorArea: lotArea * (districtData.max_far || 0.7),
         // Initialize the new properties
         specialRuleApplies: false,
-        calculationMethod: "FAR" as const,
+        calculationMethod: "FAR" as "FAR" | "UnitBased" | "LotCoverage",
         specialRuleExplanation: "",
       };
 

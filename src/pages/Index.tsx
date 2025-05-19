@@ -1,3 +1,4 @@
+
 import React, { FC } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,9 +17,9 @@ const Index: FC<IndexProps> = ({
   return <AppLayout onLogout={wrappedLogout}>
       <div className="space-y-8 max-w-5xl mx-auto">
         <div>
-          <h1 className="text-4xl font-bold">Hawaii Building Code Compliance</h1>
+          <h1 className="text-4xl font-bold">Comply</h1>
           <p className="text-muted-foreground mt-2">
-            Welcome to the Hawaii Building Code Compliance platform
+            Building Code Compliance Made Simple
           </p>
         </div>
 
@@ -62,7 +63,7 @@ Document Generation: Create permit-ready compliance sheets in minutes We've desi
             <CardContent className="space-y-4">
               <p>Comply helps you develop code-compliant designs from the earliest stages, ensuring your submissions move smoothly through the approval process.
 
- Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously
+ Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously
 
 Your dashboard provides real-time visibility into compliance status, helping you identify and resolve issues before submission. Each project maintains a complete history of compliance decisions, creating valuable documentation for your records.</p>
               <div className="flex justify-start space-x-4">
@@ -79,7 +80,7 @@ Your dashboard provides real-time visibility into compliance status, helping you
 
         <Card>
           <CardHeader>
-            <CardTitle>About Hawaii Building Code Compliance</CardTitle>
+            <CardTitle>About Comply</CardTitle>
           </CardHeader>
           <CardContent>
             <p>

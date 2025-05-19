@@ -63,7 +63,7 @@ const AppSidebar = ({ onLogout }: { onLogout: () => void }) => {
     >
       <div className={`p-4 border-b flex ${sidebar.state === "collapsed" ? "justify-center" : "justify-between"} items-center`}>
         {sidebar.state !== "collapsed" && (
-          <div className="font-semibold text-primary">HI Code Compliance</div>
+          <div className="font-semibold text-primary">Comply</div>
         )}
         <SidebarTrigger />
       </div>
@@ -149,7 +149,7 @@ const AppHeader = () => {
   return (
     <header className="border-b py-3 px-6 bg-card">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-primary">Hawaii Building Code Compliance</h1>
+        <h1 className="text-xl font-semibold text-primary">Comply</h1>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">John Architect</span>
           <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
@@ -164,7 +164,7 @@ const AppHeader = () => {
 const AppFooter = () => {
   return (
     <footer className="border-t py-3 px-6 text-center text-sm text-muted-foreground">
-      © {new Date().getFullYear()} Hawaii Building Code Compliance Platform
+      © {new Date().getFullYear()} Comply
     </footer>
   );
 };

@@ -15,6 +15,11 @@ export interface FireSafetyData {
 
 export interface FireSafetyCalculationsProps {
   occupancyGroup: OccupancyGroup | "";
+  occupancyGroupId?: string;
+  constructionType?: string;
+  constructionTypeId?: string;
+  zoningDistrict?: string;
+  zoningDistrictId?: string;
   sprinklerSystem: boolean;
   highRise?: boolean;
   stories: string;
@@ -28,6 +33,7 @@ export interface FireSafetyCalculations {
     reference: string;
     openings?: number;
     openingProtection?: string;
+    notes?: string;
   };
   occupancySeparations: {
     separations: Array<{

@@ -87,6 +87,7 @@ export const FireSafetyStep = ({ formData, updateFormData }: FireSafetyStepProps
           <ExteriorWallRatingCard 
             separationDistance={formData.fireSafety.separationDistance} 
             exteriorWallRating={calculations.exteriorWallRating} 
+            sprinklered={formData.sprinklerSystem}
           />
           
           <InteriorWallRatingsCard 

@@ -92,6 +92,115 @@ export type Database = {
         }
         Relationships: []
       }
+      exterior_wall_requirements: {
+        Row: {
+          construction_type_id: string | null
+          created_at: string | null
+          id: string
+          max_opening_percent_with_sprinkler: number
+          max_opening_percent_without_sprinkler: number
+          max_separation_ft: number
+          min_separation_ft: number
+          notes: string | null
+          occupancy_group_id: string | null
+          rating_hours_with_sprinkler: number
+          rating_hours_without_sprinkler: number
+          reference: string
+          updated_at: string | null
+          zoning_district_id: string | null
+        }
+        Insert: {
+          construction_type_id?: string | null
+          created_at?: string | null
+          id?: string
+          max_opening_percent_with_sprinkler: number
+          max_opening_percent_without_sprinkler: number
+          max_separation_ft: number
+          min_separation_ft: number
+          notes?: string | null
+          occupancy_group_id?: string | null
+          rating_hours_with_sprinkler: number
+          rating_hours_without_sprinkler: number
+          reference: string
+          updated_at?: string | null
+          zoning_district_id?: string | null
+        }
+        Update: {
+          construction_type_id?: string | null
+          created_at?: string | null
+          id?: string
+          max_opening_percent_with_sprinkler?: number
+          max_opening_percent_without_sprinkler?: number
+          max_separation_ft?: number
+          min_separation_ft?: number
+          notes?: string | null
+          occupancy_group_id?: string | null
+          rating_hours_with_sprinkler?: number
+          rating_hours_without_sprinkler?: number
+          reference?: string
+          updated_at?: string | null
+          zoning_district_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exterior_wall_requirements_construction_type_id_fkey"
+            columns: ["construction_type_id"]
+            isOneToOne: false
+            referencedRelation: "construction_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exterior_wall_requirements_occupancy_group_id_fkey"
+            columns: ["occupancy_group_id"]
+            isOneToOne: false
+            referencedRelation: "occupancy_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exterior_wall_requirements_zoning_district_id_fkey"
+            columns: ["zoning_district_id"]
+            isOneToOne: false
+            referencedRelation: "zoning_districts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exterior_wall_special_requirements: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          max_separation_ft: number
+          min_separation_ft: number
+          rating_requirement: string
+          reference: string
+          requirement_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          max_separation_ft: number
+          min_separation_ft: number
+          rating_requirement: string
+          reference: string
+          requirement_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          max_separation_ft?: number
+          min_separation_ft?: number
+          rating_requirement?: string
+          reference?: string
+          requirement_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       fire_separation_requirements: {
         Row: {
           created_at: string | null

@@ -1,5 +1,5 @@
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FormData } from "../types";
 import { FireSafetyCalculationsProps } from "./types/fireSafetyTypes";
 import { calculateExteriorWallRating } from "./utils/exteriorWallCalculations";
@@ -12,11 +12,24 @@ import { calculateFireDampers } from "./utils/fireDamperCalculations";
 export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalculationsProps | undefined | null) => {
   // Check if formData is valid before proceeding with calculations
   const isValidFormData = formData !== null && formData !== undefined;
+  const [exteriorWallRating, setExteriorWallRating] = useState({
+    rating: 0,
+    openings: 100,
+    openingProtection: "Loading...",
+    reference: "Loading..."
+  });
   
   // Calculate exterior wall ratings based on separation distance
-  const exteriorWallRating = useMemo(() => {
-    return calculateExteriorWallRating(formData);
-  }, [formData]);
+  useEffect(() => {
+    const fetchExteriorWallRating = async () => {
+      if (isValidFormData) {
+        const result = await calculateExteriorWallRating(formData);
+        setExteriorWallRating(result);
+      }
+    };
+    
+    fetchExteriorWallRating();
+  }, [formData, isValidFormData]);
 
   // Calculate occupancy separations
   const occupancySeparations = useMemo(() => {

@@ -2,6 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ExteriorWallRatingCardProps {
   separationDistance: string;
@@ -10,18 +13,28 @@ interface ExteriorWallRatingCardProps {
     openings: number;
     openingProtection: string;
     reference: string;
+    notes?: string;
   };
+  sprinklered?: boolean;
 }
 
 export const ExteriorWallRatingCard = ({
   separationDistance,
-  exteriorWallRating
+  exteriorWallRating,
+  sprinklered = false
 }: ExteriorWallRatingCardProps) => {
   return (
     <Card>
       <CardHeader className="bg-red-50 border-b border-red-100">
         <CardTitle className="text-lg flex justify-between items-center">
-          <span>Exterior Wall Fire Ratings</span>
+          <div className="flex items-center gap-2">
+            <span>Exterior Wall Fire Ratings</span>
+            {sprinklered && (
+              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                Sprinklered
+              </Badge>
+            )}
+          </div>
           <span className="text-sm font-normal text-muted-foreground">
             {exteriorWallRating.reference}
           </span>
@@ -64,6 +77,22 @@ export const ExteriorWallRatingCard = ({
             <div className="text-sm font-medium mb-1">Opening Protection</div>
             <div className="text-sm">{exteriorWallRating.openingProtection}</div>
           </div>
+          
+          {exteriorWallRating.notes && (
+            <div className="col-span-2 flex gap-2 text-sm text-muted-foreground">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-80">
+                    <p>Additional requirements may apply</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <span>{exteriorWallRating.notes}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

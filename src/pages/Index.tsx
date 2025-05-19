@@ -60,12 +60,11 @@ Document Generation: Create permit-ready compliance sheets in minutes We've desi
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>Comply helps you develop code-compliant designs from the earliest stages, ensuring your submissions move smoothly through the approval process. Our clients report a 94% first-time approval rate, significantly reducing project delays and revision cycles.
+              <p>Comply helps you develop code-compliant designs from the earliest stages, ensuring your submissions move smoothly through the approval process.
 
+ Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously
 
-
-
-Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously</p>
+Your dashboard provides real-time visibility into compliance status, helping you identify and resolve issues before submission. Each project maintains a complete history of compliance decisions, creating valuable documentation for your records.</p>
               <div className="flex justify-start space-x-4">
                 <Button asChild>
                   <Link to="/project/new">New Project</Link>

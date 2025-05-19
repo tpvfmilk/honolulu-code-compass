@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { SpaceBreakdownForm } from "../occupancy/SpaceBreakdownForm";
@@ -22,6 +23,9 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
   const primaryOccupancy = formData.occupancyGroup || "";
   const isSprinklered = formData.sprinklerSystem || false;
   const isMultiStory = parseInt(formData.stories || '1') > 1;
+  const stories = formData.stories || "1";
+  
+  console.log("OccupancyDetailsStep - stories:", stories);
   
   // Use calculation hook
   const { calculations, isCalculating } = useOccupancyCalculations(formData);
@@ -95,6 +99,7 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
             spaces={formData.occupancyDetails?.spaces || []}
             primaryOccupancy={primaryOccupancy}
             onSpacesChange={handleSpacesChange}
+            stories={stories}
           />
           
           {/* Travel Distance Inputs */}

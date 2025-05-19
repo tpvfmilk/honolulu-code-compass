@@ -33,7 +33,9 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
 
   // Handle space type selection with load factor
   const handleSpaceTypeChange = (value: string) => {
-    // Update the space type
+    console.log('Space type selected:', value);
+    
+    // Update the space type - this is critical to persist the selection
     onUpdate(space.id, 'type', value);
     
     // Find the selected space type to get its name and load factor
@@ -56,7 +58,7 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
 
   // Ensure we have a valid type value
   const spaceTypeValue = space.type || "";
-
+  
   return (
     <>
       <div className="space-y-2">

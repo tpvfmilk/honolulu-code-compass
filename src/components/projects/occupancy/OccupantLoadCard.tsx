@@ -25,6 +25,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
       try {
         const types = await fetchAllSpaceTypes();
         setSpaceTypes(types);
+        console.log("Loaded space types:", types);
       } catch (error) {
         console.error('Error loading space types:', error);
       } finally {
@@ -35,13 +36,28 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
     loadSpaceTypes();
   }, []);
 
+  // Log the occupant load when it changes to help debug
+  useEffect(() => {
+    if (occupantLoad) {
+      console.log("Occupant load spaces:", occupantLoad.bySpace);
+    }
+  }, [occupantLoad]);
+
   if (!occupantLoad && !isCalculating) return null;
   
   // Get human-readable name for space type
   const getSpaceTypeName = (typeCode: string) => {
     if (!typeCode) return "Unknown";
+    console.log(`Finding type name for code: ${typeCode}`);
+    
     const spaceType = spaceTypes.find(type => type.code === typeCode);
-    return spaceType?.name || typeCode;
+    if (spaceType) {
+      console.log(`Found space type: ${spaceType.name}`);
+      return spaceType.name;
+    }
+    
+    // If no match is found, return the code or "Unknown" as fallback
+    return typeCode || "Unknown";
   };
   
   return (

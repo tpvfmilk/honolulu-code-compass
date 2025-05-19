@@ -8,12 +8,36 @@ import { formatArea } from './spaceEntryUtils';
 interface SpaceAreaInfoProps {
   space: Space;
   onUpdate: (id: string, field: keyof Space, value: string) => void;
+  stories?: string; // Number of stories from the project data
 }
 
 export const SpaceAreaInfo: React.FC<SpaceAreaInfoProps> = ({
   space,
-  onUpdate
+  onUpdate,
+  stories = "1" // Default to 1 if not provided
 }) => {
+  // Generate floor level options based on number of stories
+  const generateFloorOptions = () => {
+    const options = [];
+    const numStories = parseInt(stories) || 1;
+    
+    // Always include ground floor/1st floor
+    options.push({ value: "1", label: "Ground Floor" });
+    
+    // Add additional floors based on number of stories
+    for (let i = 2; i <= numStories; i++) {
+      const suffix = i === 2 ? "nd" : i === 3 ? "rd" : "th";
+      options.push({ value: i.toString(), label: `${i}${suffix} Floor` });
+    }
+    
+    // Always include basement option
+    options.push({ value: "B", label: "Basement" });
+    
+    return options;
+  };
+  
+  const floorOptions = generateFloorOptions();
+
   return (
     <>
       <div className="space-y-2">
@@ -34,12 +58,11 @@ export const SpaceAreaInfo: React.FC<SpaceAreaInfoProps> = ({
           value={space.floorLevel}
           onChange={(e) => onUpdate(space.id, 'floorLevel', e.target.value)}
         >
-          <option value="1">Ground Floor</option>
-          <option value="2">2nd Floor</option>
-          <option value="3">3rd Floor</option>
-          <option value="4">4th Floor</option>
-          <option value="5">5th Floor</option>
-          <option value="B">Basement</option>
+          {floorOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
     </>

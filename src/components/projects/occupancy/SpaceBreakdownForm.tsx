@@ -11,12 +11,14 @@ interface SpaceBreakdownFormProps {
   spaces: Space[];
   primaryOccupancy: string;
   onSpacesChange: (spaces: Space[]) => void;
+  stories?: string; // Number of stories from the project data
 }
 
 export const SpaceBreakdownForm = ({ 
   spaces, 
   primaryOccupancy, 
-  onSpacesChange 
+  onSpacesChange,
+  stories = "1" // Default to 1 if not provided
 }: SpaceBreakdownFormProps) => {
   // Calculate total area
   const totalArea = calculateTotalArea(spaces);
@@ -73,6 +75,7 @@ export const SpaceBreakdownForm = ({
             primaryOccupancy={primaryOccupancy}
             onUpdate={updateSpace}
             onRemove={removeSpace}
+            stories={stories}
           />
         ))
       )}

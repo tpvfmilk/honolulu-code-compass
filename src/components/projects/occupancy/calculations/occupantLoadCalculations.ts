@@ -13,6 +13,8 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
   let worstCaseLoad = 0;
   let hasHighDensitySpace = false;
   
+  console.log("Calculating occupant load with spaces:", spaces);
+  
   const spaceDetails = spaces.map(space => {
     // Get the load factor from the space object if available
     // This should be the primary source of the load factor
@@ -31,6 +33,8 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
     // Check for high density (factor < 15)
     const isHighDensity = factor < 15;
     if (isHighDensity) hasHighDensitySpace = true;
+    
+    console.log(`Space ${space.name} (type: ${space.type}): ${area} sf ÷ ${factor} = ${spaceLoad} people`);
     
     return {
       ...space,

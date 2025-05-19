@@ -15,6 +15,7 @@ interface SpaceEntryCardProps {
   primaryOccupancy: string;
   onUpdate: (id: string, field: keyof Space, value: string) => void;
   onRemove: (id: string) => void;
+  stories?: string; // Number of stories from the project data
 }
 
 export const SpaceEntryCard = ({ 
@@ -22,7 +23,8 @@ export const SpaceEntryCard = ({
   index, 
   primaryOccupancy, 
   onUpdate, 
-  onRemove 
+  onRemove,
+  stories = "1" // Default to 1 if not provided
 }: SpaceEntryCardProps) => {
   const [spaceTypes, setSpaceTypes] = useState<SpaceTypeInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,8 @@ export const SpaceEntryCard = ({
           {/* Space Area Info (Area & Floor) */}
           <SpaceAreaInfo 
             space={space} 
-            onUpdate={onUpdate} 
+            onUpdate={onUpdate}
+            stories={stories}
           />
           
           {/* Space Notes & Occupant Load */}

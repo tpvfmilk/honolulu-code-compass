@@ -9,7 +9,10 @@ import { calculateShaftRatings } from "./utils/shaftRatingCalculations";
 import { calculateOpeningProtectives } from "./utils/openingProtectivesCalculations";
 import { calculateFireDampers } from "./utils/fireDamperCalculations";
 
-export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalculationsProps) => {
+export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalculationsProps | undefined | null) => {
+  // Check if formData is valid before proceeding with calculations
+  const isValidFormData = formData !== null && formData !== undefined;
+  
   // Calculate exterior wall ratings based on separation distance
   const exteriorWallRating = useMemo(() => {
     return calculateExteriorWallRating(formData);

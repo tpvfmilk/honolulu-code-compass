@@ -67,18 +67,32 @@ export interface FireSafetyCalculations {
   };
 }
 
-// Helper function to safely access property of either FormData or FireSafetyCalculationsProps
+// Enhanced helper function to safely access property with better default handling
 export function getProperty<K extends keyof FormData | keyof FireSafetyCalculationsProps>(
-  obj: FormData | FireSafetyCalculationsProps,
+  obj: FormData | FireSafetyCalculationsProps | undefined | null,
   key: K
 ): any {
-  // Early return for undefined/null
+  // Early return for undefined/null with safe default
   if (!obj) return undefined;
 
   // Check for the existence of key in the object
   if (key in obj) {
-    return obj[key as keyof typeof obj];
+    const value = obj[key as keyof typeof obj];
+    
+    // For 'fireSafety' key, provide a default empty object if undefined
+    if (key === 'fireSafety' && value === undefined) {
+      return {};
+    }
+    
+    return value;
   }
+  
+  // Return appropriate defaults based on key type
+  if (key === 'fireSafety') return {};
+  if (key === 'sprinklerSystem') return false;
+  if (key === 'highRise') return false;
+  if (key === 'stories') return "1";
+  if (key === 'occupancyGroup') return "";
   
   return undefined;
 }

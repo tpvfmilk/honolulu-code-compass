@@ -22,7 +22,9 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
   const [activeTab, setActiveTab] = useState("summary");
   
   // Validate occupancyGroup
-  const isValidOccupancyGroup = (value: string): value is OccupancyGroup => {
+  const isValidOccupancyGroup = (value: string | undefined): value is OccupancyGroup => {
+    if (!value) return false;
+    
     const validGroups: string[] = [
       "A-1", "A-2", "A-3", "A-4", "A-5", 
       "B", "E", "F-1", "F-2", 
@@ -34,15 +36,25 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
     return validGroups.includes(value);
   };
 
-  const projectType = project.project_type || "";
+  const projectType = project?.project_type || "";
   const occupancyGroup = isValidOccupancyGroup(projectType) ? projectType : "" as OccupancyGroup | "";
   
   // Get fire safety calculations using the validated occupancyGroup
   const fireSafetyCalculations = useFireSafetyCalculations({
     occupancyGroup,
-    sprinklerSystem: project.is_fully_sprinklered || false,
-    highRise: project.building_height ? project.building_height > 75 : false,
-    stories: project.stories?.toString() || "1"
+    sprinklerSystem: project?.is_fully_sprinklered || false,
+    highRise: project?.building_height ? project.building_height > 75 : false,
+    stories: project?.stories?.toString() || "1",
+    fireSafety: { 
+      separationDistance: "5", // Default value
+      hasMixedOccupancy: false,
+      occupancySeparationType: 'non-separated',
+      secondaryOccupancies: [],
+      fireAlarmRequired: false,
+      fireAlarmType: "",
+      standpipeRequired: false,
+      emergencyPower: false
+    }
   });
 
   // Get occupancy calculations with default values
@@ -58,12 +70,12 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
       numberOfEmployees: "10",
       isPublicAccommodation: true,
       elevatorProvided: false,
-      totalParkingSpaces: project.standard_stalls_provided?.toString() || "0"
+      totalParkingSpaces: project?.standard_stalls_provided?.toString() || "0"
     },
     occupancyGroup,
-    sprinklerSystem: project.is_fully_sprinklered || false,
-    stories: project.stories?.toString() || "1",
-    totalBuildingArea: project.total_building_area?.toString() || "0"
+    sprinklerSystem: project?.is_fully_sprinklered || false,
+    stories: project?.stories?.toString() || "1",
+    totalBuildingArea: project?.total_building_area?.toString() || "0"
   });
 
   const handleGeneratePDF = () => {

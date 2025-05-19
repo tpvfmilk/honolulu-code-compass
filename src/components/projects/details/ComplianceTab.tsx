@@ -6,20 +6,59 @@ import { FireSafetyCalculations } from "../firesafety/types/fireSafetyTypes";
 
 interface ComplianceTabProps {
   project: ProjectData;
-  fireSafetyCalculations: FireSafetyCalculations;
+  fireSafetyCalculations: FireSafetyCalculations | undefined;
 }
 
 export const ComplianceTab: React.FC<ComplianceTabProps> = ({ 
   project, 
   fireSafetyCalculations 
 }) => {
+  // Provide fallback values if fireSafetyCalculations is undefined
+  const defaultFireSafetyCalculations: FireSafetyCalculations = {
+    exteriorWallRating: {
+      rating: 0,
+      openings: 0,
+      openingProtection: "N/A",
+      reference: "IBC Table 705.8"
+    },
+    corridorRating: {
+      rating: 0,
+      sprinkleredExempt: false
+    },
+    occupancySeparations: {
+      separations: [],
+      required: false,
+      reference: "IBC Table 508.4"
+    },
+    shaftRatings: {
+      exitStairways: 1,
+      elevatorShafts: 1,
+      mechanicalShafts: 1,
+      otherShafts: 1
+    },
+    openingProtectives: {
+      wallRatings: [],
+      requirements: {},
+      reference: "IBC Table 716.1"
+    },
+    fireDampers: {
+      fireDamperLocations: [],
+      smokeDamperLocations: [],
+      exceptions: [],
+      reference: "IBC Section 717"
+    }
+  };
+  
+  // Use provided calculations or fallback to defaults
+  const calculations = fireSafetyCalculations || defaultFireSafetyCalculations;
+  
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Zoning Compliance Analysis</CardTitle>
           <CardDescription>
-            Detailed compliance check against {project.district} requirements
+            Detailed compliance check against {project.district || 'local'} requirements
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,11 +137,11 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
                 <div className="bg-secondary p-4 rounded-md">
                   <p className="text-sm text-muted-foreground">Fire Resistance Requirements</p>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="font-medium">Exterior Walls: {fireSafetyCalculations.exteriorWallRating.rating} hour</p>
+                    <p className="font-medium">Exterior Walls: {calculations.exteriorWallRating.rating} hour</p>
                     <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✓</div>
                   </div>
                   <p className="font-medium mt-1">
-                    {fireSafetyCalculations.corridorRating.rating} hour corridors ({project.is_fully_sprinklered ? "sprinklered" : "non-sprinklered"})
+                    {calculations.corridorRating.rating} hour corridors ({project.is_fully_sprinklered ? "sprinklered" : "non-sprinklered"})
                   </p>
                 </div>
               </div>
@@ -130,7 +169,7 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
         </CardContent>
         <CardFooter>
           <p className="text-sm text-muted-foreground">
-            This analysis is based on the City & County of Honolulu Land Use Ordinance (LUO) for {project.district} zoning district.
+            This analysis is based on the City & County of Honolulu Land Use Ordinance (LUO) for {project.district || 'local'} zoning district.
           </p>
         </CardFooter>
       </Card>

@@ -2,10 +2,15 @@
 import { FormData } from "../../types";
 import { FireSafetyCalculationsProps, getProperty } from "../types/fireSafetyTypes";
 
-export function calculateCorridorRating(formData: FormData | FireSafetyCalculationsProps) {
-  const occupancyGroupValue = getProperty(formData, 'occupancyGroup');
-  const occupancy = String(occupancyGroupValue).split('-')[0]; // Get main group (A, B, etc.)
-  const sprinklered = getProperty(formData, 'sprinklerSystem');
+export function calculateCorridorRating(formData: FormData | FireSafetyCalculationsProps | undefined | null) {
+  // Return default values if formData is undefined
+  if (!formData) {
+    return { rating: 1, sprinkleredExempt: false };
+  }
+  
+  const occupancyGroupValue = getProperty(formData, 'occupancyGroup') || "";
+  const occupancy = String(occupancyGroupValue).split('-')[0] || "B"; // Get main group (A, B, etc.) with default
+  const sprinklered = getProperty(formData, 'sprinklerSystem') || false;
   
   // Default corridor ratings based on IBC Table 1020.1
   switch (occupancy) {

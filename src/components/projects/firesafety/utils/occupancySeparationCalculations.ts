@@ -4,22 +4,31 @@ import { FireSafetyCalculationsProps, getProperty } from "../types/fireSafetyTyp
 import { OccupancyGroup } from "../../types/building/buildingClassificationTypes";
 import { ibcReferences } from "../../types/building/buildingTypes";
 
-export function calculateOccupancySeparations(formData: FormData | FireSafetyCalculationsProps) {
+export function calculateOccupancySeparations(formData: FormData | FireSafetyCalculationsProps | undefined | null) {
   const separations: { from: string; to: string; rating: number }[] = [];
   
-  const primaryOccupancy = getProperty(formData, 'occupancyGroup');
-  const fireSafety = getProperty(formData, 'fireSafety');
+  // Return default values if formData is undefined or null
+  if (!formData) {
+    return {
+      separations: [],
+      required: false,
+      reference: ibcReferences.occupancySeparation
+    };
+  }
   
-  const hasMixedOccupancy = fireSafety.hasMixedOccupancy;
-  const occupancySeparationType = fireSafety.occupancySeparationType;
-  const secondaryOccupancies = fireSafety.secondaryOccupancies;
+  const primaryOccupancy = getProperty(formData, 'occupancyGroup') || "";
+  const fireSafety = getProperty(formData, 'fireSafety') || {};
+  
+  const hasMixedOccupancy = fireSafety.hasMixedOccupancy || false;
+  const occupancySeparationType = fireSafety.occupancySeparationType || '';
+  const secondaryOccupancies = fireSafety.secondaryOccupancies || [];
 
   const required = hasMixedOccupancy && occupancySeparationType === 'separated';
 
   if (required && primaryOccupancy) {
     // Get all secondary occupancies
     secondaryOccupancies.forEach(secondary => {
-      if (!secondary.group) return;
+      if (!secondary || !secondary.group) return;
 
       const key1 = `${primaryOccupancy}-to-${secondary.group}`;
       const key2 = `${secondary.group}-to-${primaryOccupancy}`;

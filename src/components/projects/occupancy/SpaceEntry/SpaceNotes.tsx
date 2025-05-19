@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Space } from '../types/occupancyDefinitions';
 import { SpaceTypeInfo } from '@/services/dataService';
-import { calculateOccupantLoad, getFactorForType } from './spaceEntryUtils';
+import { calculateOccupantLoad } from './spaceEntryUtils';
 
 interface SpaceNotesProps {
   space: Space;
@@ -17,6 +17,23 @@ export const SpaceNotes: React.FC<SpaceNotesProps> = ({
   spaceTypes,
   onUpdate
 }) => {
+  // Get the factor from the space object directly if available, or find it in spaceTypes
+  const getFactor = (): number => {
+    if (space.loadFactor) {
+      return Number(space.loadFactor);
+    }
+    
+    if (space.type) {
+      const selectedType = spaceTypes.find(type => type.code === space.type);
+      return selectedType ? selectedType.occupant_load_factor : 100;
+    }
+    
+    return 100; // Default value
+  };
+  
+  const factor = getFactor();
+  const occupantLoad = space.type && space.area ? calculateOccupantLoad(space.area, factor) : 0;
+
   return (
     <>
       <div className="col-span-2 space-y-2">
@@ -33,9 +50,9 @@ export const SpaceNotes: React.FC<SpaceNotesProps> = ({
       {space.type && space.area && (
         <div className="col-span-2 text-sm text-muted-foreground">
           <span className="font-medium">Estimated Occupant Load: </span>
-          {calculateOccupantLoad(space.area, getFactorForType(space.type, spaceTypes))} people
+          {occupantLoad} people
           <span className="ml-2 text-xs">
-            ({space.area} sf ÷ {getFactorForType(space.type, spaceTypes)} sf/person)
+            ({space.area} sf ÷ {factor} sf/person)
           </span>
         </div>
       )}

@@ -16,6 +16,23 @@ export const formatArea = (area: string): string => {
   return parseInt(numericValue).toLocaleString();
 };
 
+// Calculate occupant load for a space
+export const calculateSpaceOccupantLoad = (space: Space, primaryOccupancy: string): number => {
+  if (!space.type || !space.area) return 0;
+  
+  const area = parseFloat(space.area) || 0;
+  
+  // Use loadFactor from the space if available
+  if (space.loadFactor) {
+    const factor = parseFloat(space.loadFactor.toString()) || 100;
+    return Math.ceil(area / factor);
+  }
+  
+  // Fall back to factor from type
+  const factor = getFactorForType(space.type, primaryOccupancy);
+  return Math.ceil(area / factor);
+};
+
 // Get space types based on occupancy
 export const getSpaceTypes = (primaryOccupancy: string) => {
   const baseOccupancy = primaryOccupancy?.split('-')[0] || 'B';
@@ -28,14 +45,6 @@ export const getFactorForType = (spaceType: string, primaryOccupancy: string): n
   const spaceTypes = getSpaceTypes(primaryOccupancy);
   const type = spaceTypes.find(st => st.value === spaceType);
   return type ? type.factor : 100;
-};
-
-// Calculate occupant load for a space
-export const calculateSpaceOccupantLoad = (space: Space, primaryOccupancy: string): number => {
-  if (!space.type || !space.area) return 0;
-  const area = parseFloat(space.area) || 0;
-  const factor = getFactorForType(space.type, primaryOccupancy);
-  return Math.ceil(area / factor);
 };
 
 // Check for unusually high or low factors

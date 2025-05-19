@@ -14,16 +14,15 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
   let hasHighDensitySpace = false;
   
   const spaceDetails = spaces.map(space => {
-    // Get the space type info from the occupancy group database
-    // Note: In the actual implementation, we'd fetch this from the database
+    // Get the load factor from the space object if available
     const factor = typeof space.loadFactor === 'number' 
       ? space.loadFactor 
       : parseInt(String(space.loadFactor)) || 100; // Default to 100 if not specified
     
     const area = parseFloat(space.area) || 0;
     
-    // Use Math.floor to round down to the lowest whole number
-    const spaceLoad = Math.floor(area / factor);
+    // Use Math.ceil to round up to the next whole number as per IBC
+    const spaceLoad = Math.ceil(area / factor);
     
     totalLoad += spaceLoad;
     worstCaseLoad = Math.max(worstCaseLoad, spaceLoad);

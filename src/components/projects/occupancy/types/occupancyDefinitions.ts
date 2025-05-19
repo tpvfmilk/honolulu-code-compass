@@ -4,12 +4,12 @@ export interface Space {
   id: string;
   name: string;
   spaceType: string;
-  type?: string; // Add type property as optional to fix errors
+  type?: string; 
   occupiedBy: string;
   area: string;
   floorLevel: string;
   notes?: string;
-  loadFactor?: string | number; // Modified to accept both string and number to fix type compatibility
+  loadFactor?: string | number; // Explicitly include loadFactor in the interface
 }
 
 export interface TravelDistances {

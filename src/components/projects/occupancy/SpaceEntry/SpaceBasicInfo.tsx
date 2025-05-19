@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Space } from '../types/occupancyDefinitions';
 import { SpaceTypeInfo } from '@/services/dataService';
 
@@ -17,6 +19,24 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
   onUpdate,
   loading
 }) => {
+  // Handle space type selection with load factor
+  const handleSpaceTypeChange = (value: string) => {
+    // Update the space type
+    onUpdate(space.id, 'type', value);
+    
+    // Find the selected space type to get its name and load factor
+    const selectedType = spaceTypes.find(type => type.code === value);
+    if (selectedType) {
+      // If the name field is empty, suggest the name from the selected type
+      if (!space.name) {
+        onUpdate(space.id, 'name', selectedType.name);
+      }
+      
+      // Update the load factor as well
+      onUpdate(space.id, 'loadFactor', selectedType.occupant_load_factor.toString());
+    }
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -31,20 +51,22 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       
       <div className="space-y-2">
         <Label htmlFor={`space-type-${space.id}`}>Space Type</Label>
-        <select
-          id={`space-type-${space.id}`}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        <Select
           value={space.type}
-          onChange={(e) => onUpdate(space.id, 'type', e.target.value)}
+          onValueChange={handleSpaceTypeChange}
           disabled={loading}
         >
-          <option value="">Select a space type</option>
-          {spaceTypes.map((type) => (
-            <option key={type.code} value={type.code}>
-              {type.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id={`space-type-${space.id}`}>
+            <SelectValue placeholder="Select a space type" />
+          </SelectTrigger>
+          <SelectContent>
+            {spaceTypes.map((type) => (
+              <SelectItem key={type.code} value={type.code}>
+                {type.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </>
   );

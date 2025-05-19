@@ -23,8 +23,8 @@ export const checkDensityWarning = (type: string, spaceTypes: SpaceTypeInfo[]) =
   return { warning: false };
 };
 
-// Calculate occupant load using Math.floor instead of Math.ceil
+// Calculate occupant load using Math.ceil (following IBC convention)
 export const calculateOccupantLoad = (area: string, factor: number): number => {
   const numArea = parseFloat(area) || 0;
-  return Math.floor(numArea / factor);
+  return Math.ceil(numArea / factor);
 };

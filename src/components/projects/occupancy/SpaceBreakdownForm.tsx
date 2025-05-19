@@ -6,7 +6,6 @@ import { Space } from './types/occupancyDefinitions';
 import { SpaceEntryCard } from './SpaceEntryCard';
 import { EmptySpacesState } from './EmptySpacesState';
 import { calculateTotalArea } from './spaceUtils';
-import { spaceTypesByOccupancy } from '../types/occupancy/occupancyTypes';
 
 interface SpaceBreakdownFormProps {
   spaces: Space[];
@@ -32,7 +31,8 @@ export const SpaceBreakdownForm = ({
       floorLevel: '1',
       notes: '',
       spaceType: '',
-      occupiedBy: ''
+      occupiedBy: '',
+      loadFactor: ''
     };
     onSpacesChange([...spaces, newSpace]);
   };
@@ -46,16 +46,6 @@ export const SpaceBreakdownForm = ({
   const updateSpace = (id: string, field: keyof Space, value: string) => {
     const updatedSpaces = spaces.map(space => {
       if (space.id === id) {
-        // Auto-suggest name based on type if name is empty
-        if (field === 'type' && !space.name) {
-          const baseOccupancy = primaryOccupancy?.split('-')[0] || 'B';
-          const spaceTypes = spaceTypesByOccupancy[baseOccupancy] || 
-                          spaceTypesByOccupancy[Object.keys(spaceTypesByOccupancy)[0]];
-          const selectedType = spaceTypes.find(st => st.value === value);
-          if (selectedType) {
-            return { ...space, [field]: value, name: selectedType.label };
-          }
-        }
         return { ...space, [field]: value };
       }
       return space;

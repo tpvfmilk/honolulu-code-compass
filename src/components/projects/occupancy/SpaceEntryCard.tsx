@@ -83,10 +83,11 @@ export const SpaceEntryCard = ({
             stories={stories}
           />
           
-          {/* Notes */}
+          {/* Notes - Add the spaceTypes prop here */}
           <SpaceNotes 
             space={space} 
-            onUpdate={onUpdate} 
+            onUpdate={onUpdate}
+            spaceTypes={spaceTypes} 
           />
         </div>
       </CardContent>

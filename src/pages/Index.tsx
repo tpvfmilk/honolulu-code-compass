@@ -32,19 +32,16 @@ const Index: FC<IndexProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>This platform transforms building code compliance from a time-consuming challenge into a streamlined process. Our step-by-step approach guides you through:
-
-Project Setup: Enter basic information and let our system identify applicable codes
-
-Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements
-
-Building Classification: Determine occupancy groups and construction types with guidance
-
-Fire & Life Safety: Generate compliant egress plans and fire separation requirements
-
-Space Analysis: Calculate occupant loads and related requirements automatically
-
-Document Generation: Create permit-ready compliance sheets in minutes We've designed Comply to work for professionals at all experience levels, from seasoned architects to those just learning code requirements.</p>
+              <p>
+              <ul style="list-style-type: disc;">
+    <li>Project Setup: Enter basic information and let our system identify applicable codes</li>
+    <li>Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements</li>
+    <li>Building Classification: Determine occupancy groups and construction types with guidance</li>
+    <li>Fire &amp; Life Safety: Generate compliant egress plans and fire separation requirements</li>
+    <li>Space Analysis: Calculate occupant loads and related requirements automatically</li>
+    <li>Document Generation: Create permit-ready compliance sheets in minutes</li>
+</ul>
+              </p>
               <div className="flex justify-start">
                 <Button asChild>
                   <Link to="/help">Learn More</Link>

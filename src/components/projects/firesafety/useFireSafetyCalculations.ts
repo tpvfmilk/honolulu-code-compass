@@ -19,6 +19,12 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
     reference: "Loading..."
   });
   
+  const [openingProtectives, setOpeningProtectives] = useState({
+    wallRatings: [],
+    requirements: {},
+    reference: "Loading..."
+  });
+  
   // Calculate exterior wall ratings based on separation distance
   useEffect(() => {
     const fetchExteriorWallRating = async () => {
@@ -29,6 +35,18 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
     };
     
     fetchExteriorWallRating();
+  }, [formData, isValidFormData]);
+
+  // Calculate opening protectives requirements
+  useEffect(() => {
+    const fetchOpeningProtectives = async () => {
+      if (isValidFormData) {
+        const result = await calculateOpeningProtectives(formData);
+        setOpeningProtectives(result);
+      }
+    };
+    
+    fetchOpeningProtectives();
   }, [formData, isValidFormData]);
 
   // Calculate occupancy separations
@@ -44,11 +62,6 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
   // Calculate shaft enclosure ratings
   const shaftRatings = useMemo(() => {
     return calculateShaftRatings(formData);
-  }, [formData]);
-
-  // Calculate opening protectives requirements
-  const openingProtectives = useMemo(() => {
-    return calculateOpeningProtectives(formData);
   }, [formData]);
 
   // Calculate fire/smoke damper requirements

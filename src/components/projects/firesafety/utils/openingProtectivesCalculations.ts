@@ -4,8 +4,9 @@ import { FormData } from "../../types";
 import { FireSafetyCalculationsProps } from "../types/fireSafetyTypes";
 import { ibcReferences } from "../../types/building/buildingTypes";
 
-export function calculateOpeningProtectives(formData: FormData | FireSafetyCalculationsProps | undefined | null) {
-  const exteriorWallRating = calculateExteriorWallRating(formData);
+export async function calculateOpeningProtectives(formData: FormData | FireSafetyCalculationsProps | undefined | null) {
+  // First, get the exterior wall rating
+  const exteriorWallRating = await calculateExteriorWallRating(formData);
   
   // Create the wall ratings details for display purposes
   const wallRatings = [

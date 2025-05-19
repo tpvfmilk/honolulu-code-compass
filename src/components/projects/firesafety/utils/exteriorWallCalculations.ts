@@ -14,9 +14,9 @@ interface ExteriorWallRequirement {
 
 export async function fetchExteriorWallRequirements(
   separationDistance: number,
-  constructionTypeId?: string,
-  occupancyGroupId?: string,
-  zoningDistrictId?: string
+  constructionType?: string,
+  occupancyGroup?: string,
+  zoningDistrict?: string
 ): Promise<ExteriorWallRequirement | null> {
   try {
     // Query with additional filters if provided
@@ -26,22 +26,22 @@ export async function fetchExteriorWallRequirements(
       .lte('min_separation_ft', separationDistance)
       .gt('max_separation_ft', separationDistance);
 
-    if (constructionTypeId) {
-      query = query.or(`construction_type_id.eq.${constructionTypeId},construction_type_id.is.null`);
+    if (constructionType) {
+      query = query.or(`construction_type_id.eq.${constructionType},construction_type_id.is.null`);
     }
     
-    if (occupancyGroupId) {
-      query = query.or(`occupancy_group_id.eq.${occupancyGroupId},occupancy_group_id.is.null`);
+    if (occupancyGroup) {
+      query = query.or(`occupancy_group_id.eq.${occupancyGroup},occupancy_group_id.is.null`);
     }
     
-    if (zoningDistrictId) {
-      query = query.or(`zoning_district_id.eq.${zoningDistrictId},zoning_district_id.is.null`);
+    if (zoningDistrict) {
+      query = query.or(`zoning_district_id.eq.${zoningDistrict},zoning_district_id.is.null`);
     }
 
     // Order by most specific match first (non-null values for type/group/zone)
-    query = query.order('construction_type_id', { ascending: false, nullsLast: true })
-                 .order('occupancy_group_id', { ascending: false, nullsLast: true })
-                 .order('zoning_district_id', { ascending: false, nullsLast: true });
+    query = query.order('construction_type_id', { ascending: false, nullsFirst: false })
+                 .order('occupancy_group_id', { ascending: false, nullsFirst: false })
+                 .order('zoning_district_id', { ascending: false, nullsFirst: false });
 
     const { data, error } = await query.limit(1);
 
@@ -87,9 +87,9 @@ export async function calculateExteriorWallRating(formData: FormData | FireSafet
     // Try to fetch from database first
     const requirement = await fetchExteriorWallRequirements(
       separationDistance,
-      formData.constructionTypeId,
-      formData.occupancyGroupId,
-      formData.zoningDistrictId
+      formData.constructionType as string,
+      formData.occupancyGroup as string,
+      formData.zoningDistrict as string
     );
 
     if (requirement) {

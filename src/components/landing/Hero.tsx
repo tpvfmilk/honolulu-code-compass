@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,7 @@ export const Hero = () => {
           </main>
         </div>
       </div>
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 hawaii-gradient">
+      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-white">
         <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full relative">
           <img 
             className="w-full h-full object-cover object-center transform -translate-x-16" 

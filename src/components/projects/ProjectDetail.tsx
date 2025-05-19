@@ -87,16 +87,6 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button 
-          onClick={handleGeneratePDF}
-          className="hawaii-gradient flex items-center gap-2"
-        >
-          <FileText className="h-4 w-4" />
-          <span>Generate Code Sheet</span>
-        </Button>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-6">
           <TabsTrigger value="summary">Project Summary</TabsTrigger>
@@ -118,3 +108,4 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
     </div>
   );
 };
+

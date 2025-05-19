@@ -102,7 +102,7 @@ export const FireSafetyStep = ({ formData, updateFormData }: FireSafetyStepProps
           />
           
           <OpeningProtectivesCard 
-            wallRatings={calculations.openingProtectives}
+            wallRatings={calculations.openingProtectives.wallRatings}
           />
           
           <FireDampersCard 

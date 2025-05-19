@@ -26,6 +26,8 @@ export interface FireSafetyCalculations {
   exteriorWallRating: {
     rating: number;
     reference: string;
+    openings?: number;
+    openingProtection?: string;
   };
   occupancySeparations: {
     separations: Array<{
@@ -47,6 +49,13 @@ export interface FireSafetyCalculations {
     otherShafts: number;
   };
   openingProtectives: {
+    wallRatings: Array<{
+      wallType: string;
+      doorRating: string;
+      windowRating: string;
+      maxGlassArea: string;
+      wallApplication: string;
+    }>;
     requirements: Record<string, number>;
     reference: string;
   };

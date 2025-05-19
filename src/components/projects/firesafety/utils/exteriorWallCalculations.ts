@@ -89,7 +89,7 @@ export async function calculateExteriorWallRating(formData: FormData | FireSafet
       separationDistance,
       formData.constructionType as string,
       formData.occupancyGroup as string,
-      formData.zoningDistrict as string
+      formData.district // Use district instead of zoningDistrict
     );
 
     if (requirement) {

@@ -4,15 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Project } from "../dashboard/ProjectCard";
 import { Download, FileText, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { EgressComplianceCard } from "./occupancy/EgressComplianceCard";
 import { useFireSafetyCalculations } from "./firesafety/useFireSafetyCalculations";
 import { useOccupancyCalculations } from "./occupancy/hooks/useOccupancyCalculations";
+import { Project } from "../dashboard/ProjectCard";
+import { ProjectData } from "../../pages/ProjectView";
 
 type ProjectDetailProps = {
-  project: Project;
+  project: ProjectData;
 };
 
 export const ProjectDetail = ({ project }: ProjectDetailProps) => {

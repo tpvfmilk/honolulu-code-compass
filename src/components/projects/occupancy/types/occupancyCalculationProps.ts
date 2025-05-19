@@ -1,5 +1,5 @@
 
-import { TravelDistances, SpaceWithLoad } from './occupancyTypes';
+import { TravelDistances } from './occupancyTypes';
 
 export interface OccupancyCalculationsProps {
   occupancyDetails: {

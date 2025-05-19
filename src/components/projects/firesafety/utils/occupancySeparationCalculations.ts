@@ -2,9 +2,10 @@
 import { FormData, occupancySeparationTable } from "../../types";
 import { FireSafetyCalculationsProps, getProperty } from "../types/fireSafetyTypes";
 import { OccupancyGroup } from "../../types/building/buildingClassificationTypes";
+import { ibcReferences } from "../../types/building/buildingTypes";
 
 export function calculateOccupancySeparations(formData: FormData | FireSafetyCalculationsProps) {
-  const results: { from: string; to: string; rating: number }[] = [];
+  const separations: { from: string; to: string; rating: number }[] = [];
   
   const primaryOccupancy = getProperty(formData, 'occupancyGroup');
   const fireSafety = getProperty(formData, 'fireSafety');
@@ -13,7 +14,9 @@ export function calculateOccupancySeparations(formData: FormData | FireSafetyCal
   const occupancySeparationType = fireSafety.occupancySeparationType;
   const secondaryOccupancies = fireSafety.secondaryOccupancies;
 
-  if (hasMixedOccupancy && occupancySeparationType === 'separated' && primaryOccupancy) {
+  const required = hasMixedOccupancy && occupancySeparationType === 'separated';
+
+  if (required && primaryOccupancy) {
     // Get all secondary occupancies
     secondaryOccupancies.forEach(secondary => {
       if (!secondary.group) return;
@@ -24,7 +27,7 @@ export function calculateOccupancySeparations(formData: FormData | FireSafetyCal
       // Check both directions in the table
       let rating = occupancySeparationTable[key1] || occupancySeparationTable[key2] || 1;
       
-      results.push({
+      separations.push({
         from: primaryOccupancy as string,
         to: secondary.group,
         rating
@@ -32,5 +35,9 @@ export function calculateOccupancySeparations(formData: FormData | FireSafetyCal
     });
   }
 
-  return results;
+  return {
+    separations,
+    required,
+    reference: ibcReferences.occupancySeparation
+  };
 }

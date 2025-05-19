@@ -6,11 +6,15 @@ import { Badge } from "@/components/ui/badge";
 
 interface InteriorWallRatingsCardProps {
   formData: FormData;
-  occupancySeparations: Array<{
-    from: string;
-    to: string;
-    rating: number;
-  }>;
+  occupancySeparations: {
+    separations: Array<{
+      from: string;
+      to: string;
+      rating: number;
+    }>;
+    required: boolean;
+    reference: string;
+  };
   corridorRating: {
     rating: number;
     sprinkleredExempt: boolean;
@@ -38,9 +42,9 @@ export const InteriorWallRatingsCard = ({
           <div className="text-sm font-medium">Occupancy Separations</div>
           
           {formData.fireSafety.hasMixedOccupancy && formData.fireSafety.occupancySeparationType === 'separated' ? (
-            occupancySeparations.length > 0 ? (
+            occupancySeparations.separations.length > 0 ? (
               <div className="grid grid-cols-1 gap-2">
-                {occupancySeparations.map((sep, index) => (
+                {occupancySeparations.separations.map((sep, index) => (
                   <div key={index} className="flex justify-between p-2 bg-slate-50 rounded border">
                     <div>{sep.from} to {sep.to}</div>
                     <Badge className={sep.rating >= 2 ? "bg-red-500" : (sep.rating >= 1 ? "bg-yellow-500" : "bg-green-500")}>

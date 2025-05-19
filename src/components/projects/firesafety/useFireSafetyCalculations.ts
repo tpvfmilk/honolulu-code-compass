@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { FormData, occupancySeparationTable } from "../types";
 import { OccupancyGroup } from "../types/building/buildingClassificationTypes";
@@ -16,14 +17,22 @@ interface FireSafetyCalculationsProps {
   };
   sprinklerSystem: boolean;
   stories: string;
+  highRise?: boolean; // Added highRise as optional
+}
+
+// Type guard to check if input is FormData
+function isFormData(input: FormData | FireSafetyCalculationsProps): input is FormData {
+  return 'name' in input && 'tmk' in input;
 }
 
 export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalculationsProps) => {
   // Calculate exterior wall ratings based on separation distance
   const exteriorWallRating = useMemo(() => {
-    const separationDistance = parseFloat('fireSafety' in formData 
-      ? formData.fireSafety.separationDistance 
-      : formData.fireSafety.separationDistance);
+    const separationDistance = parseFloat(
+      isFormData(formData) 
+        ? formData.fireSafety.separationDistance 
+        : formData.fireSafety.separationDistance
+    );
     
     if (isNaN(separationDistance)) {
       return {
@@ -70,16 +79,28 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
         reference: "IBC Table 705.8"
       };
     }
-  }, ['fireSafety' in formData ? formData.fireSafety.separationDistance : formData.fireSafety.separationDistance]);
+  }, [isFormData(formData) ? formData.fireSafety.separationDistance : formData.fireSafety.separationDistance]);
 
   // Calculate occupancy separations
   const occupancySeparations = useMemo(() => {
     const results: { from: string; to: string; rating: number }[] = [];
-    const primaryOccupancy = 'occupancyGroup' in formData ? formData.occupancyGroup : formData.occupancyGroup;
+    const primaryOccupancy = isFormData(formData) ? formData.occupancyGroup : formData.occupancyGroup;
 
-    if ('fireSafety' in formData && formData.fireSafety.hasMixedOccupancy && formData.fireSafety.occupancySeparationType === 'separated' && primaryOccupancy) {
+    const hasMixedOccupancy = isFormData(formData) 
+      ? formData.fireSafety.hasMixedOccupancy 
+      : formData.fireSafety.hasMixedOccupancy;
+    
+    const occupancySeparationType = isFormData(formData) 
+      ? formData.fireSafety.occupancySeparationType 
+      : formData.fireSafety.occupancySeparationType;
+    
+    const secondaryOccupancies = isFormData(formData) 
+      ? formData.fireSafety.secondaryOccupancies 
+      : formData.fireSafety.secondaryOccupancies;
+
+    if (hasMixedOccupancy && occupancySeparationType === 'separated' && primaryOccupancy) {
       // Get all secondary occupancies
-      formData.fireSafety.secondaryOccupancies.forEach(secondary => {
+      secondaryOccupancies.forEach(secondary => {
         if (!secondary.group) return;
 
         const key1 = `${primaryOccupancy}-to-${secondary.group}`;
@@ -97,16 +118,18 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
     }
 
     return results;
-  }, ['occupancyGroup' in formData ? formData.occupancyGroup : formData.occupancyGroup, 
-      'fireSafety' in formData ? formData.fireSafety.hasMixedOccupancy : formData.fireSafety.hasMixedOccupancy, 
-      'fireSafety' in formData ? formData.fireSafety.occupancySeparationType : formData.fireSafety.occupancySeparationType, 
-      'fireSafety' in formData ? formData.fireSafety.secondaryOccupancies : formData.fireSafety.secondaryOccupancies]);
+  }, [
+    isFormData(formData) ? formData.occupancyGroup : formData.occupancyGroup, 
+    isFormData(formData) ? formData.fireSafety.hasMixedOccupancy : formData.fireSafety.hasMixedOccupancy, 
+    isFormData(formData) ? formData.fireSafety.occupancySeparationType : formData.fireSafety.occupancySeparationType, 
+    isFormData(formData) ? formData.fireSafety.secondaryOccupancies : formData.fireSafety.secondaryOccupancies
+  ]);
 
   // Calculate corridor rating
   const corridorRating = useMemo(() => {
-    const occupancyGroupValue = 'occupancyGroup' in formData ? formData.occupancyGroup : formData.occupancyGroup;
+    const occupancyGroupValue = isFormData(formData) ? formData.occupancyGroup : formData.occupancyGroup;
     const occupancy = String(occupancyGroupValue).split('-')[0]; // Get main group (A, B, etc.)
-    const sprinklered = 'sprinklerSystem' in formData ? formData.sprinklerSystem : formData.sprinklerSystem;
+    const sprinklered = isFormData(formData) ? formData.sprinklerSystem : formData.sprinklerSystem;
     
     // Default corridor ratings based on IBC Table 1020.1
     switch (occupancy) {
@@ -128,12 +151,14 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
       default:
         return { rating: 1, sprinkleredExempt: false };
     }
-  }, ['occupancyGroup' in formData ? formData.occupancyGroup : formData.occupancyGroup, 
-      'sprinklerSystem' in formData ? formData.sprinklerSystem : formData.sprinklerSystem]);
+  }, [
+    isFormData(formData) ? formData.occupancyGroup : formData.occupancyGroup, 
+    isFormData(formData) ? formData.sprinklerSystem : formData.sprinklerSystem
+  ]);
   
   // Calculate shaft enclosure ratings
   const shaftRatings = useMemo(() => {
-    const stories = parseInt('stories' in formData ? formData.stories : formData.stories) || 0;
+    const stories = parseInt(isFormData(formData) ? formData.stories : formData.stories) || 0;
     
     // Default shaft ratings based on IBC 713.4
     if (stories <= 3) {
@@ -151,7 +176,7 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
         otherShafts: 2
       };
     }
-  }, ['stories' in formData ? formData.stories : formData.stories]);
+  }, [isFormData(formData) ? formData.stories : formData.stories]);
 
   // Calculate opening protectives requirements
   const openingProtectives = useMemo(() => {
@@ -189,7 +214,8 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
 
   // Calculate fire/smoke damper requirements
   const fireDampers = useMemo(() => {
-    const sprinklered = 'sprinklerSystem' in formData ? formData.sprinklerSystem : formData.sprinklerSystem;
+    const sprinklered = isFormData(formData) ? formData.sprinklerSystem : formData.sprinklerSystem;
+    const highRise = isFormData(formData) ? formData.highRise : formData.highRise || false;
     
     return {
       fireDamperLocations: [
@@ -201,7 +227,7 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
       smokeDamperLocations: [
         "Ducts penetrating smoke barriers",
         "Ducts penetrating corridor walls required to be rated",
-        ...(formData.highRise ? ["At each floor in high-rise buildings"] : [])
+        ...(highRise ? ["At each floor in high-rise buildings"] : [])
       ],
       exceptions: [
         ...(sprinklered ? ["Smoke dampers not required in fully sprinklered buildings for some conditions"] : []),
@@ -209,8 +235,10 @@ export const useFireSafetyCalculations = (formData: FormData | FireSafetyCalcula
       ],
       reference: "IBC Section 717"
     };
-  }, ['sprinklerSystem' in formData ? formData.sprinklerSystem : formData.sprinklerSystem, 
-      'highRise' in formData ? formData.highRise : false]);
+  }, [
+    isFormData(formData) ? formData.sprinklerSystem : formData.sprinklerSystem, 
+    isFormData(formData) ? formData.highRise : formData.highRise || false
+  ]);
 
   return {
     exteriorWallRating,

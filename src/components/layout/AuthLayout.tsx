@@ -9,7 +9,7 @@ export const AuthLayout: FC<AuthLayoutProps> = ({
   return <div className="flex min-h-screen w-full">
       {/* Left column with image */}
       <div className="hidden md:flex md:w-1/2 bg-primary relative">
-        <img alt="Building design" className="w-full h-full object-none" src="/lovable-uploads/17dc9084-961c-4330-b375-b35745a78a70.png" />
+        <img alt="Building design" className="w-full h-full object-none" src="/lovable-uploads/225cdd71-3cd5-4f91-8132-575fb60d7dad.png" />
         <div className="absolute top-6 left-6">
           <Link to="/" className="text-white font-bold text-xl flex items-center">
             <span className="mr-2">Comply</span>

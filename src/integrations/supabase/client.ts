@@ -46,8 +46,14 @@ export const handleSupabaseError = (error: any, context: string = 'operation'): 
   }
 };
 
+// Define a type for valid table names from the Database type
+type TableNames = keyof Database['public']['Tables'];
+
 // Generic fetch function with error handling
-export async function fetchFromSupabase(table: string, options: any = {}) {
+export async function fetchFromSupabase<T = any>(
+  table: TableNames, 
+  options: { select?: string } = {}
+): Promise<T[]> {
   try {
     const { data, error } = await supabase.from(table).select(options.select || '*');
     
@@ -56,7 +62,7 @@ export async function fetchFromSupabase(table: string, options: any = {}) {
       return [];
     }
     
-    return data || [];
+    return (data as T[]) || [];
   } catch (error) {
     handleSupabaseError(error, `fetching ${table}`);
     return [];

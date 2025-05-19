@@ -144,7 +144,7 @@ const AppHeader = () => {
   const [initials, setInitials] = useState(""); 
 
   useEffect(() => {
-    const fetchUsername = async () => {
+    const fetchUserProfile = async () => {
       if (!session?.user?.id) return;
       
       try {
@@ -173,11 +173,11 @@ const AppHeader = () => {
           }
         }
       } catch (error) {
-        console.error('Error fetching username:', error);
+        console.error('Error fetching profile data:', error);
       }
     };
     
-    fetchUsername();
+    fetchUserProfile();
   }, [session]);
 
   return (

@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { SpaceWithLoad } from './useOccupancyCalculations';
+import { SpaceWithLoad } from './types/occupancyTypes';
+import { SpaceTypeInfo, fetchAllSpaceTypes } from '@/services/dataService';
 
 interface OccupantLoadCardProps {
   occupantLoad: {
@@ -14,11 +15,32 @@ interface OccupantLoadCardProps {
 }
 
 export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCardProps) => {
+  const [spaceTypes, setSpaceTypes] = useState<SpaceTypeInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch space types to get human-readable names
+  useEffect(() => {
+    const loadSpaceTypes = async () => {
+      setLoading(true);
+      try {
+        const types = await fetchAllSpaceTypes();
+        setSpaceTypes(types);
+      } catch (error) {
+        console.error('Error loading space types:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadSpaceTypes();
+  }, []);
+
   if (!occupantLoad && !isCalculating) return null;
   
-  // Calculate load using Math.floor (we're showing the actual calculated results here)
-  const calculateLoad = (area: string, factor: number) => {
-    return Math.floor(parseFloat(area) / factor);
+  // Get human-readable name for space type
+  const getSpaceTypeName = (typeCode: string) => {
+    const spaceType = spaceTypes.find(type => type.code === typeCode);
+    return spaceType?.name || typeCode;
   };
   
   return (
@@ -28,7 +50,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
       </CardHeader>
       
       <CardContent>
-        {isCalculating ? (
+        {isCalculating || loading ? (
           <div className="h-32 flex items-center justify-center">
             <div className="animate-pulse flex flex-col items-center">
               <div className="h-8 w-24 bg-slate-200 rounded mb-4"></div>
@@ -62,7 +84,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                         {space.name || "Unnamed Space"}
                       </TableCell>
                       <TableCell>
-                        {space.type || "Unknown"}
+                        {getSpaceTypeName(space.type)}
                         {space.highDensity && (
                           <span className="ml-1 text-orange-500">(!)</span>
                         )}

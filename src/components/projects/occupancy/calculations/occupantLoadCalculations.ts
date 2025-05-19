@@ -15,6 +15,7 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
   
   const spaceDetails = spaces.map(space => {
     // Get the load factor from the space object if available
+    // This should be the primary source of the load factor
     const factor = typeof space.loadFactor === 'number' 
       ? space.loadFactor 
       : parseInt(String(space.loadFactor)) || 100; // Default to 100 if not specified
@@ -37,8 +38,8 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
       occupantLoad: spaceLoad,
       calculation: `${area} sf ÷ ${factor} = ${spaceLoad} people`,
       highDensity: isHighDensity,
-      type: space.type || space.spaceType, // Ensure type is always populated
-      occupancyType: space.occupancyType || primaryOccupancy // Use space's occupancy type or fall back to primary
+      type: space.type || "", // Ensure type is always populated
+      occupancyType: space.occupancyType || primaryOccupancy // Use occupancyType for display only
     };
   });
   

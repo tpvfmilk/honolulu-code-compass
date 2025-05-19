@@ -79,6 +79,7 @@ export const FireSeparationDistanceInput = ({ value, onChange }: FireSeparationD
             key={distance}
             variant={value === distance ? "default" : "outline"}
             size="sm"
+            type="button" 
             onClick={() => onChange(distance)}
           >
             {distance}′

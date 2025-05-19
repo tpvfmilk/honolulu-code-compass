@@ -1,20 +1,22 @@
+
 import { ReactNode } from "react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
 type AppLayoutProps = {
   children: ReactNode;
   onLogout: () => void;
 };
+
 export const AppLayout = ({
   children,
   onLogout
 }: AppLayoutProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  
   const handleLogout = () => {
     toast({
       title: "Logged out",
@@ -22,7 +24,9 @@ export const AppLayout = ({
     });
     onLogout();
   };
-  return <div className="min-h-screen flex w-full">
+
+  return (
+    <div className="min-h-screen flex w-full overflow-hidden">
       <AppSidebar onLogout={handleLogout} />
       <div className="flex-1 flex flex-col">
         <AppHeader />
@@ -31,8 +35,10 @@ export const AppLayout = ({
         </main>
         <AppFooter />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 const AppSidebar = ({
   onLogout
 }: {
@@ -41,13 +47,13 @@ const AppSidebar = ({
   const sidebar = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path);
-  const getNavCls = ({
-    isActive
-  }: {
-    isActive: boolean;
-  }) => isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
-  return <Sidebar className={sidebar.state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
+  const getNavCls = ({ isActive }: { isActive: boolean; }) => 
+    isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
+  
+  return (
+    <Sidebar className={sidebar.state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
       <div className={`p-4 border-b flex ${sidebar.state === "collapsed" ? "justify-center" : "justify-between"} items-center`}>
         {sidebar.state !== "collapsed" && <div className="font-semibold text-primary">Comply</div>}
         <SidebarTrigger />
@@ -60,7 +66,7 @@ const AppSidebar = ({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/" end className={getNavCls}>
+                  <NavLink to="/dashboard" className={getNavCls}>
                     <Home className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>Home</span>}
                   </NavLink>
@@ -126,12 +132,14 @@ const AppSidebar = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    </Sidebar>;
+    </Sidebar>
+  );
 };
+
 const AppHeader = () => {
-  return <header className="border-b bg-card px-[16px] py-[15px]">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-primary">Comply</h1>
+  return (
+    <header className="border-b bg-card px-[16px] py-[15px]">
+      <div className="flex justify-end items-center">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">John Architect</span>
           <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
@@ -139,10 +147,14 @@ const AppHeader = () => {
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 const AppFooter = () => {
-  return <footer className="border-t py-3 px-6 text-center text-sm text-muted-foreground">
+  return (
+    <footer className="border-t py-3 px-6 text-center text-sm text-muted-foreground">
       © {new Date().getFullYear()} Comply
-    </footer>;
+    </footer>
+  );
 };

@@ -9,9 +9,9 @@ interface PublicLayoutProps {
 
 export const PublicLayout: FC<PublicLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col w-full">
       <PublicNavbar />
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         {children}
       </main>
       <PublicFooter />

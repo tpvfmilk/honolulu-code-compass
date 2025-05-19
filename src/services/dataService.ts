@@ -91,6 +91,21 @@ export const fetchSpaceTypesByOccupancy = async (occupancyGroupId: string): Prom
   return data || [];
 };
 
+// Fetch ALL space types regardless of occupancy group
+export const fetchAllSpaceTypes = async (): Promise<SpaceTypeInfo[]> => {
+  const { data, error } = await supabase
+    .from('space_types')
+    .select('*')
+    .order('name');
+    
+  if (error) {
+    console.error('Error fetching all space types:', error);
+    return [];
+  }
+    
+  return data || [];
+};
+
 // Get occupancy group ID by code
 export const getOccupancyGroupIdByCode = async (code: string): Promise<string | null> => {
   // Extract base occupancy code (e.g., 'B' from 'B-1')
@@ -108,6 +123,21 @@ export const getOccupancyGroupIdByCode = async (code: string): Promise<string | 
   }
     
   return data?.id || null;
+};
+
+// Fetch all occupancy groups
+export const fetchAllOccupancyGroups = async (): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from('occupancy_groups')
+    .select('*')
+    .order('code');
+    
+  if (error) {
+    console.error('Error fetching occupancy groups:', error);
+    return [];
+  }
+    
+  return data || [];
 };
 
 // Fetch zoning districts

@@ -47,7 +47,8 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                 <TableHeader>
                   <TableRow>
                     <TableHead>Space</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Space Type</TableHead>
+                    <TableHead>Occupancy</TableHead>
                     <TableHead className="text-right">Area (sf)</TableHead>
                     <TableHead className="text-right">Factor</TableHead>
                     <TableHead className="text-right">Load</TableHead>
@@ -66,6 +67,9 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                           <span className="ml-1 text-orange-500">(!)</span>
                         )}
                       </TableCell>
+                      <TableCell>
+                        {space.occupancyType || "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         {parseFloat(space.area).toLocaleString() || 0}
                       </TableCell>
@@ -79,7 +83,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                   ))}
                   
                   <TableRow>
-                    <TableCell colSpan={4} className="font-semibold text-right">
+                    <TableCell colSpan={5} className="font-semibold text-right">
                       TOTAL OCCUPANT LOAD
                     </TableCell>
                     <TableCell className="text-right font-bold">

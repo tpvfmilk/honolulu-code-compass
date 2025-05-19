@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
 import { Space } from './types/occupancyDefinitions';
-import { SpaceTypeInfo, getOccupancyGroupIdByCode, fetchSpaceTypesByOccupancy } from '@/services/dataService';
+import { SpaceTypeInfo, fetchAllSpaceTypes } from '@/services/dataService';
 import { SpaceBasicInfo } from './SpaceEntry/SpaceBasicInfo';
 import { SpaceAreaInfo } from './SpaceEntry/SpaceAreaInfo';
 import { SpaceNotes } from './SpaceEntry/SpaceNotes';
@@ -27,21 +27,14 @@ export const SpaceEntryCard = ({
   const [spaceTypes, setSpaceTypes] = useState<SpaceTypeInfo[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Fetch space types from the database
+  // Fetch all space types instead of filtering by occupancy group
   useEffect(() => {
     const fetchSpaceTypesData = async () => {
-      if (!primaryOccupancy) return;
-      
       setLoading(true);
       try {
-        // Get occupancy group ID from code
-        const occupancyGroupId = await getOccupancyGroupIdByCode(primaryOccupancy);
-        
-        if (occupancyGroupId) {
-          // Fetch space types for this occupancy group
-          const spaceTypesData = await fetchSpaceTypesByOccupancy(occupancyGroupId);
-          setSpaceTypes(spaceTypesData);
-        }
+        // Fetch all space types
+        const spaceTypesData = await fetchAllSpaceTypes();
+        setSpaceTypes(spaceTypesData);
       } catch (error) {
         console.error('Error fetching space types:', error);
       } finally {
@@ -50,7 +43,7 @@ export const SpaceEntryCard = ({
     };
     
     fetchSpaceTypesData();
-  }, [primaryOccupancy]);
+  }, []);
 
   return (
     <Card className="relative">

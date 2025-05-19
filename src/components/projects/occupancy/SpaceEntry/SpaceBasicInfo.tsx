@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Space } from '../types/occupancyDefinitions';
-import { SpaceTypeInfo } from '@/services/dataService';
+import { SpaceTypeInfo, fetchAllOccupancyGroups } from '@/services/dataService';
 
 interface SpaceBasicInfoProps {
   space: Space;
@@ -19,6 +19,18 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
   onUpdate,
   loading
 }) => {
+  const [occupancyGroups, setOccupancyGroups] = useState<any[]>([]);
+  
+  // Fetch all occupancy groups
+  useEffect(() => {
+    const fetchOccupancyGroups = async () => {
+      const groups = await fetchAllOccupancyGroups();
+      setOccupancyGroups(groups);
+    };
+    
+    fetchOccupancyGroups();
+  }, []);
+
   // Handle space type selection with load factor
   const handleSpaceTypeChange = (value: string) => {
     // Update the space type
@@ -34,6 +46,12 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       
       // Update the load factor as well
       onUpdate(space.id, 'loadFactor', selectedType.occupant_load_factor.toString());
+
+      // Also update the occupancy group if not already set
+      const occupancyGroup = occupancyGroups.find(group => group.id === selectedType.occupancy_group_id);
+      if (occupancyGroup && !space.occupancyType) {
+        onUpdate(space.id, 'occupancyType', occupancyGroup.code);
+      }
     }
   };
 
@@ -63,6 +81,26 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
             {spaceTypes.map((type) => (
               <SelectItem key={type.code} value={type.code}>
                 {type.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`occupancy-type-${space.id}`}>Occupancy Group</Label>
+        <Select
+          value={space.occupancyType || ""}
+          onValueChange={(value) => onUpdate(space.id, 'occupancyType', value)}
+          disabled={loading}
+        >
+          <SelectTrigger id={`occupancy-type-${space.id}`}>
+            <SelectValue placeholder="Select occupancy group" />
+          </SelectTrigger>
+          <SelectContent>
+            {occupancyGroups.map((group) => (
+              <SelectItem key={group.id} value={group.code}>
+                {group.code} - {group.name}
               </SelectItem>
             ))}
           </SelectContent>

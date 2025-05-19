@@ -1,13 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Import the required components and types
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Space } from './types/occupancyDefinitions';
 import { SpaceTypeInfo, fetchAllSpaceTypes } from '@/services/dataService';
 import { SpaceBasicInfo } from './SpaceEntry/SpaceBasicInfo';
 import { SpaceAreaInfo } from './SpaceEntry/SpaceAreaInfo';
 import { SpaceNotes } from './SpaceEntry/SpaceNotes';
+import { toast } from 'sonner';
 
 interface SpaceEntryCardProps {
   space: Space;
@@ -27,63 +29,63 @@ export const SpaceEntryCard = ({
   stories = "1" // Default to 1 if not provided
 }: SpaceEntryCardProps) => {
   const [spaceTypes, setSpaceTypes] = useState<SpaceTypeInfo[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   
-  // Fetch all space types instead of filtering by occupancy group
-  useEffect(() => {
-    const fetchSpaceTypesData = async () => {
+  // Fetch space types based on primary occupancy when component mounts
+  React.useEffect(() => {
+    const loadSpaceTypes = async () => {
       setLoading(true);
       try {
-        // Fetch all space types
-        const spaceTypesData = await fetchAllSpaceTypes();
-        setSpaceTypes(spaceTypesData);
+        // Get all space types
+        const types = await fetchAllSpaceTypes();
+        setSpaceTypes(types);
       } catch (error) {
-        console.error('Error fetching space types:', error);
+        console.error("Error loading space types:", error);
+        toast.error("Failed to load space types");
       } finally {
         setLoading(false);
       }
     };
     
-    fetchSpaceTypesData();
-  }, []);
+    loadSpaceTypes();
+  }, [primaryOccupancy]);
+  
+  console.log(`Space ${index + 1} has stories=${stories} and floorLevel=${space.floorLevel}`);
 
   return (
-    <Card className="relative">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-base">{`Space ${index + 1}`}</CardTitle>
+    <Card>
+      <CardContent className="pt-4">
+        <div className="flex justify-between items-center mb-4">
+          <h4 className="text-md font-medium">Space {index + 1}</h4>
           <Button 
             variant="ghost" 
-            size="sm"
+            size="sm" 
             onClick={() => onRemove(space.id)}
-            aria-label="Remove space"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            <Trash className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          {/* Space Basic Info (Name & Type) */}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Basic Info */}
           <SpaceBasicInfo 
-            space={space} 
-            spaceTypes={spaceTypes} 
-            onUpdate={onUpdate} 
-            loading={loading} 
+            space={space}
+            spaceTypes={spaceTypes}
+            onUpdate={onUpdate}
+            loading={loading}
           />
           
-          {/* Space Area Info (Area & Floor) */}
+          {/* Area Info */}
           <SpaceAreaInfo 
-            space={space} 
+            space={space}
             onUpdate={onUpdate}
             stories={stories}
           />
           
-          {/* Space Notes & Occupant Load */}
+          {/* Notes */}
           <SpaceNotes 
             space={space} 
-            spaceTypes={spaceTypes} 
             onUpdate={onUpdate} 
           />
         </div>

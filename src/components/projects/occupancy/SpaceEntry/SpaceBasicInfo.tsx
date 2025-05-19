@@ -41,6 +41,8 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
     // Find the selected space type to get its name and load factor
     const selectedType = spaceTypes.find(type => type.code === value);
     if (selectedType) {
+      console.log('Selected type data:', selectedType);
+      
       // If the name field is empty, suggest the name from the selected type
       if (!space.name) {
         onUpdate(space.id, 'name', selectedType.name);
@@ -48,6 +50,9 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       
       // Always update the load factor from the selected space type
       onUpdate(space.id, 'loadFactor', selectedType.occupant_load_factor.toString());
+      
+      // Also store the space type name for reference
+      onUpdate(space.id, 'spaceType', selectedType.name);
     }
   };
 
@@ -77,7 +82,6 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
           value={spaceTypeValue}
           onValueChange={handleSpaceTypeChange}
           disabled={loading}
-          key={`space-type-select-${space.id}-${spaceTypeValue}`}
         >
           <SelectTrigger id={`space-type-${space.id}`}>
             <SelectValue placeholder="Select a space type" />
@@ -90,6 +94,11 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
             ))}
           </SelectContent>
         </Select>
+        {spaceTypeValue && (
+          <div className="text-xs text-muted-foreground mt-1">
+            Selected: {spaceTypeValue} {space.spaceType ? `(${space.spaceType})` : ''}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

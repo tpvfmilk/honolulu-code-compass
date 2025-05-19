@@ -34,7 +34,7 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
     const isHighDensity = factor < 15;
     if (isHighDensity) hasHighDensitySpace = true;
     
-    console.log(`Space ${space.name} (type: ${space.type}): ${area} sf ÷ ${factor} = ${spaceLoad} people`);
+    console.log(`Space ${space.name} (type: ${space.type}, spaceType: ${space.spaceType}): ${area} sf ÷ ${factor} = ${spaceLoad} people`);
     
     return {
       ...space,
@@ -43,6 +43,7 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
       calculation: `${area} sf ÷ ${factor} = ${spaceLoad} people`,
       highDensity: isHighDensity,
       type: space.type || "", // Ensure type is always populated with the code
+      spaceType: space.spaceType || "", // Keep the space type name
       occupancyType: space.occupancyType || primaryOccupancy // Use occupancyType for display only
     };
   });

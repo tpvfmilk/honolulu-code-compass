@@ -23,6 +23,8 @@ export const SpaceBreakdownForm = ({
   // Calculate total area
   const totalArea = calculateTotalArea(spaces);
   
+  console.log("SpaceBreakdownForm - stories:", stories);
+  
   // Add a new space
   const addSpace = () => {
     const newSpace: Space = {

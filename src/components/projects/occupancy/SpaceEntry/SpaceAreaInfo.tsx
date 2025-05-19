@@ -21,6 +21,11 @@ export const SpaceAreaInfo: React.FC<SpaceAreaInfoProps> = ({
     const options = [];
     const numStories = parseInt(stories) || 1;
     
+    console.log(`Generating floor options for ${numStories} stories`);
+    
+    // Always include basement option
+    options.push({ value: "B", label: "Basement" });
+    
     // Always include ground floor/1st floor
     options.push({ value: "1", label: "Ground Floor" });
     
@@ -29,9 +34,6 @@ export const SpaceAreaInfo: React.FC<SpaceAreaInfoProps> = ({
       const suffix = i === 2 ? "nd" : i === 3 ? "rd" : "th";
       options.push({ value: i.toString(), label: `${i}${suffix} Floor` });
     }
-    
-    // Always include basement option
-    options.push({ value: "B", label: "Basement" });
     
     return options;
   };

@@ -25,7 +25,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
       try {
         const types = await fetchAllSpaceTypes();
         setSpaceTypes(types);
-        console.log("Loaded space types:", types);
+        console.log("Loaded space types for display:", types);
       } catch (error) {
         console.error('Error loading space types:', error);
       } finally {
@@ -56,8 +56,8 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
       return spaceType.name;
     }
     
-    // If no match is found, return the code or "Unknown" as fallback
-    return typeCode || "Unknown";
+    // If no match is found, return the code as fallback
+    return typeCode;
   };
   
   return (
@@ -101,7 +101,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                         {space.name || "Unnamed Space"}
                       </TableCell>
                       <TableCell>
-                        {getSpaceTypeName(space.type)}
+                        {space.spaceType || getSpaceTypeName(space.type)}
                         {space.highDensity && (
                           <span className="ml-1 text-orange-500">(!)</span>
                         )}

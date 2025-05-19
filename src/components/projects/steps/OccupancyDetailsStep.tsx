@@ -41,7 +41,8 @@ export const OccupancyDetailsStep = ({ formData, updateFormData }: OccupancyDeta
         floorLevel: '1',
         notes: '',
         spaceType: '',
-        occupiedBy: ''
+        occupiedBy: '',
+        loadFactor: ''
       };
       
       const initialTravelDistances: TravelDistances = {

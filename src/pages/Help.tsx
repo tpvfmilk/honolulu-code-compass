@@ -1,14 +1,12 @@
-
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
 type HelpProps = {
   onLogout: (() => void) | (() => Promise<void>);
 };
-
-const Help = ({ onLogout }: HelpProps) => {
-  return (
-    <AppLayout onLogout={onLogout}>
+const Help = ({
+  onLogout
+}: HelpProps) => {
+  return <AppLayout onLogout={onLogout}>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Help & Support</h1>
         <p className="text-muted-foreground">Find answers to common questions about the platform</p>
@@ -22,28 +20,28 @@ const Help = ({ onLogout }: HelpProps) => {
             <CardContent>
               <div className="space-y-4">
                 <div>
+                  <h3 className="font-semibold">What is the Hawaii Building Code Compliance Platform?</h3>
+                  <p className="text-sm text-muted-foreground">Our platform helps architects and engineers generate accurate building code compliance sheets for permit submissions in Hawaii, with a focus on City & County of Honolulu requirements. It transforms a 2-4 hour manual process into a guided 5-20 minute experience</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold">Which jurisdictions are supported?</h3>
+                  <p className="text-sm text-muted-foreground">Currently, we fully support the City & County of Honolulu.</p>
+                </div>
+                <div>
                   <h3 className="font-semibold">How do I create a new project?</h3>
                   <p className="text-sm text-muted-foreground">Navigate to the Projects page and click the "Create New Project" button. Follow the step-by-step wizard to set up your project.</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold">Can I export my compliance reports?</h3>
-                  <p className="text-sm text-muted-foreground">Yes, once a project is complete, you can export the compliance report as a PDF from the project view page.</p>
+                  <h3 className="font-semibold">Can I use this for renovation projects or only new construction?</h3>
+                  <p className="text-sm text-muted-foreground">The platform supports both new construction and renovation projects. When creating a project, select the appropriate project type to access specialized fields for renovation projects (original construction year, alteration level, etc.).</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold">How do I update my account information?</h3>
-                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold">How do I update my account information?</h3>
-                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold">How do I update my account information?</h3>
-                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
+                  <h3 className="font-semibold">How do I input zoning information?</h3>
+                  <p className="text-sm text-muted-foreground">In Step 2 of the project wizard, select your zoning district from the dropdown menu. The system will automatically calculate setback requirements, height limits, lot coverage, and FAR based on your inputs.</p>
                 </div>     
                 <div>
-                  <h3 className="font-semibold">How do I update my account information?</h3>
-                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
+                  <h3 className="font-semibold">How are occupant loads calculated?</h3>
+                  <p className="text-sm text-muted-foreground">The platform automatically calculates occupant loads based on IBC Table 1004.5 when you enter spaces in Step 5. Simply input your space types and areas, and the system will determine the required occupant loads and egress requirements.</p>
                 </div>                
               </div>
             </CardContent>
@@ -74,8 +72,6 @@ const Help = ({ onLogout }: HelpProps) => {
           </Card>
         </div>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Help;

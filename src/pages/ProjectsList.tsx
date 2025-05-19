@@ -1,4 +1,4 @@
-// src/pages/ProjectsList.tsx
+
 import { FC, useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle, Filter, Search, Grid, List, MoreVertical, FileText, Copy, Trash, Eye } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 // Define the project type
 interface Project {
@@ -84,6 +94,8 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   // Fetch projects on component mount
   useEffect(() => {
@@ -185,6 +197,43 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
         ? prev.filter((id) => id !== projectId)
         : [...prev, projectId]
     );
+  };
+
+  // Handle single project deletion
+  const handleSingleProjectDelete = (projectId: string) => {
+    setProjectToDelete(projectId);
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm deletion of a single project
+  const confirmSingleDelete = async () => {
+    if (!projectToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectToDelete);
+
+      if (error) throw error;
+
+      setProjects((prev) => prev.filter((project) => project.id !== projectToDelete));
+      
+      toast({
+        title: "Success",
+        description: "Project deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete project. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setProjectToDelete(null);
+      setDeleteDialogOpen(false);
+    }
   };
 
   // Handle batch deletion
@@ -460,7 +509,13 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
                           Duplicate
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem 
+                          className="text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSingleProjectDelete(project.id);
+                          }}
+                        >
                           <Trash className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
@@ -577,7 +632,13 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
                               Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSingleProjectDelete(project.id);
+                              }}
+                            >
                               <Trash className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
@@ -592,6 +653,23 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              project and all its associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProjectToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSingleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };

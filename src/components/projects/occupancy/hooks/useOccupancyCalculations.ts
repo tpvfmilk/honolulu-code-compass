@@ -21,10 +21,11 @@ export const useOccupancyCalculations = (props: FormData | OccupancyCalculations
     setIsCalculating(true);
     
     // Get primary occupancy group (e.g., 'B' from 'B')
-    const primaryOccupancy = ('occupancyGroup' in props ? props.occupancyGroup : props.occupancyGroup)?.split('-')[0] || 'B';
-    const isSprinklered = 'sprinklerSystem' in props ? props.sprinklerSystem : props.sprinklerSystem || false;
-    const stories = 'stories' in props ? props.stories : props.stories || '1';
-    const totalBuildingArea = 'totalBuildingArea' in props ? props.totalBuildingArea : props.totalBuildingArea || '0';
+    const occupancyGroup = 'occupancyGroup' in props ? props.occupancyGroup : "";
+    const primaryOccupancy = String(occupancyGroup).split('-')[0] || 'B';
+    const isSprinklered = 'sprinklerSystem' in props ? props.sprinklerSystem : false;
+    const stories = 'stories' in props ? props.stories : '1';
+    const totalBuildingArea = 'totalBuildingArea' in props ? props.totalBuildingArea : '0';
     
     // Calculate with slight delay to show loading state
     const timer = setTimeout(() => {

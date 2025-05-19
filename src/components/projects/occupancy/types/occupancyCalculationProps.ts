@@ -1,5 +1,6 @@
 
 import { TravelDistances } from './occupancyTypes';
+import { OccupancyGroup } from '../../types/building/buildingClassificationTypes';
 
 export interface OccupancyCalculationsProps {
   occupancyDetails: {
@@ -10,7 +11,7 @@ export interface OccupancyCalculationsProps {
     elevatorProvided: boolean;
     totalParkingSpaces: string;
   };
-  occupancyGroup: string;
+  occupancyGroup: OccupancyGroup | string;
   sprinklerSystem: boolean;
   stories: string;
   totalBuildingArea: string;

@@ -9,8 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { EgressComplianceCard } from "./occupancy/EgressComplianceCard";
 import { useFireSafetyCalculations } from "./firesafety/useFireSafetyCalculations";
 import { useOccupancyCalculations } from "./occupancy/hooks/useOccupancyCalculations";
-import { Project } from "../dashboard/ProjectCard";
 import { ProjectData } from "../../pages/ProjectView";
+import { OccupancyGroup } from "./types/building/buildingClassificationTypes";
 
 type ProjectDetailProps = {
   project: ProjectData;

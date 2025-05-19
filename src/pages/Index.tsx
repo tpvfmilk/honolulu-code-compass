@@ -31,7 +31,7 @@ const Index: FC<IndexProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>This platform transforms building code compliance from a time-consuming challenge into a streamlined process. Architects and builders using Comply save an average of 3.5 hours per project while increasing first-time approval rates. Our step-by-step approach guides you through:
+              <p>This platform transforms building code compliance from a time-consuming challenge into a streamlined process. Our step-by-step approach guides you through:
 
 Project Setup: Enter basic information and let our system identify applicable codes
 

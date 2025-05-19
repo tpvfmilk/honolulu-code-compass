@@ -11,7 +11,7 @@ export interface OccupancyCalculationsProps {
     elevatorProvided: boolean;
     totalParkingSpaces: string;
   };
-  occupancyGroup: OccupancyGroup | string;
+  occupancyGroup: OccupancyGroup | "";
   sprinklerSystem: boolean;
   stories: string;
   totalBuildingArea: string;

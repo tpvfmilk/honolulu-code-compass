@@ -28,7 +28,7 @@ export type ZoningCalculationsState = {
     // Fields for district-specific calculations
     specialRuleApplies?: boolean;
     specialRuleExplanation?: string;
-    maxAreaByUnits?: number; // Added this property to match usage in useZoningCalculations.ts
+    maxAreaByUnits?: number; // Property for unit-based area calculations
     calculationMethod?: "FAR" | "UnitBased" | "LotCoverage";
   } | null;
   dwellingUnits: {

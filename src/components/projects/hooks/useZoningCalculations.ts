@@ -65,7 +65,7 @@ export const useZoningCalculations = ({ zoningDistricts }: UseZoningCalculations
         // Initialize the new properties
         specialRuleApplies: false,
         calculationMethod: "FAR" as "FAR" | "UnitBased" | "LotCoverage",
-        specialRuleExplanation: "",
+        specialRuleExplanation: ""
       };
 
       // Apply district-specific logic for coverage and floor area calculations
@@ -84,7 +84,7 @@ export const useZoningCalculations = ({ zoningDistricts }: UseZoningCalculations
           // Add special rule flags and explanations
           specialRuleApplies: true,
           calculationMethod: "UnitBased",
-          maxAreaByUnits: unitBasedArea,
+          maxAreaByUnits: unitBasedArea, // Now this property is properly defined in the type
           specialRuleExplanation: "In R-5 zoning, maximum building area is 3,000 sq ft per dwelling unit, limited by lot coverage."
         };
       } else if (district.startsWith("A-")) {

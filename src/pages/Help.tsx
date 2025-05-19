@@ -33,6 +33,18 @@ const Help = ({ onLogout }: HelpProps) => {
                   <h3 className="font-semibold">How do I update my account information?</h3>
                   <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
                 </div>
+                <div>
+                  <h3 className="font-semibold">How do I update my account information?</h3>
+                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold">How do I update my account information?</h3>
+                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
+                </div>     
+                <div>
+                  <h3 className="font-semibold">How do I update my account information?</h3>
+                  <p className="text-sm text-muted-foreground">Go to your Profile page to update your personal and professional information.</p>
+                </div>                
               </div>
             </CardContent>
           </Card>

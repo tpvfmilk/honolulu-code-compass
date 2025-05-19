@@ -43,7 +43,7 @@ export const Hero = () => {
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 hawaii-gradient">
         <div className="h-56 w-full sm:h-72 md:h-96 lg:w-full lg:h-full relative">
           <img 
-            className="w-full h-full object-cover object-center transform translate-x-24" 
+            className="w-full h-full object-cover object-center transform -translate-x-16" 
             alt="Comply platform illustration" 
             src="/lovable-uploads/a1031bb9-adfa-4926-911f-56a05cfc92b4.jpg" 
           />

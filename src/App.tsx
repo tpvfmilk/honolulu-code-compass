@@ -13,6 +13,8 @@ import { supabase } from "./integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
+import LandingPage from "./pages/LandingPage";
+import Features from "./pages/Features";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import ProjectCreate from "./pages/ProjectCreate";
@@ -57,7 +59,7 @@ function AppRoutes() {
       const currentPath = window.location.pathname;
       
       // Public routes - always accessible
-      const publicRoutes = ['/', '/auth', '/help'];
+      const publicRoutes = ['/', '/auth', '/help', '/features'];
       const isPublicRoute = publicRoutes.includes(currentPath);
       
       // Protected routes - require authentication
@@ -68,9 +70,9 @@ function AppRoutes() {
         setIsRedirecting(true);
         navigate("/auth");
       } else if (session && currentPath === "/auth") {
-        console.log("Redirecting to /profile - user is authenticated on /auth page");
+        console.log("Redirecting to /dashboard - user is authenticated on /auth page");
         setIsRedirecting(true);
-        navigate("/profile");
+        navigate("/dashboard");
       }
       
       // Reset redirecting flag after navigation
@@ -98,9 +100,17 @@ function AppRoutes() {
   // Define routes with authentication protection
   return (
     <Routes>
-      <Route path="/" element={<Index onLogout={handleLogout} />} />
+      {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/features" element={<Features />} />
       <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
       <Route path="/help" element={<Help onLogout={handleLogout} />} />
+      
+      {/* Protected routes - require authentication */}
+      <Route 
+        path="/dashboard" 
+        element={session ? <Index onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
+      />
       <Route 
         path="/profile" 
         element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 

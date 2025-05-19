@@ -21,24 +21,6 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("summary");
   
-  // Get fire safety calculations
-  const fireSafetyCalculations = useFireSafetyCalculations({
-    occupancyGroup: project.project_type || "",
-    fireSafety: {
-      separationDistance: "10",
-      hasMixedOccupancy: false,
-      occupancySeparationType: "",
-      secondaryOccupancies: [],
-      fireAlarmRequired: false,
-      fireAlarmType: "",
-      standpipeRequired: false,
-      emergencyPower: false
-    },
-    sprinklerSystem: project.is_fully_sprinklered || false,
-    stories: project.stories?.toString() || "1"
-  });
-
-  // Get occupancy calculations with default values
   // Properly cast the project_type to OccupancyGroup or use empty string if not valid
   const projectType = project.project_type || "";
   const isValidOccupancyGroup = (value: string): value is OccupancyGroup => {
@@ -59,6 +41,24 @@ export const ProjectDetail = ({ project }: ProjectDetailProps) => {
 
   const occupancyGroup = isValidOccupancyGroup(projectType) ? projectType : "" as OccupancyGroup | "";
   
+  // Get fire safety calculations using the validated occupancyGroup
+  const fireSafetyCalculations = useFireSafetyCalculations({
+    occupancyGroup,
+    fireSafety: {
+      separationDistance: "10",
+      hasMixedOccupancy: false,
+      occupancySeparationType: "",
+      secondaryOccupancies: [],
+      fireAlarmRequired: false,
+      fireAlarmType: "",
+      standpipeRequired: false,
+      emergencyPower: false
+    },
+    sprinklerSystem: project.is_fully_sprinklered || false,
+    stories: project.stories?.toString() || "1"
+  });
+
+  // Get occupancy calculations with default values
   const { calculations: occupancyCalcs, isCalculating } = useOccupancyCalculations({
     occupancyDetails: {
       spaces: [],

@@ -1,21 +1,15 @@
-
 import React, { FC, ReactNode } from "react";
 import { Link } from "react-router-dom";
-
 interface AuthLayoutProps {
   children: ReactNode;
 }
-
-export const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
-  return (
-    <div className="flex min-h-screen w-full">
+export const AuthLayout: FC<AuthLayoutProps> = ({
+  children
+}) => {
+  return <div className="flex min-h-screen w-full">
       {/* Left column with image */}
       <div className="hidden md:flex md:w-1/2 bg-primary relative">
-        <img 
-          src="/lovable-uploads/a1031bb9-adfa-4926-911f-56a05cfc92b4.jpg" 
-          alt="Building design" 
-          className="w-full h-full object-cover"
-        />
+        <img alt="Building design" className="w-full h-full object-none" src="/lovable-uploads/17dc9084-961c-4330-b375-b35745a78a70.png" />
         <div className="absolute top-6 left-6">
           <Link to="/" className="text-white font-bold text-xl flex items-center">
             <span className="mr-2">Comply</span>
@@ -34,6 +28,5 @@ export const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
           {children}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };

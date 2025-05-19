@@ -1,3 +1,4 @@
+
 import React, { FC } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -31,21 +32,15 @@ const Index: FC<IndexProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>
-              <ul style={{
-                listStyleType: "disc"
-              }}>
-                <li>Project Setup: Enter basic information and let our system identify applicable codes</li>
-                <li>Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements</li>
-                <li>Building Classification: Determine occupancy groups and construction types with guidance</li>
-                <li>Fire &amp; Life Safety: Generate compliant egress plans and fire separation requirements</li>
-                <li>Space Analysis: Calculate occupant loads and related requirements automatically</li>
-                <li>Document Generation: Create permit-ready compliance sheets in minutes
-
-                </li>
+              <ul className="list-disc pl-5 space-y-2">
+                <li className="text-sm">Project Setup: Enter basic information and let our system identify applicable codes</li>
+                <li className="text-sm">Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements</li>
+                <li className="text-sm">Building Classification: Determine occupancy groups and construction types with guidance</li>
+                <li className="text-sm">Fire &amp; Life Safety: Generate compliant egress plans and fire separation requirements</li>
+                <li className="text-sm">Space Analysis: Calculate occupant loads and related requirements automatically</li>
+                <li className="text-sm">Document Generation: Create permit-ready compliance sheets in minutes</li>
               </ul>
-              </p>
-              <div className="flex justify-start">
+              <div className="flex justify-start pt-2">
                 <Button asChild>
                   <Link to="/help">Learn More</Link>
                 </Button>
@@ -61,14 +56,16 @@ const Index: FC<IndexProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>Comply helps you develop code-compliant designs from the earliest stages, ensuring your submissions move smoothly through the approval process. 
-
-Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously.   
-
-Your dashboard provides real-time visibility into compliance status, helping you identify and resolve issues before submission. 
-
-Each project maintains a complete history of compliance decisions, creating valuable documentation for your records.</p>
-              <div className="flex justify-start space-x-4">
+              <div className="space-y-3 text-sm">
+                <p>Comply helps you develop code-compliant designs from the earliest stages, ensuring your submissions move smoothly through the approval process.</p>
+                
+                <p>Start a new project or continue working on existing ones. Track compliance across multiple aspects of building codes simultaneously.</p>
+                
+                <p>Your dashboard provides real-time visibility into compliance status, helping you identify and resolve issues before submission.</p>
+                
+                <p>Each project maintains a complete history of compliance decisions, creating valuable documentation for your records.</p>
+              </div>
+              <div className="flex justify-start space-x-4 pt-2">
                 <Button asChild>
                   <Link to="/project/new">New Project</Link>
                 </Button>
@@ -84,11 +81,14 @@ Each project maintains a complete history of compliance decisions, creating valu
           <CardHeader>
             <CardTitle>About Comply</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p>
+          <CardContent className="text-sm">
+            <p className="mb-3">
               Our platform streamlines the process of ensuring your building designs meet
-              all required codes and regulations specific to Hawaii. We cover fire safety,
-              accessibility, structural requirements, and zoning regulations.
+              all required codes and regulations specific to Hawaii.
+            </p>
+            <p>
+              We cover fire safety, accessibility, structural requirements, and zoning regulations
+              to provide a comprehensive compliance solution.
             </p>
           </CardContent>
         </Card>

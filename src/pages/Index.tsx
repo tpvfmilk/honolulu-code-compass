@@ -31,18 +31,19 @@ const Index: FC<IndexProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>This platform transforms building code compliance from a time-consuming challenge into a streamlined process. Architects and builders using Comply save an average of 3.5 hours per project while increasing first-time approval rates.
-
-Our step-by-step approach guides you through:
+              <p>This platform transforms building code compliance from a time-consuming challenge into a streamlined process. Architects and builders using Comply save an average of 3.5 hours per project while increasing first-time approval rates. Our step-by-step approach guides you through:
 
 Project Setup: Enter basic information and let our system identify applicable codes
-Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements
-Building Classification: Determine occupancy groups and construction types with guidance
-Fire & Life Safety: Generate compliant egress plans and fire separation requirements
-Space Analysis: Calculate occupant loads and related requirements automatically
-Document Generation: Create permit-ready compliance sheets in minutes
 
-We've designed Comply to work for professionals at all experience levels, from seasoned architects to those just learning code requirements.</p>
+Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements
+
+Building Classification: Determine occupancy groups and construction types with guidance
+
+Fire & Life Safety: Generate compliant egress plans and fire separation requirements
+
+Space Analysis: Calculate occupant loads and related requirements automatically
+
+Document Generation: Create permit-ready compliance sheets in minutes We've designed Comply to work for professionals at all experience levels, from seasoned architects to those just learning code requirements.</p>
               <div className="flex justify-start">
                 <Button asChild>
                   <Link to="/help">Learn More</Link>

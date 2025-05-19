@@ -38,7 +38,7 @@ export const calculateOccupantLoad = (spaces: Space[], primaryOccupancy: string)
       occupantLoad: spaceLoad,
       calculation: `${area} sf ÷ ${factor} = ${spaceLoad} people`,
       highDensity: isHighDensity,
-      type: space.type || "", // Ensure type is always populated
+      type: space.type || "", // Ensure type is always populated with the code
       occupancyType: space.occupancyType || primaryOccupancy // Use occupancyType for display only
     };
   });

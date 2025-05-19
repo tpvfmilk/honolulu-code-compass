@@ -45,7 +45,6 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       }
       
       // Always update the load factor from the selected space type
-      // This is the critical part - the load factor comes from the space type
       onUpdate(space.id, 'loadFactor', selectedType.occupant_load_factor.toString());
     }
   };
@@ -53,9 +52,10 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
   // Handle occupancy group selection (for reference only)
   const handleOccupancyGroupChange = (value: string) => {
     onUpdate(space.id, 'occupancyType', value);
-    // Note: we don't change the load factor here as it should be
-    // determined only by the space type
   };
+
+  // Ensure we have a valid type value
+  const spaceTypeValue = space.type || "";
 
   return (
     <>
@@ -72,9 +72,10 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       <div className="space-y-2">
         <Label htmlFor={`space-type-${space.id}`}>Space Type</Label>
         <Select
-          value={space.type}
+          value={spaceTypeValue}
           onValueChange={handleSpaceTypeChange}
           disabled={loading}
+          key={`space-type-select-${space.id}-${spaceTypeValue}`}
         >
           <SelectTrigger id={`space-type-${space.id}`}>
             <SelectValue placeholder="Select a space type" />

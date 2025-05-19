@@ -39,6 +39,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
   
   // Get human-readable name for space type
   const getSpaceTypeName = (typeCode: string) => {
+    if (!typeCode) return "Unknown";
     const spaceType = spaceTypes.find(type => type.code === typeCode);
     return spaceType?.name || typeCode;
   };

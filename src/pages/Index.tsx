@@ -33,14 +33,14 @@ const Index: FC<IndexProps> = ({
             </CardHeader>
             <CardContent className="space-y-4">
               <p>
-              <ul style="list-style-type: disc;">
-    <li>Project Setup: Enter basic information and let our system identify applicable codes</li>
-    <li>Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements</li>
-    <li>Building Classification: Determine occupancy groups and construction types with guidance</li>
-    <li>Fire &amp; Life Safety: Generate compliant egress plans and fire separation requirements</li>
-    <li>Space Analysis: Calculate occupant loads and related requirements automatically</li>
-    <li>Document Generation: Create permit-ready compliance sheets in minutes</li>
-</ul>
+              <ul style={{ listStyleType: "disc" }}>
+                <li>Project Setup: Enter basic information and let our system identify applicable codes</li>
+                <li>Zoning Analysis: Automatically calculate setbacks, height restrictions, and FAR requirements</li>
+                <li>Building Classification: Determine occupancy groups and construction types with guidance</li>
+                <li>Fire &amp; Life Safety: Generate compliant egress plans and fire separation requirements</li>
+                <li>Space Analysis: Calculate occupant loads and related requirements automatically</li>
+                <li>Document Generation: Create permit-ready compliance sheets in minutes</li>
+              </ul>
               </p>
               <div className="flex justify-start">
                 <Button asChild>

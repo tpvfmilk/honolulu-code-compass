@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { AppFooter } from "./AppFooter";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -25,15 +26,17 @@ export const AppLayout = ({
   };
 
   return (
-    <div className="min-h-screen flex w-full overflow-hidden">
-      <AppSidebar onLogout={handleLogout} />
-      <div className="flex-1 flex flex-col">
-        <AppHeader />
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
-        <AppFooter />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full overflow-hidden">
+        <AppSidebar onLogout={handleLogout} />
+        <div className="flex-1 flex flex-col">
+          <AppHeader />
+          <main className="flex-1 p-6 overflow-auto">
+            {children}
+          </main>
+          <AppFooter />
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };

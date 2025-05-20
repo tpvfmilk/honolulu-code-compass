@@ -21,6 +21,7 @@ import ProjectCreate from "./pages/ProjectCreate";
 import ProjectView from "./pages/ProjectView";
 import ProjectsList from "./pages/ProjectsList";
 import Help from "./pages/Help";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -134,6 +135,10 @@ function AppRoutes() {
       <Route 
         path="/admin" 
         element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
+      />
+      <Route 
+        path="/feedback" 
+        element={session ? <Feedback onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
       />
       <Route path="*" element={<NotFound />} />
     </Routes>

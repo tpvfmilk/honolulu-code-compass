@@ -1,5 +1,5 @@
 
-import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database } from "lucide-react";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -55,17 +55,25 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/help" className={getNavCls}>
-                    <HelpCircle className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Help</span>}
+                  <NavLink to="/admin" className={getNavCls}>
+                    <Database className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Admin Dashboard</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/admin" className={getNavCls}>
-                    <Database className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Admin Dashboard</span>}
+                  <NavLink to="/feedback" className={getNavCls}>
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Feedback</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/help" className={getNavCls}>
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Help Desk</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Database } from "@/integrations/supabase/client";
-import { BuildingOffice2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Building, Lock } from "lucide-react";
 import { ComplianceAdminUser } from "../types";
 
 export const ComplianceAdminLogin = () => {
@@ -67,7 +66,7 @@ export const ComplianceAdminLogin = () => {
       <Card className="w-[400px]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl flex items-center justify-center">
-            <BuildingOffice2 className="mr-2 h-6 w-6" />
+            <Building className="mr-2 h-6 w-6" />
             Compliance Admin Portal
           </CardTitle>
           <CardDescription className="text-center">

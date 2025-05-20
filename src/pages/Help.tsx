@@ -205,12 +205,15 @@ const Help = ({ onLogout }: HelpProps) => {
         {/* Search box */}
         <div className="relative">
           <Command className="rounded-lg border shadow-md">
-            <CommandInput 
-              placeholder="Search knowledge base..." 
-              value={searchQuery}
-              onValueChange={setSearchQuery}
-              icon={<Search className="h-4 w-4" />}
-            />
+            <div className="flex items-center border-b px-3">
+              <Search className="h-4 w-4 mr-2 shrink-0 opacity-50" />
+              <CommandInput 
+                placeholder="Search knowledge base..." 
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+                className="flex h-10 w-full rounded-md bg-transparent py-3 outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
             {searchQuery && (
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>

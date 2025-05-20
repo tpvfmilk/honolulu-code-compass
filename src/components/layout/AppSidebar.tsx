@@ -2,6 +2,7 @@
 import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle, BookOpen, Book } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 interface AppSidebarProps {
@@ -88,6 +89,8 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <Separator className="my-4 mx-2" />
 
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>

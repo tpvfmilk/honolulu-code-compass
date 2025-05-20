@@ -28,8 +28,20 @@ export const KnowledgeGrid = () => {
           { select: '*, category_id' }
         );
         
-        setCategories(categoriesData.sort((a, b) => a.display_order - b.display_order));
-        setArticles(articlesData.filter(article => article.published_at !== null));
+        // Filter published articles and count by category
+        const publishedArticles = articlesData.filter(article => article.published_at !== null);
+        
+        // Update categories with accurate article counts
+        const categoriesWithCounts = categoriesData.map(category => {
+          const categoryArticles = publishedArticles.filter(a => a.category_id === category.id);
+          return {
+            ...category,
+            article_count: categoryArticles.length
+          };
+        });
+        
+        setCategories(categoriesWithCounts.sort((a, b) => a.display_order - b.display_order));
+        setArticles(publishedArticles);
         setLoading(false);
       } catch (err) {
         console.error("Error loading knowledge base data:", err);

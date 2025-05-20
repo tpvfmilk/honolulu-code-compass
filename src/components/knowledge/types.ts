@@ -1,4 +1,6 @@
 
+import { LucideIcon } from "lucide-react";
+
 // Define admin user type
 export interface KBAdminUser {
   id: string;
@@ -40,4 +42,20 @@ export interface Feedback {
   updated_at: string;
   status?: string; // Add status property
   notes?: string;  // Add notes property
+}
+
+// For the knowledge base components
+export interface ArticleType {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  category: string;
+}
+
+export interface KnowledgeBaseData {
+  guides: ArticleType[];
+  features: ArticleType[];
+  faqs: ArticleType[];
+  troubleshooting: ArticleType[];
 }

@@ -125,7 +125,7 @@ export const ArticleView = () => {
           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center">
               <Clock className="h-4 w-4 mr-1" />
-              <span>Updated: {format(new Date(article.last_updated), 'MMM dd, yyyy')}</span>
+              <span>Updated: {format(new Date(article.updated_at), 'MMM dd, yyyy')}</span>
             </div>
             <div className="flex items-center">
               <Eye className="h-4 w-4 mr-1" />

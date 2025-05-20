@@ -31,7 +31,7 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/dashboard" className={getNavCls}>
+                  <NavLink to="/" className={getNavCls}>
                     <Home className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>Home</span>}
                   </NavLink>
@@ -95,7 +95,7 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/profile" className={getNavCls}>
+                  <NavLink to="/account" className={getNavCls}>
                     <User className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>Profile</span>}
                   </NavLink>

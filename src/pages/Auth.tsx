@@ -26,9 +26,9 @@ const Auth: FC<AuthProps> = ({ onLogout }) => {
   // Redirect if already logged in - with safeguard against loops
   useEffect(() => {
     if (session && !redirecting) {
-      console.log("Auth page: User is already logged in, redirecting to profile");
+      console.log("Auth page: User is already logged in, redirecting to home");
       setRedirecting(true);
-      navigate("/profile");
+      navigate("/");
     }
   }, [session, navigate, redirecting]);
 
@@ -37,7 +37,8 @@ const Auth: FC<AuthProps> = ({ onLogout }) => {
       title: "Authentication successful",
       description: "You have been logged in successfully",
     });
-    // Let the App.tsx handle the redirection based on session state
+    // Redirect to home page after successful authentication
+    navigate("/");
   };
 
   return (

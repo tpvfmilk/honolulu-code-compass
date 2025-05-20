@@ -1,48 +1,43 @@
 
-import { LucideIcon } from "lucide-react";
-
-export interface ArticleType {
+// Define admin user type
+export interface KBAdminUser {
   id: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  category: string;
+  email: string;
+  role: string;
 }
 
-export interface KnowledgeBaseData {
-  guides: ArticleType[];
-  features: ArticleType[];
-  faqs: ArticleType[];
-  troubleshooting: ArticleType[];
-}
-
-export interface KBCategory {
-  id: string;
-  name: string;
-  article_count: number;
-  display_order: number;
-}
-
+// Define article type
 export interface KBArticle {
   id: string;
   title: string;
   content: string;
   category_id: string;
-  published_at: string | null;
-  last_updated: string;
-  view_count: number;
+  created_at: string;
+  updated_at: string; // Fix: Adding missing property
+  view_count?: number;
+  published_at?: string;
+  category?: {
+    name: string;
+  };
 }
 
-export interface KBAdminUser {
+// Define category type
+export interface KBCategory {
   id: string;
-  email: string;
-  role: 'admin' | 'editor';
+  name: string;
+  display_order: number;
+  article_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface FeedbackItem {
+// Update feedback type to include status and notes
+export interface Feedback {
   id: string;
   user_id: string;
   content: string;
   created_at: string;
   updated_at: string;
+  status?: string; // Add status property
+  notes?: string;  // Add notes property
 }

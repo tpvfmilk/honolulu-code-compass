@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,16 +23,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Feedback {
-  id: string;
-  user_id: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  status?: string;
-  notes?: string;
-}
+import { Feedback } from "../types";
 
 export const FeedbackPage = () => {
   const [feedback, setFeedback] = useState<Feedback[]>([]);

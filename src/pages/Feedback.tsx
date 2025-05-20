@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { supabase, handleSupabaseError } from "@/integrations/supabase/client";
 
 type FeedbackProps = {
@@ -14,12 +14,17 @@ type FeedbackProps = {
 const Feedback = ({ onLogout }: FeedbackProps) => {
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!feedback.trim()) {
-      toast.error("Please enter your feedback before submitting");
+      toast({
+        title: "Error",
+        description: "Please enter your feedback before submitting",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -30,7 +35,11 @@ const Feedback = ({ onLogout }: FeedbackProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error("You must be logged in to submit feedback");
+        toast({
+          title: "Error",
+          description: "You must be logged in to submit feedback",
+          variant: "destructive"
+        });
         setIsSubmitting(false);
         return;
       }
@@ -47,11 +56,18 @@ const Feedback = ({ onLogout }: FeedbackProps) => {
         return;
       }
       
-      toast.success("Thank you for your feedback!");
+      toast({
+        title: "Success",
+        description: "Thank you for your feedback!"
+      });
       setFeedback(""); // Clear the textarea
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      toast.error("Failed to submit feedback. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to submit feedback. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -2,21 +2,21 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { FileText, Trash } from "lucide-react";
-import { ToastFunction } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface BatchActionBarProps {
   selectedCount: number;
   onCancel: () => void;
   onDelete: () => void;
-  toast: ToastFunction;
 }
 
 export const BatchActionBar: React.FC<BatchActionBarProps> = ({
   selectedCount,
   onCancel,
   onDelete,
-  toast,
 }) => {
+  const { toast } = useToast();
+  
   return (
     <div className="bg-muted p-2 rounded-md flex items-center justify-between">
       <span className="text-sm font-medium">

@@ -1,29 +1,13 @@
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, toast } from "sonner"
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+// This file is now using our own toast implementation instead of Sonner
+import { useToast } from "@/hooks/use-toast"
+import { Toaster as CustomToaster } from "@/components/ui/toaster"
+import { toast } from "@/hooks/use-toast"
+
+type ToasterProps = React.ComponentProps<typeof CustomToaster>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
-  return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      toastOptions={{
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-        },
-      }}
-      {...props}
-    />
-  )
+  return <CustomToaster {...props} />
 }
 
 export { Toaster, toast }

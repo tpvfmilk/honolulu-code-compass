@@ -1,5 +1,5 @@
 
-import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle, BookOpen } from "lucide-react";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle, BookOpen, Book } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -58,6 +58,14 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
                   <NavLink to="/compliance-admin/login" className={getNavCls}>
                     <Database className="mr-2 h-4 w-4" />
                     {sidebar.state !== "collapsed" && <span>Information Database</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/admin/login" className={getNavCls}>
+                    <Book className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Admin Dashboard</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

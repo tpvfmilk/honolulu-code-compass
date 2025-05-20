@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { useSession, useSupabaseClient } from './hooks/useSupabaseAuth';
 
 // Import available pages
-import PublicHome from './pages/PublicHome';
+import LandingPage from './pages/LandingPage';
 import Index from './pages/Index';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
@@ -35,7 +35,7 @@ function App() {
       <Routes>
         {/* Main application routes */}
         <Route path="/" element={
-          session ? <Index onLogout={handleLogout} /> : <PublicHome />
+          session ? <Index onLogout={handleLogout} /> : <LandingPage />
         } />
         <Route path="/public" element={<div>Public Page</div>} />
         <Route path="/about" element={<div>About Page</div>} />

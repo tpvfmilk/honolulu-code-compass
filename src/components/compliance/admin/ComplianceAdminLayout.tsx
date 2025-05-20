@@ -11,7 +11,8 @@ import {
   Users,
   Table,
   Ruler,
-  FlameKindling
+  FlameKindling,
+  Database
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -69,8 +70,8 @@ export const ComplianceAdminLayout = () => {
       {/* Sidebar */}
       <div className="w-64 border-r bg-slate-50 p-4 flex flex-col">
         <div className="flex items-center mb-6 px-2">
-          <Building className="h-6 w-6 mr-2 text-amber-600" />
-          <h1 className="text-xl font-bold">Compliance Admin</h1>
+          <Database className="h-6 w-6 mr-2 text-amber-600" />
+          <h1 className="text-xl font-bold">Information Database</h1>
         </div>
         
         <nav className="space-y-1 flex-1">

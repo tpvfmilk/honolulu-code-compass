@@ -10,6 +10,7 @@ import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 import Auth from './pages/Auth';
 import Features from './pages/Features';
+import Feedback from './pages/Feedback';
 
 // Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
@@ -45,6 +46,13 @@ function App() {
         <Route path="/privacy" element={<div>Privacy Page</div>} />
         <Route path="/contact" element={<div>Contact Page</div>} />
         <Route path="/features" element={<Features />} />
+        <Route path="/feedback" element={
+          !session ? (
+            <Navigate to="/auth" replace={true} />
+          ) : (
+            <Feedback onLogout={handleLogout} />
+          )
+        } />
         
         {/* Authentication routes */}
         <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
@@ -92,7 +100,7 @@ function App() {
           <AdminLayout />
         } />
 
-        {/* Compliance Admin routes */}
+        {/* Compliance Admin routes - renamed to Information Database in the UI */}
         <Route path="/compliance-admin/login" element={
           <ComplianceAdminLogin />
         } />

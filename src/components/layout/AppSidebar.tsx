@@ -55,9 +55,9 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/admin" className={getNavCls}>
+                  <NavLink to="/compliance-admin/login" className={getNavCls}>
                     <Database className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Admin Dashboard</span>}
+                    {sidebar.state !== "collapsed" && <span>Information Database</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

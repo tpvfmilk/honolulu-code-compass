@@ -1,5 +1,5 @@
 
-import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle } from "lucide-react";
+import { ChevronRight, Home, FileText, User, HelpCircle, LogOut, Database, MessageCircle, BookOpen } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -72,8 +72,8 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink to="/help" className={getNavCls}>
-                    <HelpCircle className="mr-2 h-4 w-4" />
-                    {sidebar.state !== "collapsed" && <span>Help Desk</span>}
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    {sidebar.state !== "collapsed" && <span>Knowledge Base</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

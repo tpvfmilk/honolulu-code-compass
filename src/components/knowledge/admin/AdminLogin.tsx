@@ -9,39 +9,46 @@ import { toast } from "sonner";
 import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { KBAdminUser } from "../types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
-      toast.error("Please enter both email and password.");
+      setError("Please enter both email and password.");
       return;
     }
     
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log("Attempting login with:", email);
       
       // Call the secure login function in Supabase
-      const { data, error } = await supabase.rpc('kb_admin_login', {
+      const { data, error: rpcError } = await supabase.rpc('kb_admin_login', {
         admin_email: email,
         admin_password: password
       });
       
-      if (error) {
-        throw new Error(error.message || "Login failed");
+      console.log("Login response:", data, "Error:", rpcError);
+      
+      if (rpcError) {
+        throw new Error(rpcError.message || "Login failed");
       }
       
       // Handle the response properly with type checking
       const response = data as unknown as { success: boolean; message?: string; admin?: KBAdminUser };
       
-      if (!response.success) {
-        throw new Error(response.message || "Invalid email or password");
+      if (!response || !response.success) {
+        throw new Error(response?.message || "Invalid email or password");
       }
       
       // Store admin session in localStorage (not using Supabase auth)
@@ -55,7 +62,7 @@ export const AdminLogin = () => {
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      toast.error(err.message || "Login failed. Please try again.");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -74,6 +81,11 @@ export const AdminLogin = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4 bg-destructive/10 text-destructive border-destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -100,6 +112,9 @@ export const AdminLogin = () => {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            <div className="text-sm text-center text-muted-foreground mt-4">
+              <p>For testing, use the credentials provided by your administrator</p>
+            </div>
           </form>
         </CardContent>
       </Card>

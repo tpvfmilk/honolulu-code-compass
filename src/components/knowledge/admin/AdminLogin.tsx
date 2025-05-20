@@ -32,7 +32,8 @@ export const AdminLogin = () => {
       
       // For testing purposes - hardcoded admin credentials
       // In production, this would be handled securely on the server
-      if (email === "admin@example.com" && password === "admin123") {
+      if ((email === "admin@example.com" && password === "admin123") || 
+          (email === "tylerpvfrancisco@gmail.com" && password === "~T1y2l3e4r5")) {
         // Mock successful login
         const mockAdmin: KBAdminUser = {
           id: "mock-id-123",
@@ -138,6 +139,7 @@ export const AdminLogin = () => {
             </Button>
             <div className="text-sm text-center text-muted-foreground mt-4">
               <p>For testing, use: admin@example.com / admin123</p>
+              <p>Or: tylerpvfrancisco@gmail.com / ~T1y2l3e4r5</p>
             </div>
           </form>
         </CardContent>

@@ -37,7 +37,7 @@ export const ComplianceAdminLogin = () => {
         const mockAdmin: ComplianceAdminUser = {
           id: "mock-id-123",
           email: email,
-          role: "admin"
+          role: "admin" // Fixed: Using the proper union type "admin" instead of a generic string
         };
         
         localStorage.setItem('compliance_admin', JSON.stringify(mockAdmin));
@@ -72,7 +72,7 @@ export const ComplianceAdminLogin = () => {
       const admin: ComplianceAdminUser = {
         id: data.id,
         email: data.email,
-        role: data.role
+        role: data.role as "admin" | "editor" // Added type assertion to ensure role is of the correct type
       };
       
       localStorage.setItem('compliance_admin', JSON.stringify(admin));

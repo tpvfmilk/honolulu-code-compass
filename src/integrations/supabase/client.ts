@@ -38,6 +38,15 @@ supabase.auth.onAuthStateChange((event, session) => {
 export const handleSupabaseError = (error: any, context: string = 'operation'): void => {
   console.error(`Supabase ${context} error:`, error);
   
+  if (error?.code === '42883' && error?.message?.includes('function crypt')) {
+    toast({
+      title: "Database configuration error",
+      description: "The required database extension is not available. Please contact support.",
+      variant: "destructive",
+    });
+    return;
+  }
+  
   // Check if it's an RLS error
   if (error?.message?.includes('Row Security Policy')) {
     toast({

@@ -1,4 +1,3 @@
-
 import { FC, useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -251,7 +250,6 @@ const ProjectsList: FC<ProjectsListProps> = ({ onLogout }) => {
             selectedCount={selectedProjects.length} 
             onCancel={() => setSelectedProjects([])} 
             onDelete={handleBatchDelete}
-            toast={toast}
           />
         )}
 

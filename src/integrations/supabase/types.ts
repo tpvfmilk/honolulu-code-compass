@@ -65,6 +65,36 @@ export type Database = {
           },
         ]
       }
+      compliance_admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          password_hash: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          password_hash: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          password_hash?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       construction_types: {
         Row: {
           code: string
@@ -814,6 +844,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compliance_admin_login: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: Json
+      }
       kb_admin_login: {
         Args: { admin_email: string; admin_password: string }
         Returns: Json

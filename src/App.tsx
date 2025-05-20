@@ -7,10 +7,15 @@ import { useSession, useSupabaseClient } from './hooks/useSupabaseAuth';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 
-// Import new routes
+// Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
 import { AdminLogin } from "./components/knowledge/admin/AdminLogin";
 import { AdminLayout } from "./components/knowledge/admin/AdminLayout";
+
+// Import compliance admin routes
+import { ComplianceAdminLogin } from './components/compliance/admin/ComplianceAdminLogin';
+import { ComplianceAdminLayout } from './components/compliance/admin/ComplianceAdminLayout';
+import { ComplianceAdminDashboard } from './components/compliance/admin/Dashboard';
 
 function App() {
   const session = useSession();
@@ -68,18 +73,32 @@ function App() {
           </div>
         } />
         
-        {/* Knowledge Base routes */}
-        <Route path="/knowledge-base/article/:articleId" element={
-          <ArticleView />
-        } />
-        
-        {/* Admin routes */}
+        {/* Knowledge Base Admin routes */}
         <Route path="/admin/login" element={
           <AdminLogin />
         } />
         
         <Route path="/admin/*" element={
           <AdminLayout />
+        } />
+
+        {/* Compliance Admin routes */}
+        <Route path="/compliance-admin/login" element={
+          <ComplianceAdminLogin />
+        } />
+        
+        <Route path="/compliance-admin" element={<ComplianceAdminLayout />}>
+          <Route index element={<Navigate to="/compliance-admin/dashboard" replace />} />
+          <Route path="dashboard" element={<ComplianceAdminDashboard />} />
+          <Route path="construction-types" element={<div>Construction Types Management</div>} />
+          <Route path="occupancy-groups" element={<div>Occupancy Groups Management</div>} />
+          <Route path="height-area" element={<div>Height & Area Limits Management</div>} />
+          <Route path="fire-ratings" element={<div>Fire Ratings Management</div>} />
+        </Route>
+        
+        {/* Knowledge Base routes */}
+        <Route path="/knowledge-base/article/:articleId" element={
+          <ArticleView />
         } />
         
         {/* Catch-all route for 404 */}

@@ -11,6 +11,9 @@ import NotFound from './pages/NotFound';
 import Auth from './pages/Auth';
 import Features from './pages/Features';
 import Feedback from './pages/Feedback';
+import ProjectsList from './pages/ProjectsList';
+import ProjectCreate from './pages/ProjectCreate';
+import ProjectView from './pages/ProjectView';
 
 // Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
@@ -66,15 +69,15 @@ function App() {
           !session ? (
             <Navigate to="/auth" replace={true} />
           ) : (
-            <div>Projects Page</div>
+            <ProjectsList onLogout={handleLogout} />
           )
         } />
         
-        <Route path="/projects/new" element={
+        <Route path="/project/new" element={
           !session ? (
             <Navigate to="/auth" replace={true} />
           ) : (
-            <div>New Project Page</div>
+            <ProjectCreate onLogout={handleLogout} />
           )
         } />
         
@@ -82,7 +85,7 @@ function App() {
           !session ? (
             <Navigate to="/auth" replace={true} />
           ) : (
-            <div>Project Detail Page</div>
+            <ProjectView onLogout={handleLogout} />
           )
         } />
         

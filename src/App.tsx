@@ -1,160 +1,113 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 
-import {
-  RouterProvider,
-  useNavigate,
-  Routes,
-  Route,
-  BrowserRouter,
-  Navigate,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useSession, SessionProvider } from "./hooks/useSession";
-import { supabase } from "./integrations/supabase/client";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/toaster";
-import Index from "./pages/Index";
-import LandingPage from "./pages/LandingPage";
-import Features from "./pages/Features";
-import Auth from "./pages/Auth";
-import Profile from "./pages/Profile";
-import ProjectCreate from "./pages/ProjectCreate";
-import ProjectView from "./pages/ProjectView";
-import ProjectsList from "./pages/ProjectsList";
-import Help from "./pages/Help";
-import Feedback from "./pages/Feedback";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
+import Account from './pages/Account'
+import Home from './pages/Home';
+import Projects from './pages/Projects';
+import NewProject from './pages/NewProject';
+import Project from './pages/Project';
+import Public from './pages/Public';
+import About from './pages/About';
+import Help from './pages/Help';
+import Legal from './pages/Legal';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Contact from './pages/Contact';
+import NotFound from './pages/NotFound';
 
-function AppRoutes() {
-  const [loading, setLoading] = useState(true);
-  const { session, setSession } = useSession();
-  const navigate = useNavigate();
-  
-  // Prevent multiple redirects
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session ? "Logged in" : "No session");
-      setSession(session);
-      setLoading(false);
-      setSessionChecked(true);
-    });
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state change:", _event, session ? "Session exists" : "No session");
-      setSession(session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [setSession]);
-
-  // Handle navigation separately from auth state changes
-  useEffect(() => {
-    if (!loading && sessionChecked && !isRedirecting) {
-      const currentPath = window.location.pathname;
-      
-      // Public routes - always accessible
-      const publicRoutes = ['/', '/auth', '/help', '/features'];
-      const isPublicRoute = publicRoutes.includes(currentPath);
-      
-      // Protected routes - require authentication
-      const needsAuth = !isPublicRoute;
-      
-      if (!session && needsAuth) {
-        console.log(`Redirecting to /auth from ${currentPath} - no session and requires auth`);
-        setIsRedirecting(true);
-        navigate("/auth");
-      } else if (session && currentPath === "/auth") {
-        console.log("Redirecting to /dashboard - user is authenticated on /auth page");
-        setIsRedirecting(true);
-        navigate("/dashboard");
-      }
-      
-      // Reset redirecting flag after navigation
-      setTimeout(() => {
-        setIsRedirecting(false);
-      }, 100);
-    }
-  }, [session, loading, navigate, sessionChecked, isRedirecting]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
-  const handleLogout = async () => {
-    try {
-      console.log("Logging out...");
-      await supabase.auth.signOut();
-      console.log("Logout successful, navigating to home");
-      navigate('/');
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
-  // Define routes with authentication protection
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/features" element={<Features />} />
-      <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
-      <Route path="/help" element={<Help onLogout={handleLogout} />} />
-      
-      {/* Protected routes - require authentication */}
-      <Route 
-        path="/dashboard" 
-        element={session ? <Index onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/profile" 
-        element={session ? <Profile onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/projects" 
-        element={session ? <ProjectsList onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/project/new" 
-        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/project/:id" 
-        element={session ? <ProjectView onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/project/edit/:id" 
-        element={session ? <ProjectCreate onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/admin" 
-        element={session ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route 
-        path="/feedback" 
-        element={session ? <Feedback onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
-      />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
+// Import new routes
+import { ArticleView } from "./components/knowledge/ArticleView";
+import { AdminLogin } from "./components/knowledge/admin/AdminLogin";
+import { AdminLayout } from "./components/knowledge/admin/AdminLayout";
 
 function App() {
+  const session = useSession()
+  const supabase = useSupabaseClient()
+
   return (
-    <BrowserRouter>
-      <SessionProvider>
-        <SidebarProvider>
-          <AppRoutes />
-          <Toaster />
-        </SidebarProvider>
-      </SessionProvider>
-    </BrowserRouter>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route exact path="/public" element={<Public />} />
+        <Route exact path="/about" element={<About />} />
+        <Route exact path="/help" element={<Help onLogout={() => supabase.auth.signOut()} />} />
+        <Route exact path="/legal" element={<Legal />} />
+        <Route exact path="/terms" element={<Terms />} />
+        <Route exact path="/privacy" element={<Privacy />} />
+        <Route exact path="/contact" element={<Contact />} />
+        <Route path="/projects" element={
+          !session ? (
+            <Navigate to="/login" replace={true} />
+          ) : (
+            <Projects />
+          )
+        } />
+        <Route path="/projects/new" element={
+          !session ? (
+            <Navigate to="/login" replace={true} />
+          ) : (
+            <NewProject />
+          )
+        } />
+        <Route path="/project/:id" element={
+          !session ? (
+            <Navigate to="/login" replace={true} />
+          ) : (
+            <Project />
+          )
+        } />
+        <Route path="/account" element={
+          !session ? (
+            <Navigate to="/login" replace={true} />
+          ) : (
+            <Account session={session} />
+          )
+        } />
+        <Route exact path="/login" element={
+          <div className="flex min-h-screen items-center justify-center">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{ theme: ThemeSupa }}
+              providers={['google', 'github']}
+              redirectTo="http://localhost:5173/account"
+            />
+          </div>
+        } />
+        
+        {/* Add new routes for Knowledge Base */}
+        <Route path="/knowledge-base/article/:articleId" element={
+          <ArticleView />
+        } />
+        
+        {/* Admin routes */}
+        <Route path="/admin/login" element={
+          <AdminLogin />
+        } />
+        <Route path="/admin" element={
+          <AdminLayout />
+        }>
+          {/* Admin dashboard (default route) */}
+          <Route path="dashboard" element={<div>Dashboard</div>} />
+          
+          {/* Articles management */}
+          <Route path="articles" element={<div>Articles</div>} />
+          <Route path="articles/new" element={<div>New Article</div>} />
+          <Route path="articles/edit/:articleId" element={<div>Edit Article</div>} />
+          
+          {/* Categories management */}
+          <Route path="categories" element={<div>Categories</div>} />
+          
+          {/* Feedback management */}
+          <Route path="feedback" element={<div>Feedback</div>} />
+        </Route>
+        
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 

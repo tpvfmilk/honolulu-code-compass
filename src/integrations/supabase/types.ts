@@ -356,6 +356,107 @@ export type Database = {
           },
         ]
       }
+      kb_admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          password_hash: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          password_hash: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          password_hash?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kb_articles: {
+        Row: {
+          category_id: string
+          content: string
+          created_at: string
+          id: string
+          last_updated: string
+          published_at: string | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category_id: string
+          content: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          published_at?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          published_at?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "kb_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_categories: {
+        Row: {
+          article_count: number | null
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          article_count?: number | null
+          created_at?: string
+          display_order: number
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          article_count?: number | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       occupancy_groups: {
         Row: {
           code: string
@@ -713,7 +814,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      kb_admin_login: {
+        Args: { admin_email: string; admin_password: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

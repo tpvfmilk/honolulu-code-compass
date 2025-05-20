@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, Link, useNavigate, useLocation } from "react-router-dom";
-import { Book, FileText, MessageSquare, LogOut, Settings, Users, Home } from "lucide-react";
+import { Book, FileText, MessageSquare, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { KBAdminUser } from "../types";
@@ -82,17 +82,6 @@ export const AdminLayout = () => {
             <Link to="/admin/articles">
               <FileText className="h-4 w-4 mr-2" />
               Articles
-            </Link>
-          </Button>
-          
-          <Button
-            variant={isActive("/admin/categories") ? "default" : "ghost"}
-            className="w-full justify-start"
-            asChild
-          >
-            <Link to="/admin/categories">
-              <Settings className="h-4 w-4 mr-2" />
-              Categories
             </Link>
           </Button>
           

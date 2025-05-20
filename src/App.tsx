@@ -16,6 +16,9 @@ import Feedback from './pages/Feedback';
 import { ArticleView } from "./components/knowledge/ArticleView";
 import { AdminLogin } from "./components/knowledge/admin/AdminLogin";
 import { AdminLayout } from "./components/knowledge/admin/AdminLayout";
+import Dashboard from "./components/knowledge/admin/Dashboard";
+import Articles from "./components/knowledge/admin/Articles";
+import FeedbackPage from "./components/knowledge/admin/Feedback";
 
 // Import compliance admin routes
 import { ComplianceAdminLogin } from './components/compliance/admin/ComplianceAdminLogin';
@@ -96,9 +99,12 @@ function App() {
           <AdminLogin />
         } />
         
-        <Route path="/admin/*" element={
-          <AdminLayout />
-        } />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="articles" element={<Articles />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+        </Route>
 
         {/* Compliance Admin routes - renamed to Information Database in the UI */}
         <Route path="/compliance-admin/login" element={

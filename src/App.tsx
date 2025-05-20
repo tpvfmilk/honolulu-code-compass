@@ -1,9 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useSession, useSupabaseClient } from './hooks/useSupabaseAuth';
 
 // Import available pages
+import PublicHome from './pages/PublicHome';
+import Index from './pages/Index';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 
@@ -20,15 +22,21 @@ import { ComplianceAdminDashboard } from './components/compliance/admin/Dashboar
 function App() {
   const session = useSession();
   const supabase = useSupabaseClient();
+  
+  const handleLogout = () => {
+    return supabase.auth.signOut();
+  };
 
   return (
     <Router>
       <Routes>
-        {/* Add proper page components as they become available */}
-        <Route path="/" element={<div>Home Page</div>} />
+        {/* Main application routes */}
+        <Route path="/" element={
+          session ? <Index onLogout={handleLogout} /> : <PublicHome />
+        } />
         <Route path="/public" element={<div>Public Page</div>} />
         <Route path="/about" element={<div>About Page</div>} />
-        <Route path="/help" element={<Help onLogout={() => supabase.auth.signOut()} />} />
+        <Route path="/help" element={<Help onLogout={handleLogout} />} />
         <Route path="/legal" element={<div>Legal Page</div>} />
         <Route path="/terms" element={<div>Terms Page</div>} />
         <Route path="/privacy" element={<div>Privacy Page</div>} />

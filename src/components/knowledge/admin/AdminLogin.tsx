@@ -33,15 +33,26 @@ export const AdminLogin = () => {
         admin_password: password
       });
       
-      if (error || !data.success) {
-        throw new Error(data?.message || error?.message || "Invalid email or password");
+      if (error) {
+        throw new Error(error.message || "Login failed");
+      }
+      
+      // Handle the response properly with type checking
+      const response = data as unknown as { success: boolean; message?: string; admin?: KBAdminUser };
+      
+      if (!response.success) {
+        throw new Error(response.message || "Invalid email or password");
       }
       
       // Store admin session in localStorage (not using Supabase auth)
-      localStorage.setItem('kb_admin', JSON.stringify(data.admin));
-      
-      toast.success("Login successful!");
-      navigate("/admin/dashboard");
+      if (response.admin) {
+        localStorage.setItem('kb_admin', JSON.stringify(response.admin));
+        
+        toast.success("Login successful!");
+        navigate("/admin/dashboard");
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (err: any) {
       console.error("Login error:", err);
       toast.error(err.message || "Login failed. Please try again.");

@@ -8,6 +8,8 @@ import PublicHome from './pages/PublicHome';
 import Index from './pages/Index';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
+import Auth from './pages/Auth';
+import Features from './pages/Features';
 
 // Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
@@ -23,8 +25,9 @@ function App() {
   const session = useSession();
   const supabase = useSupabaseClient();
   
-  const handleLogout = () => {
-    return supabase.auth.signOut();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    return Promise.resolve();
   };
 
   return (
@@ -41,11 +44,16 @@ function App() {
         <Route path="/terms" element={<div>Terms Page</div>} />
         <Route path="/privacy" element={<div>Privacy Page</div>} />
         <Route path="/contact" element={<div>Contact Page</div>} />
+        <Route path="/features" element={<Features />} />
+        
+        {/* Authentication routes */}
+        <Route path="/auth" element={<Auth onLogout={handleLogout} />} />
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
         
         {/* Protected routes - redirect to login if not authenticated */}
         <Route path="/projects" element={
           !session ? (
-            <Navigate to="/login" replace={true} />
+            <Navigate to="/auth" replace={true} />
           ) : (
             <div>Projects Page</div>
           )
@@ -53,7 +61,7 @@ function App() {
         
         <Route path="/projects/new" element={
           !session ? (
-            <Navigate to="/login" replace={true} />
+            <Navigate to="/auth" replace={true} />
           ) : (
             <div>New Project Page</div>
           )
@@ -61,7 +69,7 @@ function App() {
         
         <Route path="/project/:id" element={
           !session ? (
-            <Navigate to="/login" replace={true} />
+            <Navigate to="/auth" replace={true} />
           ) : (
             <div>Project Detail Page</div>
           )
@@ -69,16 +77,10 @@ function App() {
         
         <Route path="/account" element={
           !session ? (
-            <Navigate to="/login" replace={true} />
+            <Navigate to="/auth" replace={true} />
           ) : (
             <div>Account Page</div>
           )
-        } />
-        
-        <Route path="/login" element={
-          <div className="flex min-h-screen items-center justify-center">
-            <div>Login Page</div>
-          </div>
         } />
         
         {/* Knowledge Base Admin routes */}

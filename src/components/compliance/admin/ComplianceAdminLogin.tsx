@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Building, Lock } from "lucide-react";
 import { ComplianceAdminUser } from "../types";
@@ -20,7 +20,11 @@ export const ComplianceAdminLogin = () => {
     e.preventDefault();
     
     if (!email || !password) {
-      toast.error("Please enter both email and password.");
+      toast({
+        title: "Error",
+        description: "Please enter both email and password.",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -48,14 +52,21 @@ export const ComplianceAdminLogin = () => {
       if (response.admin) {
         localStorage.setItem('compliance_admin', JSON.stringify(response.admin));
         
-        toast.success("Login successful!");
+        toast({
+          title: "Success",
+          description: "Login successful!",
+        });
         navigate("/compliance-admin/dashboard");
       } else {
         throw new Error("Invalid response from server");
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      toast.error(err.message || "Login failed. Please try again.");
+      toast({
+        title: "Login failed",
+        description: err.message || "Login failed. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

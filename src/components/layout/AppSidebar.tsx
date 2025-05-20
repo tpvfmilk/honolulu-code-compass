@@ -4,6 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { toast } from "@/hooks/use-toast";
 
 interface AppSidebarProps {
   onLogout: () => void;
@@ -17,6 +18,14 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path);
   const getNavCls = ({ isActive }: { isActive: boolean; }) => 
     isActive ? "bg-sidebar-accent text-primary font-medium" : "hover:bg-sidebar-accent/50";
+  
+  const handleLogout = () => {
+    onLogout();
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+  };
   
   return (
     <Sidebar className={sidebar.state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
@@ -118,7 +127,7 @@ export const AppSidebar = ({ onLogout }: AppSidebarProps) => {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Button variant="ghost" className="w-full justify-start" onClick={onLogout}>
+                    <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       {sidebar.state !== "collapsed" && <span>Logout</span>}
                     </Button>

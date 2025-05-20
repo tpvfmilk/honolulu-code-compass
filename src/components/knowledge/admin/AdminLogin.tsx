@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { KBAdminUser } from "../types";
@@ -55,7 +55,10 @@ export const AdminLogin = () => {
       if (response.admin) {
         localStorage.setItem('kb_admin', JSON.stringify(response.admin));
         
-        toast.success("Login successful!");
+        toast({
+          title: "Success",
+          description: "Login successful!",
+        });
         navigate("/admin/dashboard");
       } else {
         throw new Error("Invalid response from server");

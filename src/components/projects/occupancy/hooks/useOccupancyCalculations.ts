@@ -2,7 +2,14 @@
 import { useState, useEffect } from 'react';
 import { FormData } from '../../types';
 import { OccupancyCalculationResults, SpaceWithLoad, ComplianceIssue, TravelLimits } from '../types/calculationTypes';
-import { calculateOccupancyResults } from '../utils/calculationUtils';
+import { 
+  calculateExitRequirements,
+  validateTravelDistances,
+  calculateCorridorRequirements,
+  calculateAccessibilityRequirements,
+  calculateOverallCompliance
+} from '../calculations';
+import { calculateOccupantLoad } from '../calculations/occupantLoadCalculations';
 import { OccupancyCalculationsProps } from '../types/occupancyCalculationProps';
 
 // Re-export types from the types file
@@ -28,22 +35,63 @@ export const useOccupancyCalculations = (props: FormData | OccupancyCalculations
     const totalBuildingArea = 'totalBuildingArea' in props ? props.totalBuildingArea : '0';
     
     // Calculate with slight delay to show loading state
-    const timer = setTimeout(() => {
-      const results = calculateOccupancyResults(
-        occupancyDetails.spaces,
-        occupancyDetails.travelDistances,
-        occupancyDetails.numberOfEmployees,
-        occupancyDetails.isPublicAccommodation,
-        occupancyDetails.elevatorProvided,
-        occupancyDetails.totalParkingSpaces,
-        primaryOccupancy,
-        isSprinklered,
-        stories,
-        totalBuildingArea
-      );
-      
-      setCalculations(results);
-      setIsCalculating(false);
+    const timer = setTimeout(async () => {
+      try {
+        // Calculate occupant loads
+        const occupantLoad = await calculateOccupantLoad(
+          occupancyDetails.spaces,
+          primaryOccupancy
+        );
+        
+        // Calculate exit requirements
+        const exitRequirements = calculateExitRequirements(occupantLoad.total);
+        
+        // Validate travel distances
+        const travelDistanceCompliance = validateTravelDistances(
+          occupancyDetails.travelDistances,
+          primaryOccupancy,
+          isSprinklered
+        );
+        
+        // Calculate corridor requirements
+        const corridorRequirements = calculateCorridorRequirements(
+          occupantLoad.total,
+          primaryOccupancy
+        );
+        
+        // Calculate accessibility requirements
+        const accessibilityRequirements = calculateAccessibilityRequirements(
+          occupancyDetails.numberOfEmployees,
+          occupancyDetails.isPublicAccommodation,
+          occupancyDetails.elevatorProvided,
+          stories,
+          totalBuildingArea,
+          occupancyDetails.totalParkingSpaces
+        );
+        
+        // Calculate overall compliance
+        const overallCompliance = calculateOverallCompliance(
+          travelDistanceCompliance,
+          occupantLoad,
+          exitRequirements,
+          { ...accessibilityRequirements, elevatorProvided: occupancyDetails.elevatorProvided }
+        );
+        
+        const results: OccupancyCalculationResults = {
+          occupantLoad,
+          exitRequirements,
+          travelDistanceCompliance,
+          corridorRequirements,
+          accessibilityRequirements,
+          overallCompliance
+        };
+        
+        setCalculations(results);
+      } catch (error) {
+        console.error("Error calculating occupancy results:", error);
+      } finally {
+        setIsCalculating(false);
+      }
     }, 300);
     
     return () => clearTimeout(timer);

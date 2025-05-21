@@ -43,7 +43,7 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
       
       // Debug each space to see what type info we have
       occupantLoad.bySpace.forEach(space => {
-        console.log(`Space ${space.name} has type=${space.type}, spaceType=${space.spaceType}`);
+        console.log(`Space ${space.name} has type=${space.type}, spaceType=${space.spaceType}, loadFactor=${space.loadFactor}`);
       });
     }
   }, [occupantLoad]);
@@ -66,6 +66,18 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
     
     // If no match is found, return the code as fallback
     return typeCode;
+  };
+
+  // Get the actual load factor from the database if available
+  const getActualLoadFactor = (typeCode: string, currentFactor: number) => {
+    if (!typeCode) return currentFactor;
+    
+    const spaceType = spaceTypes.find(type => type.code === typeCode);
+    if (spaceType) {
+      return spaceType.occupant_load_factor;
+    }
+    
+    return currentFactor;
   };
   
   return (
@@ -103,31 +115,43 @@ export const OccupantLoadCard = ({ occupantLoad, isCalculating }: OccupantLoadCa
                 </TableHeader>
                 
                 <TableBody>
-                  {occupantLoad.bySpace.map((space) => (
-                    <TableRow key={space.id}>
-                      <TableCell className="font-medium">
-                        {space.name || "Unnamed Space"}
-                      </TableCell>
-                      <TableCell>
-                        {getSpaceTypeName(space.type, space.spaceType)}
-                        {space.highDensity && (
-                          <span className="ml-1 text-orange-500">(!)</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {space.occupancyType || "-"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {parseFloat(space.area).toLocaleString() || 0}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        ÷ {space.loadFactor}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span className="font-bold">{space.occupantLoad}</span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {occupantLoad.bySpace.map((space) => {
+                    // Get the proper load factor
+                    const actualLoadFactor = getActualLoadFactor(space.type, space.loadFactor);
+                    // Recalculate load if the factor is different
+                    const actualLoad = actualLoadFactor !== space.loadFactor 
+                      ? Math.ceil(parseFloat(space.area) / actualLoadFactor)
+                      : space.occupantLoad;
+                    
+                    return (
+                      <TableRow key={space.id}>
+                        <TableCell className="font-medium">
+                          {space.name || "Unnamed Space"}
+                        </TableCell>
+                        <TableCell>
+                          {getSpaceTypeName(space.type, space.spaceType)}
+                          {space.highDensity && (
+                            <span className="ml-1 text-orange-500">(!)</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {space.occupancyType || "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {parseFloat(space.area).toLocaleString() || 0}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          ÷ {actualLoadFactor}
+                          {actualLoadFactor !== space.loadFactor && (
+                            <span className="text-xs text-red-500 ml-1">(was {space.loadFactor})</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className="font-bold">{actualLoad}</span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                   
                   <TableRow>
                     <TableCell colSpan={5} className="font-semibold text-right">

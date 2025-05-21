@@ -49,6 +49,7 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
       }
       
       // Always update the load factor from the selected space type
+      console.log('Setting load factor to:', selectedType.occupant_load_factor);
       onUpdate(space.id, 'loadFactor', selectedType.occupant_load_factor.toString());
       
       // Also store the space type name for reference
@@ -91,17 +92,17 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
             >
               <SelectValue placeholder="Select a space type" />
             </SelectTrigger>
-            <SelectContent className="w-full max-w-[400px]">
+            <SelectContent className="w-full max-h-[300px] overflow-y-auto">
               {spaceTypes.map((type) => (
                 <SelectItem key={type.code} value={type.code}>
-                  {type.name}
+                  {type.name} ({type.occupant_load_factor})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {spaceTypeValue && (
             <div className="text-xs text-muted-foreground mt-1">
-              Selected: {spaceTypeValue} {space.spaceType ? `(${space.spaceType})` : ''}
+              Selected: {space.spaceType || spaceTypeValue} (Load Factor: {space.loadFactor || 'Not set'})
             </div>
           )}
         </div>
@@ -121,7 +122,7 @@ export const SpaceBasicInfo: React.FC<SpaceBasicInfoProps> = ({
           >
             <SelectValue placeholder="Select occupancy group" />
           </SelectTrigger>
-          <SelectContent className="w-full max-w-[400px]">
+          <SelectContent className="w-full max-h-[300px] overflow-y-auto">
             {occupancyGroups.map((group) => (
               <SelectItem key={group.id} value={group.code}>
                 {group.code} - {group.name}

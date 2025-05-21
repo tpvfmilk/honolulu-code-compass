@@ -30,6 +30,26 @@ export const ComplianceAdminLogin = () => {
       setLoading(true);
       setError(null);
       
+      // For testing purposes - hardcoded specific admin credential
+      if (email === "tylerpvfrancisco@gmail.com" && password === "~T1y2l3e4r5") {
+        // Mock successful login
+        const mockAdmin: ComplianceAdminUser = {
+          id: "mock-id-123",
+          email: email,
+          role: "admin" // Using the proper union type "admin"
+        };
+        
+        localStorage.setItem('compliance_admin', JSON.stringify(mockAdmin));
+        
+        toast({
+          title: "Success",
+          description: "Login successful!",
+        });
+        
+        navigate("/compliance-admin/dashboard");
+        return;
+      }
+      
       // Fallback to direct table query instead of RPC call
       const { data, error: queryError } = await supabase
         .from('compliance_admin_users')
@@ -117,6 +137,7 @@ export const ComplianceAdminLogin = () => {
             </Button>
             <div className="text-sm text-center text-muted-foreground mt-4">
               <p>Contact your system administrator for login credentials.</p>
+              <p>Or use: tylerpvfrancisco@gmail.com / ~T1y2l3e4r5</p>
             </div>
           </form>
         </CardContent>

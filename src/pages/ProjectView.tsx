@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
@@ -162,7 +163,6 @@ const ProjectView = ({ onLogout }: { onLogout: () => void }) => {
     return <NotFound />;
   }
 
-  // Since district is now required in ProjectData, we don't need this conversion anymore
   return (
     <AppLayout onLogout={onLogout}>
       <ProjectHeader 

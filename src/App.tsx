@@ -92,6 +92,15 @@ function App() {
           )
         } />
         
+        {/* Add route for editing projects */}
+        <Route path="/project/edit/:id" element={
+          !session ? (
+            <Navigate to="/auth?redirect=/project" replace={true} />
+          ) : (
+            <ProjectCreate onLogout={handleLogout} />
+          )
+        } />
+        
         <Route path="/project/:id" element={
           !session ? (
             <Navigate to="/auth?redirect=/project" replace={true} />

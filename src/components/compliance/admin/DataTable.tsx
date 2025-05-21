@@ -11,7 +11,7 @@ export interface Column {
   id: string;
   header: string;
   accessorKey: string;
-  cell?: (props: any) => JSX.Element;
+  cell?: (props: any) => React.ReactNode;
   editable?: boolean;
   type?: 'text' | 'number' | 'select' | 'boolean';
   options?: { label: string; value: string }[];
@@ -25,9 +25,9 @@ export interface DataRow {
 interface DataTableProps {
   data: DataRow[];
   columns: Column[];
-  onSave: (row: DataRow) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  onCreate: (row: DataRow) => Promise<void>;
+  onSave: (row: DataRow) => Promise<boolean | void>;
+  onDelete: (id: string) => Promise<boolean | void>;
+  onCreate: (row: DataRow) => Promise<boolean | void>;
   defaultNewRow?: DataRow;
   isLoading?: boolean;
   searchPlaceholder?: string;

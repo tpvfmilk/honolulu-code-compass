@@ -45,7 +45,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "min_lot_area", 
       editable: true,
       type: "number",
-      cell: (row) => `${row.min_lot_area.toLocaleString()} sf`
+      cell: (row) => <span>{row.min_lot_area.toLocaleString()} sf</span>
     },
     { 
       id: "max_building_height", 
@@ -53,7 +53,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "max_building_height",
       editable: true,
       type: "number",
-      cell: (row) => `${row.max_building_height}′`
+      cell: (row) => <span>{row.max_building_height}′</span>
     },
     { 
       id: "max_stories", 
@@ -68,7 +68,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "front_setback",
       editable: true,
       type: "number",
-      cell: (row) => `${row.front_setback}′`
+      cell: (row) => <span>{row.front_setback}′</span>
     },
     { 
       id: "side_setback", 
@@ -76,7 +76,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "side_setback",
       editable: true,
       type: "number",
-      cell: (row) => `${row.side_setback}′`
+      cell: (row) => <span>{row.side_setback}′</span>
     },
     { 
       id: "rear_setback", 
@@ -84,7 +84,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "rear_setback",
       editable: true,
       type: "number",
-      cell: (row) => `${row.rear_setback}′`
+      cell: (row) => <span>{row.rear_setback}′</span>
     },
     { 
       id: "max_lot_coverage", 
@@ -92,7 +92,7 @@ export const ZoningDistrictsTable = () => {
       accessorKey: "max_lot_coverage",
       editable: true,
       type: "number",
-      cell: (row) => `${row.max_lot_coverage}%`
+      cell: (row) => <span>{row.max_lot_coverage}%</span>
     },
     { 
       id: "max_far", 

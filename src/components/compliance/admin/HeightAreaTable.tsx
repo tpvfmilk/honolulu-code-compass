@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DataTable, Column, DataRow } from "@/components/compliance/admin/DataTable";
 import { useQuery } from "@tanstack/react-query";
@@ -64,7 +63,7 @@ export const HeightAreaTable = () => {
       options: constructionTypeOptions,
       cell: (row) => {
         const type = constructionTypes.find(t => t.id === row.construction_type_id);
-        return type ? `${type.code} - ${type.name}` : row.construction_type_id;
+        return type ? <span>{type.code} - {type.name}</span> : null;
       }
     },
     { 

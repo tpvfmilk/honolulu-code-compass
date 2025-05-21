@@ -84,9 +84,9 @@ export const ParkingRequirementsTable = () => {
       type: "select",
       options: zoningDistrictOptions,
       cell: (row) => {
-        if (!row.zoning_district_id) return "All Districts";
+        if (!row.zoning_district_id) return <span>All Districts</span>;
         const district = zoningDistricts.find(d => d.id === row.zoning_district_id);
-        return district ? `${district.code}` : row.zoning_district_id;
+        return district ? <span>{district.code}</span> : null;
       }
     },
     { 

@@ -49,7 +49,7 @@ export const FireRatingsTable = () => {
       options: occupancyGroupOptions,
       cell: (row) => {
         const group = occupancyGroups.find(g => g.id === row.from_occupancy_id);
-        return group ? `${group.code}` : row.from_occupancy_id;
+        return group ? <span>{group.code}</span> : null;
       }
     },
     { 
@@ -61,7 +61,7 @@ export const FireRatingsTable = () => {
       options: occupancyGroupOptions,
       cell: (row) => {
         const group = occupancyGroups.find(g => g.id === row.to_occupancy_id);
-        return group ? `${group.code}` : row.to_occupancy_id;
+        return group ? <span>{group.code}</span> : null;
       }
     },
     { 

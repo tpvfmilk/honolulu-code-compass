@@ -322,7 +322,7 @@ export const fetchTableStatistics = async (): Promise<any[]> => {
   try {
     const statsPromises = tables.map(async (table) => {
       const { count, error } = await supabase
-        .from(table)
+        .from(table as any)
         .select('*', { count: 'exact', head: true });
         
       if (error) throw error;

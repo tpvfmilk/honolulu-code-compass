@@ -39,7 +39,7 @@ export const DataTable = ({
   onSave,
   onDelete,
   onCreate,
-  defaultNewRow = {},
+  defaultNewRow = { id: "new" }, // Provide a default id to fix the TypeScript error
   isLoading = false, 
   searchPlaceholder = "Search..." 
 }: DataTableProps) => {

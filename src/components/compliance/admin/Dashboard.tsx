@@ -27,22 +27,22 @@ export const ComplianceAdminDashboard = () => {
         ];
         
         const statsPromises = tables.map(async (table) => {
+          // Use the table name directly instead of passing a variable
           const { count, error } = await supabase
-            .from(table.name)
+            .from(table.name as any)
             .select('*', { count: 'exact', head: true });
           
           // Get the most recent updated record to show last updated date
           const { data: mostRecent } = await supabase
-            .from(table.name)
+            .from(table.name as any)
             .select('updated_at')
             .order('updated_at', { ascending: false })
-            .limit(1)
-            .single();
+            .limit(1);
 
           return {
             table_name: table.label,
             record_count: count || 0,
-            last_updated: mostRecent?.updated_at || '',
+            last_updated: mostRecent?.[0]?.updated_at || '',
             icon: table.icon
           };
         });

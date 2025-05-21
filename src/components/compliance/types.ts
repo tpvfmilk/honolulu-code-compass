@@ -1,5 +1,6 @@
 
 import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
 
 // Types for compliance admin users
 export interface ComplianceAdminUser {
@@ -32,4 +33,5 @@ export interface TableStats {
   table_name: string;
   record_count: number;
   last_updated?: string;
+  icon?: ReactNode;
 }

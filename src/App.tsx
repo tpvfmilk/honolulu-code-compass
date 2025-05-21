@@ -27,6 +27,9 @@ import FeedbackPage from "./components/knowledge/admin/Feedback";
 import { ComplianceAdminLogin } from './components/compliance/admin/ComplianceAdminLogin';
 import { ComplianceAdminLayout } from './components/compliance/admin/ComplianceAdminLayout';
 import { ComplianceAdminDashboard } from './components/compliance/admin/Dashboard';
+import { ConstructionTypes } from './components/compliance/admin/ConstructionTypes';
+import { OccupancyGroups } from './components/compliance/admin/OccupancyGroups';
+import { SpaceTypes } from './components/compliance/admin/SpaceTypes';
 
 function App() {
   const session = useSession();
@@ -117,10 +120,13 @@ function App() {
         <Route path="/compliance-admin" element={<ComplianceAdminLayout />}>
           <Route index element={<Navigate to="/compliance-admin/dashboard" replace />} />
           <Route path="dashboard" element={<ComplianceAdminDashboard />} />
-          <Route path="construction-types" element={<div>Construction Types Management</div>} />
-          <Route path="occupancy-groups" element={<div>Occupancy Groups Management</div>} />
+          <Route path="construction-types" element={<ConstructionTypes />} />
+          <Route path="occupancy-groups" element={<OccupancyGroups />} />
+          <Route path="space-types" element={<SpaceTypes />} />
           <Route path="height-area" element={<div>Height & Area Limits Management</div>} />
           <Route path="fire-ratings" element={<div>Fire Ratings Management</div>} />
+          <Route path="zoning-districts" element={<div>Zoning Districts Management</div>} />
+          <Route path="parking" element={<div>Parking Requirements Management</div>} />
         </Route>
         
         {/* Knowledge Base routes */}

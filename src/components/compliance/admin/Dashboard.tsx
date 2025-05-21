@@ -27,22 +27,31 @@ export const ComplianceAdminDashboard = () => {
         ];
         
         const statsPromises = tables.map(async (table) => {
-          // Use the table name directly instead of passing a variable
+          // Use the table name with a type assertion
           const { count, error } = await supabase
             .from(table.name as any)
             .select('*', { count: 'exact', head: true });
           
-          // Get the most recent updated record to show last updated date
-          const { data: mostRecent } = await supabase
-            .from(table.name as any)
-            .select('updated_at')
-            .order('updated_at', { ascending: false })
-            .limit(1);
+          // Get the most recent updated record, handling possible null/undefined properly
+          let lastUpdated = '';
+          try {
+            const { data: mostRecent, error: recentError } = await supabase
+              .from(table.name as any)
+              .select('updated_at')
+              .order('updated_at', { ascending: false })
+              .limit(1);
+              
+            if (mostRecent && mostRecent.length > 0 && 'updated_at' in mostRecent[0]) {
+              lastUpdated = mostRecent[0].updated_at || '';
+            }
+          } catch (e) {
+            console.error(`Error fetching last updated date for ${table.name}:`, e);
+          }
 
           return {
             table_name: table.label,
             record_count: count || 0,
-            last_updated: mostRecent?.[0]?.updated_at || '',
+            last_updated: lastUpdated,
             icon: table.icon
           };
         });

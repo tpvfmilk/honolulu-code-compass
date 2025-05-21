@@ -1,4 +1,3 @@
-
 import { supabase, handleSupabaseError } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ComplianceAdminUser } from "@/components/compliance/types";
@@ -321,16 +320,24 @@ export const fetchTableStatistics = async (): Promise<any[]> => {
   
   try {
     const statsPromises = tables.map(async (table) => {
-      const { count, error } = await supabase
-        .from(table as any)
-        .select('*', { count: 'exact', head: true });
+      try {
+        const { count, error } = await supabase
+          .from(table as any)
+          .select('*', { count: 'exact', head: true });
+          
+        if (error) throw error;
         
-      if (error) throw error;
-      
-      return {
-        table_name: table,
-        count: count || 0
-      };
+        return {
+          table_name: table,
+          count: count || 0
+        };
+      } catch (innerError) {
+        console.error(`Error fetching count for ${table}:`, innerError);
+        return {
+          table_name: table,
+          count: 0
+        };
+      }
     });
     
     return await Promise.all(statsPromises);

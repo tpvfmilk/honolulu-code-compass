@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useSession, useSupabaseClient } from './hooks/useSupabaseAuth';
@@ -13,9 +14,11 @@ import Feedback from './pages/Feedback';
 import ProjectsList from './pages/ProjectsList';
 import ProjectCreate from './pages/ProjectCreate';
 import ProjectView from './pages/ProjectView';
+import PublicKnowledgeBase from './pages/PublicKnowledgeBase';
 
 // Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
+import { PublicArticleView } from "./components/knowledge/PublicArticleView";
 import { AdminLogin } from "./components/knowledge/admin/AdminLogin";
 import { AdminLayout } from "./components/knowledge/admin/AdminLayout";
 import Dashboard from "./components/knowledge/admin/Dashboard";
@@ -52,15 +55,17 @@ function App() {
         } />
         <Route path="/public" element={<div>Public Page</div>} />
         <Route path="/about" element={<div>About Page</div>} />
-        <Route path="/help" element={<Help onLogout={handleLogout} />} />
+        <Route path="/help" element={
+          session ? <Help onLogout={handleLogout} /> : <PublicKnowledgeBase />
+        } />
         <Route path="/legal" element={<div>Legal Page</div>} />
         <Route path="/terms" element={<div>Terms Page</div>} />
         <Route path="/privacy" element={<div>Privacy Page</div>} />
-        <Route path="/contact" element={<div>Contact Page</div>} />
+        <Route path="/contact" element={<Navigate to="/feedback" replace={true} />} />
         <Route path="/features" element={<Features />} />
         <Route path="/feedback" element={
           !session ? (
-            <Navigate to="/auth" replace={true} />
+            <Navigate to="/auth?redirect=/feedback" replace={true} />
           ) : (
             <Feedback onLogout={handleLogout} />
           )
@@ -73,7 +78,7 @@ function App() {
         {/* Protected routes - redirect to login if not authenticated */}
         <Route path="/projects" element={
           !session ? (
-            <Navigate to="/auth" replace={true} />
+            <Navigate to="/auth?redirect=/projects" replace={true} />
           ) : (
             <ProjectsList onLogout={handleLogout} />
           )
@@ -81,7 +86,7 @@ function App() {
         
         <Route path="/project/new" element={
           !session ? (
-            <Navigate to="/auth" replace={true} />
+            <Navigate to="/auth?redirect=/project/new" replace={true} />
           ) : (
             <ProjectCreate onLogout={handleLogout} />
           )
@@ -89,7 +94,7 @@ function App() {
         
         <Route path="/project/:id" element={
           !session ? (
-            <Navigate to="/auth" replace={true} />
+            <Navigate to="/auth?redirect=/project" replace={true} />
           ) : (
             <ProjectView onLogout={handleLogout} />
           )
@@ -97,7 +102,7 @@ function App() {
         
         <Route path="/account" element={
           !session ? (
-            <Navigate to="/auth" replace={true} />
+            <Navigate to="/auth?redirect=/account" replace={true} />
           ) : (
             <div>Account Page</div>
           )
@@ -134,7 +139,7 @@ function App() {
         
         {/* Knowledge Base routes */}
         <Route path="/knowledge-base/article/:articleId" element={
-          <ArticleView />
+          session ? <ArticleView /> : <PublicArticleView />
         } />
         
         {/* Catch-all route for 404 */}

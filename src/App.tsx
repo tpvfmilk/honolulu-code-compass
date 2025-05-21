@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useSession, useSupabaseClient } from './hooks/useSupabaseAuth';
@@ -30,6 +29,10 @@ import { ComplianceAdminDashboard } from './components/compliance/admin/Dashboar
 import { ConstructionTypes } from './components/compliance/admin/ConstructionTypes';
 import { OccupancyGroups } from './components/compliance/admin/OccupancyGroups';
 import { SpaceTypes } from './components/compliance/admin/SpaceTypes';
+import { HeightAreaTable } from './components/compliance/admin/HeightAreaTable';
+import { FireRatingsTable } from './components/compliance/admin/FireRatingsTable';
+import { ZoningDistrictsTable } from './components/compliance/admin/ZoningDistrictsTable';
+import { ParkingRequirementsTable } from './components/compliance/admin/ParkingRequirementsTable';
 
 function App() {
   const session = useSession();
@@ -123,10 +126,10 @@ function App() {
           <Route path="construction-types" element={<ConstructionTypes />} />
           <Route path="occupancy-groups" element={<OccupancyGroups />} />
           <Route path="space-types" element={<SpaceTypes />} />
-          <Route path="height-area" element={<div>Height & Area Limits Management</div>} />
-          <Route path="fire-ratings" element={<div>Fire Ratings Management</div>} />
-          <Route path="zoning-districts" element={<div>Zoning Districts Management</div>} />
-          <Route path="parking" element={<div>Parking Requirements Management</div>} />
+          <Route path="height-area" element={<HeightAreaTable />} />
+          <Route path="fire-ratings" element={<FireRatingsTable />} />
+          <Route path="zoning-districts" element={<ZoningDistrictsTable />} />
+          <Route path="parking" element={<ParkingRequirementsTable />} />
         </Route>
         
         {/* Knowledge Base routes */}

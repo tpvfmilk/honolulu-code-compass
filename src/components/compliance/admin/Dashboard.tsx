@@ -41,8 +41,9 @@ export const ComplianceAdminDashboard = () => {
               .order('updated_at', { ascending: false })
               .limit(1);
               
-            if (mostRecent && mostRecent.length > 0 && 'updated_at' in mostRecent[0]) {
-              lastUpdated = mostRecent[0].updated_at || '';
+            if (mostRecent && mostRecent.length > 0 && mostRecent[0] && 'updated_at' in mostRecent[0]) {
+              // Use type assertion to ensure TypeScript knows updated_at is a string
+              lastUpdated = (mostRecent[0].updated_at as string) || '';
             }
           } catch (e) {
             console.error(`Error fetching last updated date for ${table.name}:`, e);

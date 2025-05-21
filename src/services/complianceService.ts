@@ -294,6 +294,118 @@ export const deleteSpaceType = async (id: string): Promise<boolean> => {
   }
 };
 
+// Height and Area Limits
+export interface HeightAreaLimitRow {
+  id: string;
+  construction_type_id: string;
+  occupancy_group_id: string;
+  base_height_ft: number;
+  base_stories: number;
+  base_allowable_area: number;
+  sprinklered_height_ft?: number;
+  sprinklered_stories?: number;
+  sprinklered_area?: number;
+  sprinkler_increase_allowed: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const fetchHeightAreaLimits = async (): Promise<HeightAreaLimitRow[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('height_area_limits')
+      .select(`
+        *,
+        construction_types:construction_type_id(id, code, name),
+        occupancy_groups:occupancy_group_id(id, code, name)
+      `)
+      .order('construction_type_id');
+      
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    handleSupabaseError(error, 'fetching height and area limits');
+    return [];
+  }
+};
+
+export const createHeightAreaLimit = async (limit: Omit<HeightAreaLimitRow, 'id' | 'created_at' | 'updated_at'>): Promise<HeightAreaLimitRow | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('height_area_limits')
+      .insert(limit)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Height and area limit created successfully.",
+    });
+    
+    return data;
+  } catch (error) {
+    handleSupabaseError(error, 'creating height and area limit');
+    return null;
+  }
+};
+
+export const updateHeightAreaLimit = async (limit: HeightAreaLimitRow): Promise<HeightAreaLimitRow | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('height_area_limits')
+      .update({
+        construction_type_id: limit.construction_type_id,
+        occupancy_group_id: limit.occupancy_group_id,
+        base_height_ft: limit.base_height_ft,
+        base_stories: limit.base_stories,
+        base_allowable_area: limit.base_allowable_area,
+        sprinklered_height_ft: limit.sprinklered_height_ft,
+        sprinklered_stories: limit.sprinklered_stories,
+        sprinklered_area: limit.sprinklered_area,
+        sprinkler_increase_allowed: limit.sprinkler_increase_allowed,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', limit.id)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Height and area limit updated successfully.",
+    });
+    
+    return data;
+  } catch (error) {
+    handleSupabaseError(error, 'updating height and area limit');
+    return null;
+  }
+};
+
+export const deleteHeightAreaLimit = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('height_area_limits')
+      .delete()
+      .eq('id', id);
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Height and area limit deleted successfully.",
+    });
+    
+    return true;
+  } catch (error) {
+    handleSupabaseError(error, 'deleting height and area limit');
+    return false;
+  }
+};
+
 // Get admin user from localStorage
 export const getAdminUser = (): ComplianceAdminUser | null => {
   const adminData = localStorage.getItem('compliance_admin');

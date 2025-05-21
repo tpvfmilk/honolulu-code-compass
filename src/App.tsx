@@ -15,6 +15,7 @@ import ProjectsList from './pages/ProjectsList';
 import ProjectCreate from './pages/ProjectCreate';
 import ProjectView from './pages/ProjectView';
 import PublicKnowledgeBase from './pages/PublicKnowledgeBase';
+import PublicHome from './pages/PublicHome';
 
 // Import knowledge base routes
 import { ArticleView } from "./components/knowledge/ArticleView";
@@ -46,6 +47,8 @@ function App() {
     return Promise.resolve();
   };
 
+  console.log("Current session state:", session ? "Logged in" : "Not logged in");
+
   return (
     <Router>
       <Routes>
@@ -53,7 +56,7 @@ function App() {
         <Route path="/" element={
           session ? <Index onLogout={handleLogout} /> : <LandingPage />
         } />
-        <Route path="/public" element={<div>Public Page</div>} />
+        <Route path="/public" element={<PublicHome />} />
         <Route path="/about" element={<div>About Page</div>} />
         <Route path="/help" element={
           session ? <Help onLogout={handleLogout} /> : <PublicKnowledgeBase />

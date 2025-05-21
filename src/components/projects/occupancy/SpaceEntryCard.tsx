@@ -91,12 +91,12 @@ export const SpaceEntryCard: React.FC<SpaceEntryCardProps> = ({
           space={space}
           onUpdate={onUpdate}
           stories={stories}
-          occupantLoad={occupantLoad}
         />
         
         <SpaceNotes 
           space={space}
           onUpdate={onUpdate}
+          spaceTypes={spaceTypes}
         />
       </CardContent>
     </Card>

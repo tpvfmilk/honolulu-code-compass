@@ -3,18 +3,18 @@ import { Space, TravelDistances } from '../types/occupancyDefinitions';
 import { SpaceWithLoad } from '../types/occupancyTypes';
 import { OccupancyCalculationResults, TravelLimits } from '../types/calculationTypes';
 import {
-  calculateOccupantLoad,
   calculateExitRequirements,
   validateTravelDistances,
   calculateCorridorRequirements,
   calculateAccessibilityRequirements,
   calculateOverallCompliance
 } from '../calculations';
+import { calculateOccupantLoad } from '../calculations/occupantLoadCalculations';
 
 /**
  * Main calculation function for occupancy results
  */
-export const calculateOccupancyResults = (
+export const calculateOccupancyResults = async (
   spaces: Space[],
   travelDistances: TravelDistances,
   numberOfEmployees: string,
@@ -25,9 +25,9 @@ export const calculateOccupancyResults = (
   isSprinklered: boolean,
   stories: string,
   totalBuildingArea: string
-): OccupancyCalculationResults => {
+): Promise<OccupancyCalculationResults> => {
   // Calculate occupant loads
-  const occupantLoad = calculateOccupantLoad(spaces, primaryOccupancy);
+  const occupantLoad = await calculateOccupantLoad(spaces, primaryOccupancy);
   
   // Calculate exit requirements
   const exitRequirements = calculateExitRequirements(occupantLoad.total);

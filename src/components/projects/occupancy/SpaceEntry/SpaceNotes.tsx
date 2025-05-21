@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Space } from '../types/occupancyDefinitions';
 import { SpaceTypeInfo } from '@/services/dataService';
-import { calculateOccupantLoad } from './spaceEntryUtils';
 
 interface SpaceNotesProps {
   space: Space;
@@ -33,6 +32,13 @@ export const SpaceNotes: React.FC<SpaceNotesProps> = ({
   
   const factor = getFactor();
   const occupantLoad = space.type && space.area ? calculateOccupantLoad(space.area, factor) : 0;
+
+  // Helper function to calculate occupant load
+  function calculateOccupantLoad(area: string, factor: number): number {
+    const areaNum = parseFloat(area) || 0;
+    // Use Math.ceil to round up to the next whole number as per IBC
+    return Math.ceil(areaNum / factor);
+  }
 
   return (
     <>

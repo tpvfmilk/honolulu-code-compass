@@ -37,12 +37,13 @@ export const useOccupancyCalculations = (props: FormData | OccupancyCalculations
     // Calculate with slight delay to show loading state
     const timer = setTimeout(async () => {
       try {
-        // Calculate occupant loads
+        // Calculate occupant loads - now properly awaiting the result
         const occupantLoad = await calculateOccupantLoad(
           occupancyDetails.spaces,
           primaryOccupancy
         );
         
+        // Now that we have awaited the occupantLoad, we can safely access its properties
         // Calculate exit requirements
         const exitRequirements = calculateExitRequirements(occupantLoad.total);
         
@@ -69,7 +70,7 @@ export const useOccupancyCalculations = (props: FormData | OccupancyCalculations
           occupancyDetails.totalParkingSpaces
         );
         
-        // Calculate overall compliance
+        // Calculate overall compliance - passing the actual object, not a promise
         const overallCompliance = calculateOverallCompliance(
           travelDistanceCompliance,
           occupantLoad,

@@ -26,7 +26,7 @@ export const calculateOccupancyResults = async (
   stories: string,
   totalBuildingArea: string
 ): Promise<OccupancyCalculationResults> => {
-  // Calculate occupant loads
+  // Calculate occupant loads - now properly awaiting the result
   const occupantLoad = await calculateOccupantLoad(spaces, primaryOccupancy);
   
   // Calculate exit requirements

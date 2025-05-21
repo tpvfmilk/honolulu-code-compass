@@ -3,13 +3,13 @@ import { useState, useEffect } from 'react';
 import { FormData } from '../types';
 import { OccupancyCalculationResults } from './types/occupancyTypes';
 import {
-  calculateOccupantLoad,
   calculateExitRequirements,
   validateTravelDistances,
   calculateCorridorRequirements,
   calculateAccessibilityRequirements,
   calculateOverallCompliance
 } from './calculations';
+import { calculateOccupantLoad } from './calculations/occupantLoadCalculations';
 
 // Import Space from the new location
 import type { Space, TravelDistances } from './types/occupancyDefinitions';
@@ -60,22 +60,27 @@ export const useOccupancyCalculations = (formData: FormData) => {
     const isSprinklered = formData.sprinklerSystem || false;
     
     // Calculate with slight delay to show loading state
-    const timer = setTimeout(() => {
-      const results = calculateOccupancyResults(
-        formData.occupancyDetails.spaces,
-        formData.occupancyDetails.travelDistances,
-        formData.occupancyDetails.numberOfEmployees,
-        formData.occupancyDetails.isPublicAccommodation,
-        formData.occupancyDetails.elevatorProvided,
-        formData.occupancyDetails.totalParkingSpaces,
-        primaryOccupancy,
-        isSprinklered,
-        formData.stories || '1',
-        formData.totalBuildingArea || '0'
-      );
-      
-      setCalculations(results);
-      setIsCalculating(false);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await calculateOccupancyResults(
+          formData.occupancyDetails.spaces,
+          formData.occupancyDetails.travelDistances,
+          formData.occupancyDetails.numberOfEmployees,
+          formData.occupancyDetails.isPublicAccommodation,
+          formData.occupancyDetails.elevatorProvided,
+          formData.occupancyDetails.totalParkingSpaces,
+          primaryOccupancy,
+          isSprinklered,
+          formData.stories || '1',
+          formData.totalBuildingArea || '0'
+        );
+        
+        setCalculations(results);
+      } catch (error) {
+        console.error("Error calculating occupancy results:", error);
+      } finally {
+        setIsCalculating(false);
+      }
     }, 300);
     
     return () => clearTimeout(timer);
@@ -84,8 +89,8 @@ export const useOccupancyCalculations = (formData: FormData) => {
   return { calculations, isCalculating };
 };
 
-// Main calculation function
-const calculateOccupancyResults = (
+// Main calculation function - now properly async
+const calculateOccupancyResults = async (
   spaces: Space[],
   travelDistances: TravelDistances,
   numberOfEmployees: string,
@@ -96,9 +101,9 @@ const calculateOccupancyResults = (
   isSprinklered: boolean,
   stories: string,
   totalBuildingArea: string
-): OccupancyCalculationResults => {
-  // Calculate occupant loads
-  const occupantLoad = calculateOccupantLoad(spaces, primaryOccupancy);
+): Promise<OccupancyCalculationResults> => {
+  // Calculate occupant loads - now properly awaiting the result
+  const occupantLoad = await calculateOccupantLoad(spaces, primaryOccupancy);
   
   // Calculate exit requirements
   const exitRequirements = calculateExitRequirements(occupantLoad.total);

@@ -9,20 +9,23 @@ export function useSupabaseClient() {
 
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session ? "Found session" : "No session");
-      setSession(session);
-    });
-
-    // Listen for auth changes
+    // Set up auth state listener FIRST (best practice to avoid missing auth events)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state change:", _event, session ? "Session exists" : "No session");
       setSession(session);
+      setIsInitialized(true);
+    });
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Found session" : "No session");
+      setSession(session);
+      setIsInitialized(true);
     });
 
     return () => subscription.unsubscribe();

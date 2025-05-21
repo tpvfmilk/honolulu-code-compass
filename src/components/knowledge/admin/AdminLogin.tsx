@@ -30,28 +30,6 @@ export const AdminLogin = () => {
       setLoading(true);
       setError(null);
       
-      // For testing purposes - hardcoded admin credentials
-      // In production, this would be handled securely on the server
-      if ((email === "admin@example.com" && password === "admin123") || 
-          (email === "tylerpvfrancisco@gmail.com" && password === "~T1y2l3e4r5")) {
-        // Mock successful login
-        const mockAdmin: KBAdminUser = {
-          id: "mock-id-123",
-          email: email,
-          role: "admin"
-        };
-        
-        localStorage.setItem('kb_admin', JSON.stringify(mockAdmin));
-        
-        toast({
-          title: "Success",
-          description: "Login successful!",
-        });
-        
-        navigate("/admin/dashboard");
-        return;
-      }
-      
       // Fallback to direct table query instead of RPC call
       const { data, error: queryError } = await supabase
         .from('kb_admin_users')
@@ -138,8 +116,7 @@ export const AdminLogin = () => {
               {loading ? "Signing in..." : "Sign In"}
             </Button>
             <div className="text-sm text-center text-muted-foreground mt-4">
-              <p>For testing, use: admin@example.com / admin123</p>
-              <p>Or: tylerpvfrancisco@gmail.com / ~T1y2l3e4r5</p>
+              <p>Contact your system administrator for login credentials.</p>
             </div>
           </form>
         </CardContent>
